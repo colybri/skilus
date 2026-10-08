@@ -1,0 +1,67 @@
+version: "2"
+
+linters:
+  enable:
+    - depguard
+    - errorlint
+    - gocritic
+    - misspell
+    - revive
+  settings:
+    errcheck:
+      # Writes to the CLI's stdout/stderr; tabwriter reports errors on Flush.
+      exclude-functions:
+        - fmt.Fprintf
+        - fmt.Fprintln
+    depguard:
+      # Architecture rules: dependencies point inward.
+      #   cli -> app -> domain;  adapter -> app, domain;  domain -> stdlib only.
+      rules:
+        domain:
+          files:
+            - "**/internal/domain/**"
+          allow:
+            - $gostd
+            - github.com/colybri/skilus/internal/domain
+          deny:
+            - pkg: os
+              desc: "domain no hace E/S (regla 2)"
+            - pkg: os/exec
+              desc: "domain no hace E/S (regla 2)"
+            - pkg: net
+              desc: "domain no hace E/S (regla 2)"
+            - pkg: net/http
+              desc: "domain no hace E/S (regla 2)"
+        app:
+          files:
+            - "**/internal/app/**"
+          allow:
+            - $gostd
+            - github.com/colybri/skilus/internal/domain
+            - github.com/colybri/skilus/internal/app
+          deny:
+            - pkg: os/exec
+              desc: "app no ejecuta procesos; usa un puerto (regla 7)"
+        adapter:
+          files:
+            - "**/internal/adapter/**"
+          deny:
+            - pkg: github.com/colybri/skilus/internal/cli
+              desc: "los adaptadores no dependen de la CLI (regla 1)"
+            - pkg: github.com/spf13/cobra
+              desc: "Cobra solo vive en internal/cli (regla 7)"
+        cli:
+          files:
+            - "**/internal/cli/**"
+          deny:
+            - pkg: github.com/colybri/skilus/internal/adapter
+              desc: "cli solo habla con app; los adaptadores se conectan en cmd/skilus (regla 1)"
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/colybri/skilus

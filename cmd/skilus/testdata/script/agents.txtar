@@ -1,0 +1,24 @@
+# skilus agents lists the phase-1 catalog and detects installed agents.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home/.claude home/.cursor
+
+exec skilus agents
+stdout '^AGENTE +PROYECTO +GLOBAL +DETECTADO$'
+stdout '^claude-code +\.claude/skills +.*home/\.claude/skills +sí$'
+stdout '^codex +\.agents/skills +.*home/\.agents/skills +no$'
+stdout '^cursor +\.agents/skills +.*home/\.cursor/skills +sí$'
+stdout '^github-copilot +\.agents/skills +.*home/\.copilot/skills +no$'
+stdout '^universal +\.agents/skills +.*home/\.config/agents/skills +sí$'
+! stderr .
+
+exec skilus agents --json
+stdout '"id": "github-copilot"'
+stdout '"installed": false'
+
+# Unknown flags are usage errors (exit code 2).
+! exec skilus agents --nope
+stderr 'unknown flag'

@@ -1,0 +1,32 @@
+# Agents supported by skilus. Paths use ${VAR:-default} and a leading ~ for
+# the user's home directory. project_dir is relative to the project root.
+# Sources checked on 2026-10-08 against vercel-labs/skills src/agents.ts
+# (commit 05bf938). Codex, Cursor and Copilot all read .agents/skills in a
+# project, so a project install writes that directory once.
+version: 1
+agents:
+  - id: claude-code
+    name: Claude Code
+    project_dir: .claude/skills
+    global_dir: ${CLAUDE_CONFIG_DIR:-~/.claude}/skills
+    detect: ${CLAUDE_CONFIG_DIR:-~/.claude}
+  - id: codex
+    name: Codex
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ${CODEX_HOME:-~/.codex}
+  - id: cursor
+    name: Cursor
+    project_dir: .agents/skills
+    global_dir: ~/.cursor/skills
+    detect: ~/.cursor
+  - id: github-copilot
+    name: GitHub Copilot
+    project_dir: .agents/skills
+    global_dir: ~/.copilot/skills
+    detect: ~/.copilot
+  - id: universal
+    name: .agents/skills (universal)
+    project_dir: .agents/skills
+    global_dir: ${XDG_CONFIG_HOME:-~/.config}/agents/skills
+    detect: ""
