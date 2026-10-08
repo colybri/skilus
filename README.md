@@ -2,14 +2,24 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 1 en construcción. Hoy funciona `skilus agents`.
+> Estado: fase 1 en construcción. Hoy funcionan `skilus agents` y `skilus add` desde un directorio local.
 
 ## Uso
 
 ```sh
 skilus agents          # agentes soportados, sus rutas y si están instalados
 skilus agents --json
+
+skilus add ./mis-skills                     # inspecciona, muestra el plan y pregunta
+skilus add ./mis-skills --skill review -y   # sin preguntar
+skilus add ./mis-skills --agent claude-code --scope global
 ```
+
+`skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/` o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh`, texto invisible y secuencias de escape. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
+
+El contenido se guarda en `~/.skilus/store/<sha256>`. En el proyecto se instala como copia (para poder versionarla) y en global como symlink al almacén. El resultado queda en `skilus.lock` (qué contenido exacto hay instalado y dónde) y la intención en `skilus.yaml`; en global, ambos viven en `~/.skilus/`.
+
+Códigos de salida: 0 bien, 1 error o cancelado, 2 uso inválido, 3 no encontrado, 4 ya instalado o conflicto, 5 rechazado por la inspección.
 
 ## Desarrollo
 

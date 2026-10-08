@@ -21,18 +21,22 @@ const (
 	ExitInvalid  = 2
 	ExitNotFound = 3
 	ExitConflict = 4
+	ExitRejected = 5
 )
 
 // Deps are the use cases the commands call, wired in cmd/skilus.
 type Deps struct {
 	Version    string
 	ListAgents app.ListAgents
+	// AddSkill is completed with the CLI's own Prompter.
+	AddSkill app.AddSkillHandler
 }
 
 // Run executes the CLI with args and returns the process exit code.
-func Run(deps Deps, args []string, stdout, stderr io.Writer) int {
+func Run(deps Deps, args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	root := newRoot(deps)
 	root.SetArgs(args)
+	root.SetIn(stdin)
 	root.SetOut(stdout)
 	root.SetErr(stderr)
 	err := root.Execute()
@@ -51,6 +55,8 @@ func exitCode(err error) int {
 		return ExitNotFound
 	case errors.Is(err, domain.ErrAlreadyExists), errors.Is(err, domain.ErrConflict):
 		return ExitConflict
+	case errors.Is(err, app.ErrRejected):
+		return ExitRejected
 	default:
 		return ExitError
 	}
@@ -69,6 +75,6 @@ func newRoot(deps Deps) *cobra.Command {
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
 		return fmt.Errorf("%w: %w", errUsage, err)
 	})
-	root.AddCommand(newAgentsCommand(deps.ListAgents))
+	root.AddCommand(newAgentsCommand(deps.ListAgents), newAddCommand(deps.AddSkill))
 	return root
 }

@@ -5,11 +5,16 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"runtime"
 
 	"github.com/colybri/skilus/internal/adapter/catalog"
 	"github.com/colybri/skilus/internal/adapter/osfs"
+	"github.com/colybri/skilus/internal/adapter/yamlrepo"
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/cli"
+	"github.com/colybri/skilus/internal/domain/agent"
+	"github.com/colybri/skilus/internal/domain/policy"
 )
 
 // version is set at build time with -ldflags "-X main.version=...".
@@ -25,12 +30,39 @@ func run() int {
 		fmt.Fprintln(os.Stderr, "skilus: cannot find the home directory:", err)
 		return cli.ExitError
 	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "skilus: cannot read the working directory:", err)
+		return cli.ExitError
+	}
+	skilusHome := filepath.Join(home, ".skilus")
+
+	agents := catalog.New(home, os.Getenv)
+	detector := osfs.Detector{}
+	repo := yamlrepo.Repo{ProjectRoot: cwd, GlobalDir: skilusHome}
+
+	// Project installs are copies so they can be committed; global ones
+	// link to the store. Windows needs privileges for symlinks.
+	globalMode := agent.ModeSymlink
+	if runtime.GOOS == "windows" {
+		globalMode = agent.ModeCopy
+	}
+
 	deps := cli.Deps{
-		Version: version,
-		ListAgents: app.ListAgents{
-			Catalog:  catalog.New(home, os.Getenv),
-			Detector: osfs.Detector{},
+		Version:    version,
+		ListAgents: app.ListAgents{Catalog: agents, Detector: detector},
+		AddSkill: app.AddSkillHandler{
+			Catalog:      agents,
+			Detector:     detector,
+			Fetcher:      osfs.LocalFetcher{Dir: cwd},
+			Store:        osfs.Store{Root: filepath.Join(skilusHome, "store")},
+			Deployer:     osfs.Deployer{},
+			Locks:        repo,
+			Manifests:    repo,
+			ProjectRoot:  cwd,
+			DefaultModes: map[agent.Scope]agent.Mode{agent.ScopeProject: agent.ModeCopy, agent.ScopeGlobal: globalMode},
+			Limits:       policy.DefaultLimits,
 		},
 	}
-	return cli.Run(deps, os.Args[1:], os.Stdout, os.Stderr)
+	return cli.Run(deps, os.Args[1:], os.Stdin, os.Stdout, os.Stderr)
 }
