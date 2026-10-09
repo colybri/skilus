@@ -2,7 +2,7 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 1 en construcción. Hoy funcionan `skilus agents` y `skilus add` desde un directorio local o un repositorio Git.
+> Estado: fase 1 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local o un repositorio Git), `skilus list` y `skilus remove`.
 
 ## Uso
 
@@ -16,6 +16,10 @@ skilus add git@gitlab.com:g/r.git           # cualquier URL de Git (https, ssh, 
 skilus add ./mis-skills                     # un directorio local: empieza por ./, ../ o /
 skilus add ./mis-skills --skill review -y   # sin preguntar
 skilus add ./mis-skills --agent claude-code --scope global
+
+skilus list                                 # skills instaladas con commit, hash y agentes
+skilus list --scope global --json
+skilus remove review                        # la quita de los agentes, del lock y de skilus.yaml
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.

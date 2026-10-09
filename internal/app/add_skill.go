@@ -193,11 +193,7 @@ func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.M
 	}
 	var out []PlannedTarget
 	for _, t := range agent.Dedupe(raw, byID) {
-		dir := byID[t.Agent].Dir(t.Scope)
-		if t.Scope == agent.ScopeProject {
-			dir = filepath.Join(h.ProjectRoot, filepath.FromSlash(dir))
-		}
-		out = append(out, PlannedTarget{Target: t, Dir: dir})
+		out = append(out, PlannedTarget{Target: t, Dir: skillsDir(byID[t.Agent], t.Scope, h.ProjectRoot)})
 	}
 	if len(out) == 0 {
 		return nil, fmt.Errorf("no agent selected or detected; pass --agent: %w", domain.ErrInvalid)

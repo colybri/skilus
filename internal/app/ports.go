@@ -76,6 +76,8 @@ type LockRepository interface {
 // ManifestRepository records the user's intent in skilus.yaml.
 type ManifestRepository interface {
 	AddSkill(ctx context.Context, scope agent.Scope, e ManifestEntry) error
+	// RemoveSkill drops the entry for name; a missing entry is not an error.
+	RemoveSkill(ctx context.Context, scope agent.Scope, name skill.Name) error
 }
 
 // ManifestEntry is one skill line in skilus.yaml.

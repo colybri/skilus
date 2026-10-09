@@ -72,7 +72,15 @@ func (f *fakeLocks) Save(context.Context, agent.Scope, *lock.Lockfile) error {
 	return nil
 }
 
-type fakeManifests struct{ entries []app.ManifestEntry }
+type fakeManifests struct {
+	entries []app.ManifestEntry
+	removed []string
+}
+
+func (f *fakeManifests) RemoveSkill(_ context.Context, _ agent.Scope, n skill.Name) error {
+	f.removed = append(f.removed, n.String())
+	return nil
+}
 
 func (f *fakeManifests) AddSkill(_ context.Context, _ agent.Scope, e app.ManifestEntry) error {
 	f.entries = append(f.entries, e)

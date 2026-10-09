@@ -12,6 +12,7 @@ import (
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
+	"github.com/colybri/skilus/internal/domain/skill"
 )
 
 // AddSkill implements app.ManifestRepository. It edits the YAML tree so the
@@ -58,6 +59,38 @@ func (r Repo) AddSkill(_ context.Context, scope agent.Scope, e app.ManifestEntry
 	}
 	skills.Content = append(skills.Content, entry)
 
+	data, err := marshal(doc)
+	if err != nil {
+		return err
+	}
+	return writeAtomic(p, data)
+}
+
+// RemoveSkill implements app.ManifestRepository.
+func (r Repo) RemoveSkill(_ context.Context, scope agent.Scope, name skill.Name) error {
+	p := r.path(scope, ManifestFile)
+	if _, err := os.Stat(p); errors.Is(err, fs.ErrNotExist) {
+		return nil
+	}
+	doc, err := readNode(p)
+	if err != nil {
+		return err
+	}
+	skills := mappingValue(doc.Content[0], "skills")
+	if skills == nil || skills.Kind != yaml.SequenceNode {
+		return nil
+	}
+	kept := skills.Content[:0]
+	for _, item := range skills.Content {
+		if n := mappingValue(item, "name"); n != nil && n.Value == name.String() {
+			continue
+		}
+		kept = append(kept, item)
+	}
+	if len(kept) == len(skills.Content) {
+		return nil
+	}
+	skills.Content = kept
 	data, err := marshal(doc)
 	if err != nil {
 		return err
