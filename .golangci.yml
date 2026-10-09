@@ -11,6 +11,7 @@ linters:
     errcheck:
       # Writes to the CLI's stdout/stderr; tabwriter reports errors on Flush.
       exclude-functions:
+        - fmt.Fprint
         - fmt.Fprintf
         - fmt.Fprintln
     depguard:
