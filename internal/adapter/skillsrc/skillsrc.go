@@ -1,0 +1,105 @@
+// Package skillsrc holds what every source adapter shares: where skills
+// live inside a source and how a SKILL.md becomes a skill.Package.
+package skillsrc
+
+import (
+	"bytes"
+	"fmt"
+	"path"
+	"sort"
+	"strings"
+
+	"gopkg.in/yaml.v3"
+
+	"github.com/colybri/skilus/internal/domain"
+	"github.com/colybri/skilus/internal/domain/skill"
+)
+
+// Discover returns the skill directories of a source, given the paths of
+// its regular SKILL.md files (forward slashes, relative to the source root).
+// A SKILL.md at the root makes the source a single skill; otherwise skills
+// are looked for in skills/<name>/ and then in <name>/. Hidden directories
+// are ignored.
+func Discover(manifests []string) []string {
+	set := make(map[string]bool, len(manifests))
+	for _, m := range manifests {
+		set[m] = true
+	}
+	if set[skill.ManifestFile] {
+		return []string{"."}
+	}
+	for _, base := range []string{"skills/", ""} {
+		var found []string
+		for m := range set {
+			rest, ok := strings.CutPrefix(m, base)
+			if !ok {
+				continue
+			}
+			dir, file, ok := strings.Cut(rest, "/")
+			if !ok || file != skill.ManifestFile || strings.HasPrefix(dir, ".") {
+				continue
+			}
+			found = append(found, base+dir)
+		}
+		if len(found) > 0 {
+			sort.Strings(found)
+			return found
+		}
+	}
+	return nil
+}
+
+// Build turns the files of one skill directory (paths relative to it) into
+// a package, reading the name and description from SKILL.md.
+func Build(files []skill.File) (skill.Package, error) {
+	var manifest []byte
+	for _, f := range files {
+		if f.Path == skill.ManifestFile && f.Kind == skill.KindRegular {
+			manifest = f.Data
+		}
+	}
+	if manifest == nil {
+		return skill.Package{}, fmt.Errorf("no regular %s: %w", skill.ManifestFile, domain.ErrInvalid)
+	}
+	meta, err := parseFrontmatter(manifest)
+	if err != nil {
+		return skill.Package{}, err
+	}
+	name, err := skill.NewName(meta.Name)
+	if err != nil {
+		return skill.Package{}, err
+	}
+	return skill.NewPackage(name, meta.Description, files)
+}
+
+// Under reports whether p is inside dir ("." is the root) and returns its
+// path relative to dir.
+func Under(dir, p string) (string, bool) {
+	if dir == "." {
+		return p, true
+	}
+	return strings.CutPrefix(p, path.Clean(dir)+"/")
+}
+
+type frontmatter struct {
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+}
+
+// parseFrontmatter reads the YAML block between the leading "---" lines.
+func parseFrontmatter(data []byte) (frontmatter, error) {
+	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
+	rest, ok := bytes.CutPrefix(data, []byte("---\n"))
+	if !ok {
+		return frontmatter{}, fmt.Errorf("%s does not start with YAML frontmatter (---): %w", skill.ManifestFile, domain.ErrInvalid)
+	}
+	block, _, ok := bytes.Cut(rest, []byte("\n---"))
+	if !ok {
+		return frontmatter{}, fmt.Errorf("%s frontmatter is not closed with ---: %w", skill.ManifestFile, domain.ErrInvalid)
+	}
+	var fm frontmatter
+	if err := yaml.Unmarshal(block, &fm); err != nil {
+		return frontmatter{}, fmt.Errorf("%s frontmatter: %w: %w", skill.ManifestFile, err, domain.ErrInvalid)
+	}
+	return fm, nil
+}

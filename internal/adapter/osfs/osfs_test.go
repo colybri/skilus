@@ -12,6 +12,7 @@ import (
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/skill"
+	"github.com/colybri/skilus/internal/domain/source"
 )
 
 func write(t *testing.T, path, data string, perm os.FileMode) {
@@ -24,6 +25,10 @@ func write(t *testing.T, path, data string, perm os.FileMode) {
 	}
 }
 
+func local(raw string) source.Source {
+	return source.Source{Kind: source.KindLocal, Raw: raw, ID: raw}
+}
+
 func manifest(name string) string {
 	return "---\nname: " + name + "\ndescription: \"Skill " + name + "\"\n---\n# " + name + "\n"
 }
@@ -34,7 +39,7 @@ func TestLocalFetcherDiscovery(t *testing.T) {
 
 	// A single skill at the root.
 	write(t, filepath.Join(work, "single", "SKILL.md"), manifest("single"), 0o644)
-	got, err := osfs.LocalFetcher{Dir: work}.Fetch(ctx, "single")
+	got, err := osfs.LocalFetcher{Dir: work}.Fetch(ctx, local("single"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +52,7 @@ func TestLocalFetcherDiscovery(t *testing.T) {
 	write(t, filepath.Join(work, "repo", "skills", "alpha", "SKILL.md"), manifest("alpha"), 0o644)
 	write(t, filepath.Join(work, "repo", "skills", "alpha", "scripts", "run.sh"), "#!/bin/sh\n", 0o755)
 	write(t, filepath.Join(work, "repo", "skills", "alpha", ".git", "HEAD"), "x", 0o644)
-	got, err = osfs.LocalFetcher{Dir: work}.Fetch(ctx, filepath.Join(work, "repo"))
+	got, err = osfs.LocalFetcher{Dir: work}.Fetch(ctx, local(filepath.Join(work, "repo")))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -78,15 +83,21 @@ func TestLocalFetcherErrors(t *testing.T) {
 	tests := map[string]error{
 		"missing": domain.ErrNotFound,
 		"file":    domain.ErrInvalid,
-		"nofm":    domain.ErrInvalid,
-		"badname": domain.ErrInvalid,
 	}
 	for src, want := range tests {
-		if _, err := (osfs.LocalFetcher{Dir: work}).Fetch(ctx, src); !errors.Is(err, want) {
+		if _, err := (osfs.LocalFetcher{Dir: work}).Fetch(ctx, local(src)); !errors.Is(err, want) {
 			t.Errorf("%s: err = %v, want %v", src, err, want)
 		}
 	}
-	got, err := osfs.LocalFetcher{Dir: work}.Fetch(ctx, "empty")
+	// A broken SKILL.md is reported, not fatal, so the rest of a
+	// collection can still be installed.
+	for _, src := range []string{"nofm", "badname"} {
+		got, err := osfs.LocalFetcher{Dir: work}.Fetch(ctx, local(src))
+		if err != nil || len(got.Skills) != 0 || len(got.Invalid) != 1 || !errors.Is(got.Invalid[0].Err, domain.ErrInvalid) {
+			t.Errorf("%s: %+v, %v", src, got, err)
+		}
+	}
+	got, err := osfs.LocalFetcher{Dir: work}.Fetch(ctx, local("empty"))
 	if err != nil || len(got.Skills) != 0 {
 		t.Errorf("empty: %+v, %v", got, err)
 	}
