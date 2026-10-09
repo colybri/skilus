@@ -4,6 +4,22 @@ Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Insta
 
 > Estado: fase 1 en construcción. Hoy funcionan `skilus agents` y `skilus add` desde un directorio local.
 
+## Instalación
+
+Descarga el archivo de tu sistema desde [Releases](https://github.com/colybri/skilus/releases) (Linux, macOS y Windows, amd64 y arm64) y deja `skilus` en tu `PATH`. Necesitas `git` instalado para las fuentes Git.
+
+Cada release publica `checksums.txt` firmado con [cosign](https://github.com/sigstore/cosign) sin claves (identidad OIDC del workflow) y un SBOM por archivo. Para verificar una descarga:
+
+```sh
+cosign verify-blob checksums.txt \
+  --certificate checksums.txt.pem --signature checksums.txt.sig \
+  --certificate-identity-regexp '^https://github.com/colybri/skilus/\.github/workflows/release\.yml@refs/tags/v' \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com
+sha256sum --check --ignore-missing checksums.txt
+```
+
+Para publicar una versión basta con empujar un tag `vX.Y.Z`: el workflow `release` crea la release como borrador para revisarla antes de hacerla pública.
+
 ## Uso
 
 ```sh
