@@ -1,20 +1,18 @@
 package osfs
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
-	"sort"
 
-	"gopkg.in/yaml.v3"
-
+	"github.com/colybri/skilus/internal/adapter/skillsrc"
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/skill"
+	"github.com/colybri/skilus/internal/domain/source"
 )
 
 var _ app.Fetcher = LocalFetcher{}
@@ -28,8 +26,8 @@ type LocalFetcher struct {
 }
 
 // Fetch implements app.Fetcher. The returned Source is the absolute path.
-func (f LocalFetcher) Fetch(_ context.Context, source string) (app.Fetched, error) {
-	root := source
+func (f LocalFetcher) Fetch(_ context.Context, src source.Source) (app.Fetched, error) {
+	root := src.Raw
 	if !filepath.IsAbs(root) {
 		root = filepath.Join(f.Dir, root)
 	}
@@ -37,33 +35,39 @@ func (f LocalFetcher) Fetch(_ context.Context, source string) (app.Fetched, erro
 	info, err := os.Stat(root)
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
-		return app.Fetched{}, fmt.Errorf("directory %s does not exist: %w", source, domain.ErrNotFound)
+		return app.Fetched{}, fmt.Errorf("directory %s does not exist: %w", src.Raw, domain.ErrNotFound)
 	case err != nil:
 		return app.Fetched{}, err
 	case !info.IsDir():
-		return app.Fetched{}, fmt.Errorf("%s is not a directory: %w", source, domain.ErrInvalid)
+		return app.Fetched{}, fmt.Errorf("%s is not a directory: %w", src.Raw, domain.ErrInvalid)
 	}
 
-	dirs, err := discover(root)
+	candidates, err := manifests(root)
 	if err != nil {
 		return app.Fetched{}, err
 	}
 	out := app.Fetched{Source: root}
-	for _, rel := range dirs {
-		p, err := readPackage(filepath.Join(root, filepath.FromSlash(rel)))
+	for _, rel := range skillsrc.Discover(candidates) {
+		files, err := readTree(filepath.Join(root, filepath.FromSlash(rel)))
 		if err != nil {
 			return app.Fetched{}, fmt.Errorf("skill in %s: %w", rel, err)
+		}
+		p, err := skillsrc.Build(files)
+		if err != nil {
+			out.Invalid = append(out.Invalid, app.InvalidSkill{Path: rel, Err: err})
+			continue
 		}
 		out.Skills = append(out.Skills, app.FetchedSkill{Path: rel, Package: p})
 	}
 	return out, nil
 }
 
-// discover returns the skill directories of a source, relative to it and
-// with forward slashes.
-func discover(root string) ([]string, error) {
+// manifests lists the regular SKILL.md files where skillsrc.Discover looks:
+// the root, skills/*/ and */.
+func manifests(root string) ([]string, error) {
+	var out []string
 	if isFile(filepath.Join(root, skill.ManifestFile)) {
-		return []string{"."}, nil
+		out = append(out, skill.ManifestFile)
 	}
 	for _, base := range []string{"skills", "."} {
 		entries, err := os.ReadDir(filepath.Join(root, base))
@@ -73,21 +77,13 @@ func discover(root string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		var found []string
 		for _, e := range entries {
-			if !e.IsDir() || e.Name()[0] == '.' {
-				continue
+			if e.IsDir() && isFile(filepath.Join(root, base, e.Name(), skill.ManifestFile)) {
+				out = append(out, filepath.ToSlash(filepath.Join(base, e.Name(), skill.ManifestFile)))
 			}
-			if isFile(filepath.Join(root, base, e.Name(), skill.ManifestFile)) {
-				found = append(found, filepath.ToSlash(filepath.Join(base, e.Name())))
-			}
-		}
-		if len(found) > 0 {
-			sort.Strings(found)
-			return found, nil
 		}
 	}
-	return nil, nil
+	return out, nil
 }
 
 func isFile(p string) bool {
@@ -95,8 +91,8 @@ func isFile(p string) bool {
 	return err == nil && info.Mode().IsRegular()
 }
 
-// readPackage reads a skill directory without following symlinks.
-func readPackage(dir string) (skill.Package, error) {
+// readTree reads a skill directory without following symlinks.
+func readTree(dir string) ([]skill.File, error) {
 	var files []skill.File
 	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -142,44 +138,5 @@ func readPackage(dir string) (skill.Package, error) {
 		}
 		return nil
 	})
-	if err != nil {
-		return skill.Package{}, err
-	}
-
-	data, err := os.ReadFile(filepath.Join(dir, skill.ManifestFile))
-	if err != nil {
-		return skill.Package{}, err
-	}
-	meta, err := parseFrontmatter(data)
-	if err != nil {
-		return skill.Package{}, err
-	}
-	name, err := skill.NewName(meta.Name)
-	if err != nil {
-		return skill.Package{}, err
-	}
-	return skill.NewPackage(name, meta.Description, files)
-}
-
-type frontmatter struct {
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
-}
-
-// parseFrontmatter reads the YAML block between the leading "---" lines.
-func parseFrontmatter(data []byte) (frontmatter, error) {
-	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
-	rest, ok := bytes.CutPrefix(data, []byte("---\n"))
-	if !ok {
-		return frontmatter{}, fmt.Errorf("%s does not start with YAML frontmatter (---): %w", skill.ManifestFile, domain.ErrInvalid)
-	}
-	block, _, ok := bytes.Cut(rest, []byte("\n---"))
-	if !ok {
-		return frontmatter{}, fmt.Errorf("%s frontmatter is not closed with ---: %w", skill.ManifestFile, domain.ErrInvalid)
-	}
-	var fm frontmatter
-	if err := yaml.Unmarshal(block, &fm); err != nil {
-		return frontmatter{}, fmt.Errorf("%s frontmatter: %w: %w", skill.ManifestFile, err, domain.ErrInvalid)
-	}
-	return fm, nil
+	return files, err
 }

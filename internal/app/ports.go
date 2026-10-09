@@ -9,6 +9,7 @@ import (
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/skill"
+	"github.com/colybri/skilus/internal/domain/source"
 )
 
 // AgentCatalog lists the agents skilus knows about, with paths resolved for
@@ -22,18 +23,27 @@ type AgentDetector interface {
 	Installed(ctx context.Context, a agent.Agent) (bool, error)
 }
 
-// Fetcher reads the skills available at a source. Phase 1 starts with
-// local directories; Git sources implement the same port.
+// Fetcher reads the skills available at a source. There is one per
+// source.Kind: local directories and Git repositories.
 type Fetcher interface {
-	Fetch(ctx context.Context, source string) (Fetched, error)
+	Fetch(ctx context.Context, src source.Source) (Fetched, error)
 }
 
 // Fetched is what a Fetcher found at a source.
 type Fetched struct {
 	Source    string // normalized source, recorded in the lock
-	Requested string // ref the user asked for; empty for local sources
+	Requested string // ref the user asked for; empty for the default branch and local sources
 	Commit    string // resolved commit; empty for local sources
 	Skills    []FetchedSkill
+	// Invalid lists skill directories that could not be read, so one
+	// broken skill does not hide the rest of a collection.
+	Invalid []InvalidSkill
+}
+
+// InvalidSkill is a skill directory a Fetcher had to skip.
+type InvalidSkill struct {
+	Path string
+	Err  error
 }
 
 // FetchedSkill is one skill inside a source.

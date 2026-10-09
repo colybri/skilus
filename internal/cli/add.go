@@ -50,6 +50,9 @@ skills en skills/<nombre>/ o <nombre>/.`,
 			for _, e := range res.Installed {
 				fmt.Fprintf(out, "Instalada %s (%s) en %d destino(s).\n", e.Skill, e.TreeHash.Short(), len(e.Targets))
 			}
+			if c.Yes {
+				renderSkipped(cmd.ErrOrStderr(), res.Plan.Skipped)
+			}
 			return nil
 		},
 	}
@@ -91,6 +94,12 @@ func renderPlan(w io.Writer, plan app.InstallPlan) {
 	for _, t := range plan.Targets {
 		fmt.Fprintf(w, "  %s (%s, %s)\n", clean(t.Dir), t.Target.Agent, t.Target.Mode)
 	}
+	if len(plan.Skipped) > 0 {
+		fmt.Fprintln(w, "No se pueden leer y no se instalarán:")
+		for _, s := range plan.Skipped {
+			fmt.Fprintf(w, "  %s: %s\n", clean(s.Path), clean(s.Err.Error()))
+		}
+	}
 	fmt.Fprintln(w, "Skills:")
 	for _, s := range plan.Skills {
 		p := s.Package
@@ -110,6 +119,12 @@ func renderPlan(w io.Writer, plan app.InstallPlan) {
 			}
 			fmt.Fprintf(w, "    %s [%s]%s %s\n", label, f.Code, where, clean(f.Detail))
 		}
+	}
+}
+
+func renderSkipped(w io.Writer, skipped []app.InvalidSkill) {
+	for _, s := range skipped {
+		fmt.Fprintf(w, "Omitida %s: %s\n", clean(s.Path), clean(s.Err.Error()))
 	}
 }
 

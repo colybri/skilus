@@ -8,6 +8,7 @@ import (
 	"path"
 	"sort"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/colybri/skilus/internal/domain"
 )
@@ -15,7 +16,10 @@ import (
 // ManifestFile is the file every skill package must contain at its root.
 const ManifestFile = "SKILL.md"
 
-const maxDescriptionLen = 1024
+// maxDescriptionLen bounds what skilus shows and stores. The Agent Skills
+// spec asks for 1024 characters, but published skills exceed it and agents
+// load them anyway, so only absurd lengths are rejected.
+const maxDescriptionLen = 4096
 
 // Kind classifies a file for hashing and inspection. Only what is portable
 // across operating systems is kept: the executable bit and symlinks.
@@ -60,7 +64,7 @@ func NewPackage(name Name, description string, files []File) (Package, error) {
 	switch {
 	case description == "":
 		return Package{}, fmt.Errorf("skill %s has no description: %w", name, domain.ErrInvalid)
-	case len(description) > maxDescriptionLen:
+	case utf8.RuneCountInString(description) > maxDescriptionLen:
 		return Package{}, fmt.Errorf("skill %s description is longer than %d characters: %w", name, maxDescriptionLen, domain.ErrInvalid)
 	}
 

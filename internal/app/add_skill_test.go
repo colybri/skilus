@@ -12,11 +12,18 @@ import (
 	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/policy"
 	"github.com/colybri/skilus/internal/domain/skill"
+	"github.com/colybri/skilus/internal/domain/source"
 )
 
 type fakeFetcher struct{ fetched app.Fetched }
 
-func (f fakeFetcher) Fetch(context.Context, string) (app.Fetched, error) { return f.fetched, nil }
+func (f fakeFetcher) Fetch(_ context.Context, src source.Source) (app.Fetched, error) {
+	out := f.fetched
+	if src.Kind == source.KindGit {
+		out.Source, out.Requested, out.Commit = src.ID, src.Ref, "0123456789abcdef0123456789abcdef01234567"
+	}
+	return out, nil
+}
 
 type fakeStore struct{ puts int }
 
@@ -115,9 +122,12 @@ func newFixture(t *testing.T, skills ...app.FetchedSkill) *fixture {
 		prompter:  &fakePrompter{answer: true},
 	}
 	f.handler = app.AddSkillHandler{
-		Catalog:      fakeCatalog{agents: []agent.Agent{newAgent(t, "codex"), newAgent(t, "cursor"), newAgent(t, "claude-code")}},
-		Detector:     fakeDetector{"codex": true, "cursor": true},
-		Fetcher:      fakeFetcher{fetched: app.Fetched{Source: "./skills", Skills: skills}},
+		Catalog:  fakeCatalog{agents: []agent.Agent{newAgent(t, "codex"), newAgent(t, "cursor"), newAgent(t, "claude-code")}},
+		Detector: fakeDetector{"codex": true, "cursor": true},
+		Fetchers: map[source.Kind]app.Fetcher{
+			source.KindLocal: fakeFetcher{fetched: app.Fetched{Source: "./skills", Skills: skills}},
+			source.KindGit:   fakeFetcher{fetched: app.Fetched{Skills: skills}},
+		},
 		Store:        f.store,
 		Deployer:     f.deployer,
 		Locks:        f.locks,
@@ -276,4 +286,46 @@ func mustID(t *testing.T, s string) agent.ID {
 		t.Fatal(err)
 	}
 	return id
+}
+
+func TestAddFromGitRecordsCommitAndRef(t *testing.T) {
+	f := newFixture(t, app.FetchedSkill{Path: "skills/demo", Package: pkg(t, "demo")})
+
+	res, err := f.handler.Handle(context.Background(), app.AddSkill{Source: "anthropics/skills@v1.0.0", Scope: agent.ScopeProject, Yes: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	e := res.Installed[0]
+	if e.Source != "github.com/anthropics/skills" || e.Requested != "v1.0.0" || len(e.Commit) != 40 {
+		t.Fatalf("entry = %+v", e)
+	}
+	if got := f.manifests.entries[0].Source; got != "github.com/anthropics/skills@v1.0.0" {
+		t.Fatalf("manifest source = %q", got)
+	}
+	if _, err := f.handler.Handle(context.Background(), app.AddSkill{Source: "not-a-source", Scope: agent.ScopeProject}); !errors.Is(err, domain.ErrInvalid) {
+		t.Fatalf("bad source err = %v, want ErrInvalid", err)
+	}
+}
+
+func TestAddSkipsUnreadableSkills(t *testing.T) {
+	f := newFixture(t, app.FetchedSkill{Path: "skills/good", Package: pkg(t, "good")})
+	bad := app.InvalidSkill{Path: "skills/bad", Err: domain.ErrInvalid}
+	f.handler.Fetchers[source.KindLocal] = fakeFetcher{fetched: app.Fetched{Source: "./skills", Skills: []app.FetchedSkill{{Path: "skills/good", Package: pkg(t, "good")}}, Invalid: []app.InvalidSkill{bad}}}
+	ctx := context.Background()
+
+	if _, err := f.handler.Handle(ctx, app.AddSkill{Source: "./skills", Scope: agent.ScopeProject, Skills: []string{"bad"}, Yes: true}); !errors.Is(err, domain.ErrInvalid) {
+		t.Fatalf("asking for the broken skill: err = %v, want ErrInvalid", err)
+	}
+	res, err := f.handler.Handle(ctx, app.AddSkill{Source: "./skills", Scope: agent.ScopeProject, Yes: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Installed) != 1 || len(res.Plan.Skipped) != 1 || res.Plan.Skipped[0].Path != "skills/bad" {
+		t.Fatalf("result = %+v", res)
+	}
+
+	f.handler.Fetchers[source.KindLocal] = fakeFetcher{fetched: app.Fetched{Source: "./skills", Invalid: []app.InvalidSkill{bad}}}
+	if _, err := f.handler.Handle(ctx, app.AddSkill{Source: "./skills", Scope: agent.ScopeProject, Yes: true}); !errors.Is(err, domain.ErrInvalid) {
+		t.Fatalf("only broken skills: err = %v, want ErrInvalid", err)
+	}
 }

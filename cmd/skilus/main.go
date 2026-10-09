@@ -9,12 +9,14 @@ import (
 	"runtime"
 
 	"github.com/colybri/skilus/internal/adapter/catalog"
+	"github.com/colybri/skilus/internal/adapter/gitsrc"
 	"github.com/colybri/skilus/internal/adapter/osfs"
 	"github.com/colybri/skilus/internal/adapter/yamlrepo"
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/cli"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/policy"
+	"github.com/colybri/skilus/internal/domain/source"
 )
 
 // version is set at build time with -ldflags "-X main.version=...".
@@ -52,9 +54,12 @@ func run() int {
 		Version:    version,
 		ListAgents: app.ListAgents{Catalog: agents, Detector: detector},
 		AddSkill: app.AddSkillHandler{
-			Catalog:      agents,
-			Detector:     detector,
-			Fetcher:      osfs.LocalFetcher{Dir: cwd},
+			Catalog:  agents,
+			Detector: detector,
+			Fetchers: map[source.Kind]app.Fetcher{
+				source.KindLocal: osfs.LocalFetcher{Dir: cwd},
+				source.KindGit:   gitsrc.Fetcher{MaxSkillBytes: policy.DefaultLimits.MaxTotalBytes},
+			},
 			Store:        osfs.Store{Root: filepath.Join(skilusHome, "store")},
 			Deployer:     osfs.Deployer{},
 			Locks:        repo,

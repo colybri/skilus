@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/policy"
 	"github.com/colybri/skilus/internal/domain/skill"
+	"github.com/colybri/skilus/internal/domain/source"
 )
 
 // Errors returned by AddSkill besides the domain ones.
@@ -42,6 +44,9 @@ type InstallPlan struct {
 	Source  string
 	Skills  []PlannedSkill
 	Targets []PlannedTarget
+	// Skipped are skills of the source that could not be read; they are
+	// not installed.
+	Skipped []InvalidSkill
 }
 
 // PlannedSkill is one skill with its inspection report.
@@ -67,7 +72,7 @@ type AddResult struct {
 type AddSkillHandler struct {
 	Catalog     AgentCatalog
 	Detector    AgentDetector
-	Fetcher     Fetcher
+	Fetchers    map[source.Kind]Fetcher
 	Store       Store
 	Deployer    Deployer
 	Locks       LockRepository
@@ -94,11 +99,19 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 		return AddResult{}, err
 	}
 
-	fetched, err := h.Fetcher.Fetch(ctx, cmd.Source)
+	src, err := source.Parse(cmd.Source)
+	if err != nil {
+		return AddResult{}, err
+	}
+	fetcher, ok := h.Fetchers[src.Kind]
+	if !ok {
+		return AddResult{}, fmt.Errorf("%s sources are not supported yet: %w", src.Kind, domain.ErrInvalid)
+	}
+	fetched, err := fetcher.Fetch(ctx, src)
 	if err != nil {
 		return AddResult{}, fmt.Errorf("read source %s: %w", cmd.Source, err)
 	}
-	selected, err := selectSkills(fetched.Skills, cmd.Skills)
+	selected, err := selectSkills(fetched, cmd.Skills)
 	if err != nil {
 		return AddResult{}, err
 	}
@@ -110,6 +123,9 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 
 	fetched.Source = h.recordedSource(cmd.Scope, fetched.Source)
 	plan := InstallPlan{Source: fetched.Source, Targets: targets}
+	if len(cmd.Skills) == 0 {
+		plan.Skipped = fetched.Invalid
+	}
 	for _, s := range selected {
 		if _, ok := lf.Entry(s.Package.Name()); ok {
 			return AddResult{}, fmt.Errorf("skill %s is already installed; use skilus update: %w", s.Package.Name(), domain.ErrAlreadyExists)
@@ -205,8 +221,13 @@ func (h AddSkillHandler) recordedSource(scope agent.Scope, source string) string
 	return "./" + filepath.ToSlash(rel)
 }
 
-func selectSkills(found []FetchedSkill, names []string) ([]FetchedSkill, error) {
+func selectSkills(fetched Fetched, names []string) ([]FetchedSkill, error) {
+	found := fetched.Skills
 	if len(found) == 0 {
+		if len(fetched.Invalid) > 0 {
+			bad := fetched.Invalid[0]
+			return nil, fmt.Errorf("skill in %s: %w", bad.Path, bad.Err)
+		}
 		return nil, fmt.Errorf("no %s found in the source: %w", skill.ManifestFile, domain.ErrNotFound)
 	}
 	if len(names) == 0 {
@@ -220,6 +241,11 @@ func selectSkills(found []FetchedSkill, names []string) ([]FetchedSkill, error) 
 	for _, n := range names {
 		s, ok := byName[n]
 		if !ok {
+			for _, bad := range fetched.Invalid {
+				if path.Base(bad.Path) == n {
+					return nil, fmt.Errorf("skill in %s: %w", bad.Path, bad.Err)
+				}
+			}
 			return nil, fmt.Errorf("skill %q is not in the source: %w", n, domain.ErrNotFound)
 		}
 		out = append(out, s)
@@ -297,7 +323,11 @@ func (h AddSkillHandler) install(ctx context.Context, cmd AddSkill, fetched Fetc
 		if len(s.Report.Executables) > 0 {
 			allow = []string{AllowScripts}
 		}
-		manifest = append(manifest, ManifestEntry{Name: s.Package.Name(), Source: fetched.Source, Allow: allow})
+		src := fetched.Source
+		if fetched.Requested != "" {
+			src += "@" + fetched.Requested
+		}
+		manifest = append(manifest, ManifestEntry{Name: s.Package.Name(), Source: src, Allow: allow})
 	}
 
 	if err := h.Locks.Save(ctx, cmd.Scope, lf); err != nil {

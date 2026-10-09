@@ -2,7 +2,7 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 1 en construcción. Hoy funcionan `skilus agents` y `skilus add` desde un directorio local.
+> Estado: fase 1 en construcción. Hoy funcionan `skilus agents` y `skilus add` desde un directorio local o un repositorio Git.
 
 ## Uso
 
@@ -10,10 +10,15 @@ Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Insta
 skilus agents          # agentes soportados, sus rutas y si están instalados
 skilus agents --json
 
-skilus add ./mis-skills                     # inspecciona, muestra el plan y pregunta
+skilus add anthropics/skills --skill pdf     # GitHub, rama por defecto
+skilus add github.com/o/r@v1.2.0            # un tag, rama o commit
+skilus add git@gitlab.com:g/r.git           # cualquier URL de Git (https, ssh, file)
+skilus add ./mis-skills                     # un directorio local: empieza por ./, ../ o /
 skilus add ./mis-skills --skill review -y   # sin preguntar
 skilus add ./mis-skills --agent claude-code --scope global
 ```
+
+Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
 
 `skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/` o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh`, texto invisible y secuencias de escape. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
 
