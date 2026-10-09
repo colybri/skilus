@@ -113,3 +113,27 @@ func TestManifestCreatedWhenMissing(t *testing.T) {
 		t.Fatalf("manifest =\n%s\nwant\n%s", data, want)
 	}
 }
+
+func TestManifestRemoveSkill(t *testing.T) {
+	ctx := context.Background()
+	repo := yamlrepo.Repo{ProjectRoot: t.TempDir()}
+	n, _ := skill.NewName("demo")
+	if err := repo.RemoveSkill(ctx, agent.ScopeProject, n); err != nil {
+		t.Fatalf("missing manifest: %v", err)
+	}
+	path := filepath.Join(repo.ProjectRoot, yamlrepo.ManifestFile)
+	original := "version: 1\nskills:\n  # la que uso\n  - name: keep\n    source: ./a\n  - name: demo\n    source: ./b\n"
+	if err := os.WriteFile(path, []byte(original), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.RemoveSkill(ctx, agent.ScopeProject, n); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "version: 1\nskills:\n  # la que uso\n  - name: keep\n    source: ./a\n"; string(data) != want {
+		t.Fatalf("manifest =\n%s\nwant\n%s", data, want)
+	}
+}

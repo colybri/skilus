@@ -68,6 +68,14 @@ func run() int {
 			DefaultModes: map[agent.Scope]agent.Mode{agent.ScopeProject: agent.ModeCopy, agent.ScopeGlobal: globalMode},
 			Limits:       policy.DefaultLimits,
 		},
+		ListSkills: app.ListSkills{Locks: repo},
+		RemoveSkill: app.RemoveSkillHandler{
+			Catalog:     agents,
+			Deployer:    osfs.Deployer{},
+			Locks:       repo,
+			Manifests:   repo,
+			ProjectRoot: cwd,
+		},
 	}
 	return cli.Run(deps, os.Args[1:], os.Stdin, os.Stdout, os.Stderr)
 }

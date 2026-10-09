@@ -1,0 +1,54 @@
+# skilus list shows what the locks record; skilus remove undoes an add.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home/.claude project
+cd project
+
+exec skilus list
+stdout 'No hay skills instaladas\.'
+
+exec skilus add ../src --agent claude-code --agent codex --yes
+exec skilus add ../src --skill lint --scope global --agent claude-code --yes
+
+exec skilus list
+stdout '^SKILL +ÁMBITO +ORIGEN +COMMIT +HASH +AGENTES$'
+stdout '^lint +project +.*src +- +[0-9a-f]{12} +claude-code,codex$'
+stdout '^review +project '
+stdout '^lint +global '
+
+exec skilus list --scope global --json
+stdout '"name": "lint"'
+stdout '"scope": "global"'
+! stdout 'review'
+
+# Removing checks every name first.
+! exec skilus remove review nope
+stderr 'nope is not installed'
+exists .claude/skills/review/SKILL.md
+
+exec skilus remove review
+stdout 'Eliminada review de 2 destino\(s\)\.'
+! exists .claude/skills/review
+! exists .agents/skills/review
+exists .claude/skills/lint
+! grep 'review' skilus.lock
+! grep 'name: review' skilus.yaml
+grep 'name: lint' skilus.yaml
+
+exec skilus rm lint --scope global
+! exists $HOME/.claude/skills/lint
+exists .claude/skills/lint
+
+-- src/skills/review/SKILL.md --
+---
+name: review
+description: Revisa cambios
+---
+-- src/skills/lint/SKILL.md --
+---
+name: lint
+description: Revisa estilo
+---
