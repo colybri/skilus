@@ -115,6 +115,7 @@ func run() int {
 		Sync:         sync,
 		ListProfiles: app.ListProfilesHandler{Manifest: repo, Locks: repo},
 		UseProfile:   app.UseProfileHandler{Add: add, Sync: sync, Manifest: repo},
+		EditProfile:  app.EditProfileHandler{Manifest: repo, Profiles: repo, Catalog: agents},
 		Audit: app.AuditHandler{
 			Locks:      repo,
 			Trust:      repo,

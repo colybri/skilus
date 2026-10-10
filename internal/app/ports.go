@@ -139,6 +139,16 @@ type ManifestRepository interface {
 	RemoveSkill(ctx context.Context, scope agent.Scope, name skill.Name) error
 }
 
+// ProfileRepository edits the profiles: section of skilus.yaml, keeping the
+// rest of the file, its comments and its order.
+type ProfileRepository interface {
+	// SaveProfile replaces the profile with the same name in place, or
+	// appends it when there is none.
+	SaveProfile(ctx context.Context, scope agent.Scope, p profile.Profile) error
+	// DeleteProfile drops the profile; a missing one is not an error.
+	DeleteProfile(ctx context.Context, scope agent.Scope, name string) error
+}
+
 // ManifestReader reads what a scope's skilus.yaml declares.
 type ManifestReader interface {
 	// Manifest returns an empty Manifest when the file does not exist.

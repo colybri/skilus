@@ -65,7 +65,7 @@ export default {
       ['`skilus sync`', 'एजेंटों को लॉक के अनुसार कर देता है।'],
       ['`skilus outdated`', 'कौन-सी ब्रांच या टैग नए कमिट की ओर इशारा करते हैं।'],
       ['`skilus update`', 'बदलाव दिखाता है, पूछता है और अपडेट करता है।'],
-      ['`skilus profile`', 'प्रोफ़ाइल की सूची बनाता और लागू करता है।'],
+      ['`skilus profile`', 'प्रोफ़ाइल बनाता, बदलता, सूची बनाता और लागू करता है।'],
       ['`skilus search`', 'skills.sh और आपके इंडेक्स में खोजता है।'],
       ['`skilus audit`', 'इंस्टॉल किए गए कंटेंट का भरोसा, सिग्नेचर और जाँच।'],
     ]),
@@ -143,6 +143,9 @@ export default {
   profiles: { title: 'प्रोफ़ाइल', lead: 'संदर्भ के अनुसार स्किल्स को समूहित करें और एक ही कमांड से सेट बदलें।', blocks: [
     p('प्रोफ़ाइल उन स्किल्स को समूहित करती है जो पहले से `skilus.yaml` के `skills:` में घोषित हैं, और चाहें तो वे एजेंट भी जहाँ वे जाती हैं। `agents:` के बिना पहचाने गए एजेंट इस्तेमाल होते हैं।'),
     code(PROFILES, 'yaml'),
+    h2('edit', 'प्रोफ़ाइल बनाना और बदलना'),
+    code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
+    p('`profile create` एक प्रोफ़ाइल घोषित करता है; उसकी skills पहले से `skills:` में होनी चाहिए (पहले उन्हें `skilus add` से जोड़ें) और `--agent` उसके एजेंट तय करता है। `profile add` और `profile remove` skills को, और `--agent` के साथ एजेंटों को, जोड़ते या हटाते हैं; `profile delete` प्रोफ़ाइल मिटाता है। ये केवल `profiles:` बदलते हैं, `skilus.yaml` की टिप्पणियाँ और क्रम बनाए रखते हैं और कुछ भी इंस्टॉल या वापस नहीं लेते: यह काम `profile use` का है।'),
     h2('use', 'प्रोफ़ाइल का उपयोग'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` सक्रिय प्रोफ़ाइल पर `*` लगाता है। `profile use` प्रोफ़ाइल की ग़ायब स्किल्स `add` जैसी जाँच के साथ इंस्टॉल करता है, पहले से इंस्टॉल स्किल्स को प्रोफ़ाइल के एजेंटों में ले जाता है, और जो प्रोफ़ाइल में नहीं हैं उन्हें हटाता है।'),

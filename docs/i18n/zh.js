@@ -65,7 +65,7 @@ export default {
       ['`skilus sync`', '让智能体与锁文件保持一致。'],
       ['`skilus outdated`', '哪些分支或标签指向了新的提交。'],
       ['`skilus update`', '显示更改、询问并更新。'],
-      ['`skilus profile`', '列出并部署配置档。'],
+      ['`skilus profile`', '创建、编辑、列出并部署配置档。'],
       ['`skilus search`', '在 skills.sh 和你的索引中搜索。'],
       ['`skilus audit`', '已安装内容的信任、签名和检查。'],
     ]),
@@ -143,6 +143,9 @@ export default {
   profiles: { title: '配置档', lead: '按场景分组技能，一条命令即可切换。', blocks: [
     p('配置档将 `skilus.yaml` 中 `skills:` 下已声明的技能分组，并可选指定它们部署到的智能体。没有 `agents:` 时，使用检测到的智能体。'),
     code(PROFILES, 'yaml'),
+    h2('edit', '创建和编辑配置档'),
+    code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
+    p('`profile create` 声明一个配置档；其中的 skill 必须已在 `skills:` 中（先用 `skilus add` 添加），`--agent` 指定其代理。`profile add` 和 `profile remove` 添加或移除 skill，配合 `--agent` 则添加或移除代理；`profile delete` 删除配置档。这些命令只编辑 `profiles:`，保留 `skilus.yaml` 的注释和顺序，不安装也不移除任何内容：那是 `profile use` 的工作。'),
     h2('use', '使用配置档'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` 用 `*` 标记当前配置档。`profile use` 以与 `add` 相同的检查安装配置档中缺失的技能，把已安装的技能移到配置档的智能体，并撤下配置档未包含的技能。'),

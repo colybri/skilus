@@ -65,7 +65,7 @@ export default {
       ['`skilus sync`', 'Приводит агентов к состоянию lock-файла.'],
       ['`skilus outdated`', 'Какие ветки или теги указывают на новый коммит.'],
       ['`skilus update`', 'Показывает изменения, спрашивает и обновляет.'],
-      ['`skilus profile`', 'Выводит и разворачивает профили.'],
+      ['`skilus profile`', 'Создаёт, изменяет, выводит и разворачивает профили.'],
       ['`skilus search`', 'Ищет на skills.sh и в ваших индексах.'],
       ['`skilus audit`', 'Доверие, подписи и проверка установленного.'],
     ]),
@@ -143,6 +143,9 @@ export default {
   profiles: { title: 'Профили', lead: 'Группируйте навыки по контексту и переключайте наборы одной командой.', blocks: [
     p('Профиль объединяет навыки, уже объявленные в `skills:` файла `skilus.yaml`, и при желании агентов, для которых они предназначены. Без `agents:` используются обнаруженные агенты.'),
     code(PROFILES, 'yaml'),
+    h2('edit', 'Создание и изменение профилей'),
+    code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
+    p('`profile create` объявляет профиль; его навыки уже должны быть в `skills:` (сначала добавьте их через `skilus add`), а `--agent` задаёт его агентов. `profile add` и `profile remove` добавляют или убирают навыки, а с `--agent` — агентов; `profile delete` удаляет профиль. Эти команды меняют только `profiles:`, сохраняют комментарии и порядок в `skilus.yaml` и ничего не устанавливают и не убирают: это делает `profile use`.'),
     h2('use', 'Использование профиля'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` отмечает активный профиль символом `*`. `profile use` устанавливает недостающие навыки профиля с той же проверкой, что и `add`, переносит уже установленные к агентам профиля и снимает те, что в профиль не входят.'),

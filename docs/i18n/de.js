@@ -65,7 +65,7 @@ export default {
       ['`skilus sync`', 'Bringt die Agenten auf den Stand des Locks.'],
       ['`skilus outdated`', 'Welche Branches oder Tags auf einen neuen Commit zeigen.'],
       ['`skilus update`', 'Zeigt die Änderungen, fragt nach und aktualisiert.'],
-      ['`skilus profile`', 'Listet Profile auf und rollt sie aus.'],
+      ['`skilus profile`', 'Legt Profile an, bearbeitet, listet und rollt sie aus.'],
       ['`skilus search`', 'Durchsucht skills.sh und deine Indizes.'],
       ['`skilus audit`', 'Vertrauen, Signaturen und Prüfung des Installierten.'],
     ]),
@@ -143,6 +143,9 @@ export default {
   profiles: { title: 'Profile', lead: 'Gruppiere Skills nach Kontext und wechsle das Set mit einem einzigen Befehl.', blocks: [
     p('Ein Profil gruppiert Skills, die bereits unter `skills:` in `skilus.yaml` deklariert sind, und optional die Agenten, für die sie bestimmt sind. Ohne `agents:` werden die erkannten Agenten verwendet.'),
     code(PROFILES, 'yaml'),
+    h2('edit', 'Profile anlegen und bearbeiten'),
+    code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
+    p('`profile create` legt ein Profil an; seine Skills müssen bereits unter `skills:` stehen (füge sie vorher mit `skilus add` hinzu), und `--agent` legt seine Agenten fest. `profile add` und `profile remove` fügen Skills und mit `--agent` Agenten hinzu oder entfernen sie; `profile delete` löscht das Profil. Sie ändern nur `profiles:`, erhalten Kommentare und Reihenfolge von `skilus.yaml` und installieren oder entfernen nichts: Das übernimmt `profile use`.'),
     h2('use', 'Ein Profil verwenden'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` markiert das aktive Profil mit `*`. `profile use` installiert fehlende Skills des Profils mit derselben Prüfung wie `add`, verschiebt bereits installierte zu den Agenten des Profils und entfernt jene, die das Profil nicht enthält.'),
