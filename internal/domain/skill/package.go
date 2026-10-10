@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"path"
-	"sort"
 	"strings"
 	"unicode/utf8"
 
@@ -68,23 +67,12 @@ func NewPackage(name Name, description string, files []File) (Package, error) {
 		return Package{}, fmt.Errorf("skill %s description is longer than %d characters: %w", name, maxDescriptionLen, domain.ErrInvalid)
 	}
 
-	sorted := make([]File, len(files))
-	copy(sorted, files)
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].Path < sorted[j].Path })
-
+	sorted, err := sortedFiles(files)
+	if err != nil {
+		return Package{}, fmt.Errorf("skill %s: %w", name, err)
+	}
 	hasManifest := false
-	for i, f := range sorted {
-		if err := validPath(f.Path); err != nil {
-			return Package{}, fmt.Errorf("skill %s: %w", name, err)
-		}
-		if i > 0 && sorted[i-1].Path == f.Path {
-			return Package{}, fmt.Errorf("skill %s lists %s twice: %w", name, f.Path, domain.ErrInvalid)
-		}
-		switch f.Kind {
-		case KindRegular, KindExecutable, KindSymlink:
-		default:
-			return Package{}, fmt.Errorf("skill %s file %s has unknown kind %q: %w", name, f.Path, f.Kind, domain.ErrInvalid)
-		}
+	for _, f := range sorted {
 		if f.Path == ManifestFile && f.Kind == KindRegular {
 			hasManifest = true
 		}

@@ -50,17 +50,20 @@ func run() int {
 		globalMode = agent.ModeCopy
 	}
 
+	fetchers := map[source.Kind]app.Fetcher{
+		source.KindLocal: osfs.LocalFetcher{Dir: cwd},
+		source.KindGit:   gitsrc.Fetcher{MaxSkillBytes: policy.DefaultLimits.MaxTotalBytes},
+	}
+	store := osfs.Store{Root: filepath.Join(skilusHome, "store")}
+
 	deps := cli.Deps{
 		Version:    version,
 		ListAgents: app.ListAgents{Catalog: agents, Detector: detector},
 		AddSkill: app.AddSkillHandler{
-			Catalog:  agents,
-			Detector: detector,
-			Fetchers: map[source.Kind]app.Fetcher{
-				source.KindLocal: osfs.LocalFetcher{Dir: cwd},
-				source.KindGit:   gitsrc.Fetcher{MaxSkillBytes: policy.DefaultLimits.MaxTotalBytes},
-			},
-			Store:        osfs.Store{Root: filepath.Join(skilusHome, "store")},
+			Catalog:      agents,
+			Detector:     detector,
+			Fetchers:     fetchers,
+			Store:        store,
 			Deployer:     osfs.Deployer{},
 			Locks:        repo,
 			Manifests:    repo,
@@ -74,6 +77,16 @@ func run() int {
 			Deployer:    osfs.Deployer{},
 			Locks:       repo,
 			Manifests:   repo,
+			ProjectRoot: cwd,
+		},
+		Verify: app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
+		Sync: app.SyncHandler{
+			Catalog:     agents,
+			Fetchers:    fetchers,
+			Store:       store,
+			Deployer:    osfs.Deployer{},
+			Trees:       osfs.TreeReader{},
+			Locks:       repo,
 			ProjectRoot: cwd,
 		},
 	}

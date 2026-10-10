@@ -302,13 +302,14 @@ func (h AddSkillHandler) install(ctx context.Context, cmd AddSkill, fetched Fetc
 			deployed = append(deployed, dest)
 		}
 		e := lock.Entry{
-			Skill:     s.Package.Name(),
-			Source:    fetched.Source,
-			Requested: fetched.Requested,
-			Commit:    fetched.Commit,
-			Path:      s.Path,
-			TreeHash:  s.Package.TreeHash(),
-			Targets:   targets,
+			Skill:       s.Package.Name(),
+			Source:      fetched.Source,
+			Requested:   fetched.Requested,
+			Commit:      fetched.Commit,
+			Path:        s.Path,
+			TreeHash:    s.Package.TreeHash(),
+			Executables: skill.Executables(s.Package.Files()),
+			Targets:     targets,
 		}
 		if err := lf.Install(e); err != nil {
 			return nil, err

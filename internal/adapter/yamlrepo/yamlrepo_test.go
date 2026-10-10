@@ -29,7 +29,7 @@ func TestLockRoundTrip(t *testing.T) {
 	h, _ := skill.NewTreeHash(strings.Repeat("ab", 32))
 	id, _ := agent.NewID("claude-code")
 	lf := lock.New()
-	entry := lock.Entry{Skill: n, Source: "./skills", Path: "skills/demo", TreeHash: h,
+	entry := lock.Entry{Skill: n, Source: "./skills", Path: "skills/demo", TreeHash: h, Executables: []string{"run.sh"},
 		Targets: []agent.Target{{Agent: id, Scope: agent.ScopeGlobal, Mode: agent.ModeSymlink}}}
 	if err := lf.Install(entry); err != nil {
 		t.Fatal(err)
@@ -41,7 +41,7 @@ func TestLockRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, want := range []string{"version: 1", "  demo:", "tree_sha256: " + h.String(), "agent: claude-code"} {
+	for _, want := range []string{"version: 1", "  demo:", "tree_sha256: " + h.String(), "agent: claude-code", "executables:\n      - run.sh"} {
 		if !strings.Contains(string(data), want) {
 			t.Errorf("lock lacks %q:\n%s", want, data)
 		}
@@ -52,7 +52,7 @@ func TestLockRoundTrip(t *testing.T) {
 		t.Fatal(err)
 	}
 	e, ok := got.Entry(n)
-	if !ok || e.TreeHash != h || e.Path != "skills/demo" || len(e.Targets) != 1 || e.Targets[0] != entry.Targets[0] {
+	if !ok || e.TreeHash != h || e.Path != "skills/demo" || len(e.Targets) != 1 || e.Targets[0] != entry.Targets[0] || len(e.Executables) != 1 {
 		t.Fatalf("loaded = %+v", e)
 	}
 }

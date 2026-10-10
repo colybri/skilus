@@ -48,7 +48,7 @@ func (f LocalFetcher) Fetch(_ context.Context, src source.Source) (app.Fetched, 
 	}
 	out := app.Fetched{Source: root}
 	for _, rel := range skillsrc.Discover(candidates) {
-		files, err := readTree(filepath.Join(root, filepath.FromSlash(rel)))
+		files, err := readTree(filepath.Join(root, filepath.FromSlash(rel)), true)
 		if err != nil {
 			return app.Fetched{}, fmt.Errorf("skill in %s: %w", rel, err)
 		}
@@ -91,8 +91,9 @@ func isFile(p string) bool {
 	return err == nil && info.Mode().IsRegular()
 }
 
-// readTree reads a skill directory without following symlinks.
-func readTree(dir string) ([]skill.File, error) {
+// readTree reads a skill directory without following symlinks. skipGit
+// leaves out .git directories, which a local source may have.
+func readTree(dir string, skipGit bool) ([]skill.File, error) {
 	var files []skill.File
 	err := filepath.WalkDir(dir, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -101,7 +102,7 @@ func readTree(dir string) ([]skill.File, error) {
 		if p == dir {
 			return nil
 		}
-		if d.IsDir() && d.Name() == ".git" {
+		if skipGit && d.IsDir() && d.Name() == ".git" {
 			return filepath.SkipDir
 		}
 		rel, err := filepath.Rel(dir, p)

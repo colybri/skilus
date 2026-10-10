@@ -165,3 +165,69 @@ func TestStoreAndDeploy(t *testing.T) {
 		t.Fatalf("removing the symlink touched the store: %v", err)
 	}
 }
+
+func TestTreeReaderAndStoreLookup(t *testing.T) {
+	ctx := context.Background()
+	base := t.TempDir()
+	n, _ := skill.NewName("demo")
+	p, err := skill.NewPackage(n, "Demo", []skill.File{
+		{Path: "SKILL.md", Kind: skill.KindRegular, Data: []byte(manifest("demo"))},
+		{Path: "scripts/run.sh", Kind: skill.KindExecutable, Data: []byte("#!/bin/sh\n")},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	store := osfs.Store{Root: filepath.Join(base, "store")}
+	if _, ok, err := store.Lookup(ctx, p.TreeHash()); ok || err != nil {
+		t.Fatalf("Lookup before Put = %v, %v", ok, err)
+	}
+	dir, err := store.Put(ctx, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, ok, err := store.Lookup(ctx, p.TreeHash()); !ok || err != nil || got != dir {
+		t.Fatalf("Lookup = %s, %v, %v", got, ok, err)
+	}
+
+	r := osfs.TreeReader{}
+	dest := filepath.Join(base, "agent", "demo")
+	if err := (osfs.Deployer{}).Deploy(ctx, dir, dest, agent.ModeCopy); err != nil {
+		t.Fatal(err)
+	}
+	write(t, filepath.Join(dest, ".git", "HEAD"), "x", 0o644)
+	files, err := r.ReadTree(ctx, dest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !r.ExecutableBits() {
+		files = skill.MarkExecutable(files, skill.Executables(p.Files()))
+	}
+	changes := skill.Diff(p.Files(), files)
+	if len(changes) != 1 || changes[0].Path != ".git/HEAD" || changes[0].Kind != skill.Added {
+		t.Fatalf("changes = %+v; an installed skill must be read whole", changes)
+	}
+	if _, err := r.ReadTree(ctx, filepath.Join(base, "nope")); !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("missing dir err = %v", err)
+	}
+
+	if runtime.GOOS != "windows" {
+		link := filepath.Join(base, "agent", "linked")
+		if err := (osfs.Deployer{}).Deploy(ctx, dir, link, agent.ModeSymlink); err != nil {
+			t.Fatal(err)
+		}
+		files, err := r.ReadTree(ctx, link)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if h, err := skill.HashFiles(files); err != nil || h != p.TreeHash() {
+			t.Fatalf("hash through symlink = %v, %v", h, err)
+		}
+	}
+
+	if err := store.Discard(ctx, p.TreeHash()); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok, _ := store.Lookup(ctx, p.TreeHash()); ok {
+		t.Fatal("Discard left the content")
+	}
+}
