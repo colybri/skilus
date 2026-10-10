@@ -65,7 +65,7 @@ export default {
       ['`skilus sync`', 'Remet les agents dans l’état décrit par le lock.'],
       ['`skilus outdated`', 'Quelles branches ou quels tags pointent vers un nouveau commit.'],
       ['`skilus update`', 'Montre les changements, demande et met à jour.'],
-      ['`skilus profile`', 'Liste et déploie les profils.'],
+      ['`skilus profile`', 'Crée, modifie, liste et déploie les profils.'],
       ['`skilus search`', 'Cherche dans skills.sh et vos index.'],
       ['`skilus audit`', 'Confiance, signatures et inspection de l’installé.'],
     ]),
@@ -143,6 +143,9 @@ export default {
   profiles: { title: 'Profils', lead: 'Regroupez les skills par contexte et changez d’ensemble en une seule commande.', blocks: [
     p('Un profil regroupe des skills déjà déclarées sous `skills:` dans `skilus.yaml` et, si vous le souhaitez, les agents où elles vont. Sans `agents:`, les agents détectés sont utilisés.'),
     code(PROFILES, 'yaml'),
+    h2('edit', 'Créer et modifier des profils'),
+    code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
+    p('`profile create` déclare un profil ; ses skills doivent déjà figurer sous `skills:` (ajoutez-les d’abord avec `skilus add`) et `--agent` fixe ses agents. `profile add` et `profile remove` ajoutent ou retirent des skills et, avec `--agent`, des agents ; `profile delete` supprime le profil. Ces commandes ne modifient que `profiles:`, conservent les commentaires et l’ordre de `skilus.yaml` et n’installent ni ne retirent rien : c’est le rôle de `profile use`.'),
     h2('use', 'Utiliser un profil'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` marque le profil actif d’un `*`. `profile use` installe les skills manquantes du profil avec la même inspection que `add`, déplace celles déjà installées vers les agents du profil et retire celles que le profil n’inclut pas.'),

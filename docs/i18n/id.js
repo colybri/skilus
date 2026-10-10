@@ -65,7 +65,7 @@ export default {
       ['`skilus sync`', 'Menyamakan agen dengan isi lock.'],
       ['`skilus outdated`', 'Branch atau tag mana yang menunjuk ke commit baru.'],
       ['`skilus update`', 'Menampilkan perubahan, bertanya, dan memperbarui.'],
-      ['`skilus profile`', 'Menampilkan dan menerapkan profil.'],
+      ['`skilus profile`', 'Membuat, mengubah, menampilkan, dan menerapkan profil.'],
       ['`skilus search`', 'Mencari di skills.sh dan indeks Anda.'],
       ['`skilus audit`', 'Kepercayaan, tanda tangan, dan pemeriksaan yang terpasang.'],
     ]),
@@ -143,6 +143,9 @@ export default {
   profiles: { title: 'Profil', lead: 'Kelompokkan skill per konteks dan ganti set dengan satu perintah.', blocks: [
     p('Profil mengelompokkan skill yang sudah dideklarasikan di `skills:` dalam `skilus.yaml` dan, jika mau, agen tujuannya. Tanpa `agents:`, agen yang terdeteksi yang dipakai.'),
     code(PROFILES, 'yaml'),
+    h2('edit', 'Membuat dan mengubah profil'),
+    code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
+    p('`profile create` mendeklarasikan profil; skill-nya harus sudah ada di `skills:` (tambahkan dulu dengan `skilus add`) dan `--agent` menetapkan agennya. `profile add` dan `profile remove` menambah atau menghapus skill dan, dengan `--agent`, agen; `profile delete` menghapus profil. Perintah ini hanya mengubah `profiles:`, mempertahankan komentar dan urutan `skilus.yaml`, dan tidak memasang atau menarik apa pun: itu tugas `profile use`.'),
     h2('use', 'Memakai profil'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` menandai profil aktif dengan `*`. `profile use` memasang skill profil yang belum ada dengan pemeriksaan yang sama seperti `add`, memindahkan yang sudah terpasang ke agen profil, dan mencabut yang tidak termasuk dalam profil.'),

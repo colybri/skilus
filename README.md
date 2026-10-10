@@ -51,6 +51,10 @@ skilus outdated                             # qué ramas o tags apuntan a un com
 skilus update                               # muestra qué ficheros cambian, pregunta y actualiza
 skilus update review --yes --allow-scripts
 
+skilus profile create web --skill debug,ui --agent codex  # declara un perfil en skilus.yaml
+skilus profile add web review               # añade skills (o --agent) a un perfil
+skilus profile remove web ui --agent codex  # las quita
+skilus profile delete web                   # borra el perfil; lo instalado no cambia
 skilus profile list                         # perfiles de skilus.yaml; * marca el activo
 skilus profile use web                      # despliega el perfil y retira lo que no le pertenece
 skilus profile use web --dry-run            # solo enseña el plan
@@ -96,6 +100,8 @@ profiles:
   web:
     skills: [systematic-debugging, web-design-guidelines]   # sin agents: los detectados
 ```
+
+No hace falta editar el YAML a mano: `skilus profile create web --skill systematic-debugging,web-design-guidelines` declara el perfil (`--agent` fija sus agentes), `skilus profile add` y `skilus profile remove` añaden o quitan skills y, con `--agent`, agentes, y `skilus profile delete` lo borra. Estos comandos solo editan `profiles:`, conservan los comentarios y el orden del fichero y no instalan ni retiran nada; las skills tienen que estar ya en `skills:` (añádelas antes con `skilus add`) y los agentes, en el catálogo.
 
 `skilus profile use web` instala las skills del perfil que faltan, desde el origen que registra `skills:` y con la misma inspección que `add` (`allow: [scripts]` en esa entrada cuenta como `--allow-scripts`); mueve a los agentes del perfil las que ya estaban, reutilizando el contenido fijado en el lock; y retira de los agentes y del lock las que el perfil no incluye. Primero instala y solo después retira, y `skilus.yaml` no cambia, así que volver a `backend` reinstala exactamente lo mismo. El perfil activo no se guarda: es aquel cuyas skills coinciden con las del lock.
 

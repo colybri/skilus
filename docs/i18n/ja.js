@@ -65,7 +65,7 @@ export default {
       ['`skilus sync`', 'エージェントをロックどおりの状態にする。'],
       ['`skilus outdated`', '新しいコミットを指しているブランチやタグ。'],
       ['`skilus update`', '変更を表示し、確認して更新。'],
-      ['`skilus profile`', 'プロファイルの一覧と展開。'],
+      ['`skilus profile`', 'プロファイルの作成・編集・一覧・展開。'],
       ['`skilus search`', 'skills.sh と自分のインデックスを検索。'],
       ['`skilus audit`', 'インストール内容の信頼性、署名、検査。'],
     ]),
@@ -143,6 +143,9 @@ export default {
   profiles: { title: 'プロファイル', lead: '用途ごとにスキルをまとめ、1 コマンドでセットを切り替えます。', blocks: [
     p('プロファイルは、`skilus.yaml` の `skills:` で宣言済みのスキルと、必要に応じて配置先のエージェントをまとめたものです。`agents:` がなければ検出されたエージェントが使われます。'),
     code(PROFILES, 'yaml'),
+    h2('edit', 'プロファイルの作成と編集'),
+    code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
+    p('`profile create` はプロファイルを宣言します。含める skill はあらかじめ `skills:` にある必要があり（先に `skilus add` で追加）、`--agent` でエージェントを指定します。`profile add` と `profile remove` は skill を、`--agent` を付けるとエージェントを追加・削除し、`profile delete` はプロファイルを削除します。これらは `profiles:` だけを編集し、`skilus.yaml` のコメントと順序を保ち、何もインストールも撤去もしません。それは `profile use` の役割です。'),
     h2('use', 'プロファイルを使う'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` はアクティブなプロファイルに `*` を付けます。`profile use` は `add` と同じ検査で不足しているスキルをインストールし、既存のものをプロファイルのエージェントへ移し、含まれないものを外します。'),

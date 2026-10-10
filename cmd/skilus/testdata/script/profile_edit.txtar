@@ -1,0 +1,69 @@
+# skilus profile create, add, remove and delete edit profiles: in
+# skilus.yaml without touching the rest of the file.
+cd project
+
+exec skilus profile create backend --skill debug,api --agent claude-code
+stdout 'Perfil backend creado\.'
+stdout '^  skills: debug, api$'
+stdout '^  agentes: claude-code$'
+exec skilus profile create web --skill debug
+stdout '^  agentes: detectados$'
+
+! exec skilus profile create web
+stderr 'already in skilus.yaml'
+! exec skilus profile create mobile --skill nope
+stderr 'skill nope is not in skills: of skilus.yaml; add it first with skilus add'
+! exec skilus profile create mobile --agent emacs
+stderr 'unknown agent emacs'
+
+exec skilus profile add web ui --agent codex
+stdout 'Perfil web actualizado\.'
+stdout '^  skills: debug, ui$'
+stdout '^  agentes: codex$'
+exec skilus profile remove backend api
+stdout '^  skills: debug$'
+! exec skilus profile remove backend ui
+stderr 'profile backend does not include skill ui'
+! exec skilus profile add backend
+stderr 'indica al menos una skill o un --agent'
+! exec skilus profile add mobile ui
+stderr 'profile "mobile" is not in skilus.yaml'
+
+exec skilus profile create old
+exec skilus profile delete old
+stdout 'Perfil old borrado\.'
+! exec skilus profile delete old
+stderr 'profile "old" is not in skilus.yaml'
+
+cmp skilus.yaml $WORK/want.yaml
+exec skilus profile list
+stdout '^ +backend +debug +claude-code$'
+stdout '^ +web +debug,ui +codex$'
+
+-- project/skilus.yaml --
+# Skills del equipo
+version: 1
+skills:
+  - name: debug
+    source: ./src # depuración
+  - name: api
+    source: ./src
+  - name: ui
+    source: ./src
+-- want.yaml --
+# Skills del equipo
+version: 1
+skills:
+  - name: debug
+    source: ./src # depuración
+  - name: api
+    source: ./src
+  - name: ui
+    source: ./src
+profiles:
+  backend:
+    skills: [debug]
+    agents: [claude-code]
+  web:
+    skills: [debug, ui]
+    agents: [codex]
