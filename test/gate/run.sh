@@ -11,7 +11,8 @@
 # Phase 3: a team that only has skilus.yaml, with a backend and a web
 # profile, deploys backend and then moves to web with one command.
 #
-# Phase 4: search finds a real skill on skills.sh.
+# Phase 4: search finds a real skill on skills.sh, and audit verifies the
+# signatures of the installed ones and fails on an unsigned, untrusted one.
 #
 # Usage: test/gate/run.sh <path to the skilus binary>
 # GATE_UPDATE=1 rewrites the committed lock instead of comparing.
@@ -20,7 +21,13 @@ set -euo pipefail
 bin=$(cd "$(dirname "$1")" && pwd)/$(basename "$1")
 here=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d)
-trap 'rm -rf "$work"' EXIT
+# git verify-commit (audit) may start gpg daemons in $HOME/.gnupg that keep
+# files open on Windows; stop them before cleaning up.
+cleanup() {
+  gpgconf --kill all > /dev/null 2>&1 || true
+  rm -rf "$work" || echo "could not remove $work" >&2
+}
+trap cleanup EXIT
 mkdir -p "$work/home" "$work/project"
 export HOME="$work/home" USERPROFILE="$work/home" XDG_CONFIG_HOME= CLAUDE_CONFIG_DIR= CODEX_HOME=
 cd "$work/project"
@@ -134,3 +141,39 @@ echo "Puerta de la fase 3 superada: el equipo pasa del perfil backend al web con
 "$bin" search pdf --owner anthropics --limit 5
 "$bin" search pdf --owner anthropics --limit 5 --json | grep -q '"source": "anthropics/skills"' ||
   { echo "skills.sh did not return anthropics/skills for pdf" >&2; exit 1; }
+
+# Phase 4: audit checks the 12 installed skills. Their pinned commits were
+# signed on GitHub, so every signature verifies.
+cd "$work/project"
+"$bin" audit --scope project
+"$bin" audit --scope project --json > "$work/audit.json"
+verified=$(grep -c '"state": "verified"' "$work/audit.json" || true)
+test "$verified" -eq 12 || { echo "$verified of 12 signatures verified" >&2; exit 1; }
+
+# A skill from an unsigned commit outside the trust: list fails the audit
+# in CI (code 5) and is named.
+mkdir "$work/rogue"
+printf -- '---\nname: rogue\ndescription: Sin firma\n---\n' > "$work/rogue/SKILL.md"
+git -C "$work/rogue" init --quiet --initial-branch=main
+git -C "$work/rogue" add .
+git -C "$work/rogue" -c user.name=gate -c user.email=gate@example.com commit --quiet --no-gpg-sign -m v1
+rogue="$work/rogue"
+if command -v cygpath > /dev/null; then rogue="/$(cygpath -m "$rogue")"; fi
+"$bin" add "file://$rogue" --agent universal --yes
+cat >> skilus.yaml <<'YAML'
+trust:
+  - github.com/anthropics
+  - github.com/vercel-labs
+  - github.com/obra
+  - github.com/openai
+YAML
+set +e
+"$bin" audit --scope project --strict > "$work/audit.out" 2>&1
+code=$?
+set -e
+cat "$work/audit.out"
+test "$code" -eq 5 || { echo "audit --strict exited $code, want 5" >&2; exit 1; }
+grep -q 'rogue: 2 warnings under --strict' "$work/audit.out"
+grep -q 'aviso \[unsigned-commit\]' "$work/audit.out"
+grep -q 'aviso \[untrusted-source\]' "$work/audit.out"
+echo "Puerta de la fase 4 superada: search encuentra una skill real y audit detecta la que no tiene firma ni confianza."

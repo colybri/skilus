@@ -2,7 +2,7 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 3 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local, un repositorio Git o un ZIP o tar.gz), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated`, `skilus update`, `skilus profile` y `skilus search`.
+> Estado: fase 3 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local, un repositorio Git o un ZIP o tar.gz), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated`, `skilus update`, `skilus profile`, `skilus search` y `skilus audit`.
 
 ## Instalación
 
@@ -56,6 +56,9 @@ skilus profile use web --dry-run            # solo enseña el plan
 
 skilus search pdf                           # busca en skills.sh y en tus índices
 skilus search pdf --owner anthropics --json
+
+skilus audit                                # confianza, firmas e inspección de lo instalado
+skilus audit --strict --json                # para CI: código 5 si hay avisos
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
@@ -117,6 +120,13 @@ skills:
 
 Los resultados de los índices salen primero, y con una lista `trust:` cada uno dice si su origen es de confianza. Si un origen no responde se avisa y se muestran los demás; `--no-registry` deja solo los índices y `SKILUS_REGISTRY_URL` apunta a otro servidor compatible (solo https). `search` no instala nada: muestra el `skilus inspect` con el que revisar el resultado antes del `add`.
 
+`skilus audit` revisa cada skill de `skilus.lock` con las reglas de hoy:
+- Si su origen está en `trust:`.
+- Si el commit fijado está firmado (GPG, SSH o x509, que incluye gitsign de Sigstore) y si la firma se verifica. Primero se intenta con `git verify-commit`, es decir, con tus claves, tus `allowedSignersFile` y tu `gpg.x509.program`. Si eso no basta y el repositorio está en GitHub, se pregunta a GitHub, que conoce las claves que registran sus usuarios. Solo se descarga el objeto del commit, y `GITHUB_TOKEN`, si existe, se usa únicamente para subir el límite de la API.
+- Además vuelve a inspeccionar el contenido del almacén, por si las heurísticas han cambiado desde que se instaló. Los ejecutables que ya aceptaste no se repiten.
+
+Un commit sin firma, o un ZIP o tar.gz, que nunca la llevan, da un aviso `unsigned-commit`. Con `--strict` los avisos hacen fallar la auditoría con código 5.
+
 Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
 
 Códigos de salida: 0 bien, 1 error o cancelado, 2 uso inválido, 3 no encontrado, 4 ya instalado o conflicto, 5 rechazado por la inspección, 6 lo instalado no coincide con el lock.
@@ -141,7 +151,7 @@ internal/adapter/  implementaciones de los puertos
 internal/cli/      comandos Cobra
 ```
 
-`test/gate/run.sh` contiene las puertas de las fases 1, 2 y 3: instala 12 skills reales de cuatro repositorios públicos (uno de ellos, openai/skills, con las skills en `skills/.curated/`), fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`; después borra los agentes y el almacén, comprueba que `sync` lo reconstruye y que `verify` detecta un fichero cambiado a mano; por último, en un repositorio que solo tiene `skilus.yaml` con un perfil backend y otro web, despliega backend y pasa a web con un solo `skilus profile use web`. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
+`test/gate/run.sh` contiene las puertas de las fases 1 a 4: instala 12 skills reales de cuatro repositorios públicos (uno de ellos, openai/skills, con las skills en `skills/.curated/`), fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`; después borra los agentes y el almacén, comprueba que `sync` lo reconstruye y que `verify` detecta un fichero cambiado a mano; por último, en un repositorio que solo tiene `skilus.yaml` con un perfil backend y otro web, despliega backend y pasa a web con un solo `skilus profile use web`; y comprueba que `search` encuentra una skill real en skills.sh, que `audit` verifica las firmas de las 12 skills y que falla con una skill sin firma y fuera de `trust:`. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
 
 Las reglas completas están en el plan del proyecto, sección "Reglas de arquitectura", y `.golangci.yml` las hace cumplir.
 
