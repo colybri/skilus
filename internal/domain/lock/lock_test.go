@@ -89,3 +89,41 @@ func TestRestoreDoesNotRecordEventsAndSorts(t *testing.T) {
 		t.Fatalf("Restore duplicate error = %v, want ErrConflict", err)
 	}
 }
+
+func TestUnneededFollowsChains(t *testing.T) {
+	n := func(s string) skill.Name {
+		v, err := skill.NewName(s)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return v
+	}
+	mk := func(name string, dep bool, requires ...string) lock.Entry {
+		e := lock.Entry{Skill: n(name), Dependency: dep}
+		for _, r := range requires {
+			e.Requires = append(e.Requires, n(r))
+		}
+		return e
+	}
+	// report -> pdf -> fonts; other -> fonts.
+	lf, err := lock.Restore([]lock.Entry{
+		mk("report", false, "pdf"),
+		mk("pdf", true, "fonts"),
+		mk("fonts", true),
+		mk("other", false, "fonts"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if deps := lf.Dependents(n("pdf"), nil); len(deps) != 1 || deps[0] != n("report") {
+		t.Fatalf("dependents of pdf = %v", deps)
+	}
+	got := lf.Unneeded(map[skill.Name]bool{n("report"): true})
+	if len(got) != 1 || got[0].Skill != n("pdf") {
+		t.Fatalf("unneeded after report = %v", got)
+	}
+	got = lf.Unneeded(map[skill.Name]bool{n("report"): true, n("other"): true})
+	if len(got) != 2 {
+		t.Fatalf("unneeded after report and other = %v", got)
+	}
+}

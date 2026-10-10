@@ -100,6 +100,14 @@ func (p prompter) ask(question string) (bool, error) {
 }
 
 func renderPlan(w io.Writer, plan app.InstallPlan) {
+	renderSource(w, plan)
+	for _, more := range plan.More {
+		fmt.Fprintln(w)
+		renderSource(w, more)
+	}
+}
+
+func renderSource(w io.Writer, plan app.InstallPlan) {
 	fmt.Fprintf(w, "Origen: %s\n", clean(plan.Source))
 	if plan.Commit != "" {
 		fmt.Fprintf(w, "Commit: %s\n", plan.Commit)
@@ -121,6 +129,20 @@ func renderPlan(w io.Writer, plan app.InstallPlan) {
 		p := s.Package
 		fmt.Fprintf(w, "  %s  %d ficheros, %d bytes, sha256 %s\n", p.Name(), len(p.Files()), p.Size(), p.TreeHash().Short())
 		fmt.Fprintf(w, "    %s\n", clean(p.Description()))
+		if reqs := p.Requires(); len(reqs) > 0 {
+			names := make([]string, len(reqs))
+			for i, r := range reqs {
+				names[i] = clean(r.String())
+			}
+			fmt.Fprintf(w, "    necesita %s\n", strings.Join(names, ", "))
+		}
+		if s.Dependency {
+			names := make([]string, len(s.RequiredBy))
+			for i, n := range s.RequiredBy {
+				names[i] = n.String()
+			}
+			fmt.Fprintf(w, "    dependencia de %s\n", strings.Join(names, ", "))
+		}
 		renderReport(w, s.Report)
 	}
 }

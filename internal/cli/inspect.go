@@ -24,6 +24,7 @@ type inspectSkillJSON struct {
 	Bytes       int64         `json:"bytes"`
 	TreeSHA256  string        `json:"tree_sha256"`
 	Executables []string      `json:"executables,omitempty"`
+	Requires    []string      `json:"requires,omitempty"`
 	Findings    []findingJSON `json:"findings,omitempty"`
 }
 
@@ -69,6 +70,9 @@ código 5 si add rechazaría instalarlas (bloqueos, o avisos con --strict).`,
 					Name: p.Name().String(), Path: s.Path, Description: p.Description(),
 					Files: len(p.Files()), Bytes: p.Size(), TreeSHA256: p.TreeHash().String(),
 					Executables: s.Report.Executables,
+				}
+				for _, r := range p.Requires() {
+					row.Requires = append(row.Requires, r.String())
 				}
 				for _, f := range s.Report.Findings {
 					row.Findings = append(row.Findings, findingJSON{Code: string(f.Code), Severity: string(f.Severity), Path: f.Path, Detail: f.Detail})

@@ -60,3 +60,33 @@ func TestUnder(t *testing.T) {
 		t.Errorf("root Under = %q, %v", rel, ok)
 	}
 }
+
+func TestBuildReadsRequires(t *testing.T) {
+	build := func(fm string) (skill.Package, error) {
+		return skillsrc.Build([]skill.File{{Path: skill.ManifestFile, Kind: skill.KindRegular, Data: []byte("---\nname: report\ndescription: Informes\n" + fm + "---\nbody\n")}})
+	}
+	p, err := build("metadata:\n  author: x\n  requires: \"pdf, anthropics/skills@v1#docx\"\n")
+	if err != nil {
+		t.Fatal(err)
+	}
+	reqs := p.Requires()
+	if len(reqs) != 2 || reqs[0].String() != "pdf" || reqs[1].Source != "anthropics/skills@v1" || reqs[1].Name.String() != "docx" {
+		t.Fatalf("requires = %+v", reqs)
+	}
+	if p, err := build("metadata:\n  requires: [pdf, docx]\n"); err != nil || len(p.Requires()) != 2 {
+		t.Fatalf("list: %v, %v", p.Requires(), err)
+	}
+	if p, err := build("metadata: free text\n"); err != nil || len(p.Requires()) != 0 {
+		t.Fatalf("scalar metadata: %v, %v", p.Requires(), err)
+	}
+	for _, bad := range []string{
+		"metadata:\n  requires: \"Bad\"\n",
+		"metadata:\n  requires: \"#pdf\"\n",
+		"metadata:\n  requires: \"report\"\n",
+		"metadata:\n  requires: {a: b}\n",
+	} {
+		if _, err := build(bad); !errors.Is(err, domain.ErrInvalid) {
+			t.Errorf("%q: err = %v, want ErrInvalid", bad, err)
+		}
+	}
+}

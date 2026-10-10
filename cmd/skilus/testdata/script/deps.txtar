@@ -1,0 +1,97 @@
+# metadata.requires in SKILL.md pulls other skills in; they go away when
+# nothing needs them.
+[!exec:git] skip 'git is not installed'
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env GIT_AUTHOR_NAME=t
+env GIT_AUTHOR_EMAIL=t@example.com
+env GIT_COMMITTER_NAME=t
+env GIT_COMMITTER_EMAIL=t@example.com
+env GIT_CONFIG_NOSYSTEM=1
+mkdir home/.skilus
+
+cd remote
+exec git init --quiet --initial-branch=main
+exec git add .
+exec git commit --quiet -m v1
+cd $WORK/project
+exec sh -c 'printf -- "---\nname: report\ndescription: Informes\nmetadata:\n  requires: \"pdf file://%s/remote#docx\"\n---\n" "$WORK" > src/skills/report/SKILL.md'
+
+exec skilus inspect ./src --skill report
+stdout 'necesita pdf, file://.*/remote#docx'
+
+exec skilus add ./src --skill report --agent claude-code --yes
+stdout 'Instalada docx'
+stdout 'Instalada pdf'
+stdout 'Instalada report'
+exists .claude/skills/pdf/SKILL.md
+exists .claude/skills/docx/SKILL.md
+grep 'name: report' skilus.yaml
+! grep 'name: pdf' skilus.yaml
+grep 'dependency: true' skilus.lock
+
+exec skilus list
+stdout '^report necesita pdf, docx\.$'
+exec skilus list --json
+stdout '"dependency": true'
+exec skilus verify
+
+# A requirement cannot be removed while something needs it.
+! exec skilus remove pdf
+stderr 'pdf is required by report; remove those too'
+exists .claude/skills/pdf
+
+# Removing what needed them removes the dependencies.
+exec skilus remove report
+stdout 'Eliminada report de 1 destino'
+stdout 'Eliminada pdf \(era una dependencia\)'
+stdout 'Eliminada docx \(era una dependencia\)'
+! exists .claude/skills/pdf
+! exists .claude/skills/docx
+
+# A profile brings the requirements of its skills and keeps them.
+cp $WORK/profiles.yaml skilus.yaml
+exec skilus profile use reports --yes
+stdout 'Instalada pdf'
+stdout 'Instalada report'
+exec skilus profile list
+stdout '^\* +reports '
+exec skilus profile use none --yes
+stdout 'Retirada pdf'
+! exists .claude/skills/pdf
+
+# A missing requirement stops the install before anything changes.
+! exec skilus add ./src --skill broken --agent claude-code --yes
+stderr 'skill broken requires nope, which is not in'
+! exists .claude/skills/broken
+
+-- profiles.yaml --
+version: 1
+skills:
+  - name: report
+    source: ./src
+profiles:
+  reports:
+    skills: [report]
+    agents: [claude-code]
+  none:
+    skills: []
+-- remote/SKILL.md --
+---
+name: docx
+description: Word
+---
+-- project/src/skills/report/SKILL.md --
+-- project/src/skills/pdf/SKILL.md --
+---
+name: pdf
+description: PDF
+---
+-- project/src/skills/broken/SKILL.md --
+---
+name: broken
+description: Rota
+metadata:
+  requires: nope
+---

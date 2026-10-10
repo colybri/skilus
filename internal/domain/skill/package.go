@@ -51,7 +51,23 @@ type Package struct {
 	description string
 	files       []File
 	hash        TreeHash
+	requires    []Requirement
 }
+
+// WithRequires returns a copy of p that needs the given skills. A skill
+// cannot require itself.
+func (p Package) WithRequires(reqs []Requirement) (Package, error) {
+	for _, r := range reqs {
+		if r.Name == p.name && r.Source == "" {
+			return Package{}, fmt.Errorf("skill %s requires itself: %w", p.name, domain.ErrInvalid)
+		}
+	}
+	p.requires = append([]Requirement(nil), reqs...)
+	return p, nil
+}
+
+// Requires returns the skills p needs, as SKILL.md declares them.
+func (p Package) Requires() []Requirement { return append([]Requirement(nil), p.requires...) }
 
 // NewPackage validates the metadata and file list and computes the tree
 // hash. Files are sorted by path.

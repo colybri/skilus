@@ -37,7 +37,8 @@ type ListProfilesHandler struct {
 }
 
 // Handle returns the profiles in file order. The active profile is not
-// stored anywhere: it is the one whose skills are the installed ones.
+// stored anywhere: it is the one whose skills, with their requirements,
+// are the installed ones.
 func (h ListProfilesHandler) Handle(ctx context.Context, q ListProfiles) ([]ProfileStatus, error) {
 	m, err := h.Manifest.Manifest(ctx, q.Scope)
 	if err != nil {
@@ -50,7 +51,13 @@ func (h ListProfilesHandler) Handle(ctx context.Context, q ListProfiles) ([]Prof
 	installed := lockedNames(lf)
 	out := make([]ProfileStatus, 0, len(m.Profiles))
 	for _, p := range m.Profiles {
-		out = append(out, ProfileStatus{Profile: p, Active: p.Matches(installed), Undeclared: undeclared(m, p)})
+		// The profile's skills and what they need are exactly what is installed.
+		want := needed(p.Skills(), lf, nil)
+		active := len(want) == len(installed)
+		for _, n := range installed {
+			active = active && want[n]
+		}
+		out = append(out, ProfileStatus{Profile: p, Active: active, Undeclared: undeclared(m, p)})
 	}
 	return out, nil
 }
@@ -180,8 +187,72 @@ func (h UseProfileHandler) plan(ctx context.Context, cmd UseProfile, m Manifest,
 		return err
 	}
 
+	// Skills to install, grouped by the source skilus.yaml records, in
+	// the order the profile lists them, plus what they require.
+	declared := map[skill.Name]ManifestEntry{}
+	for _, e := range m.Skills {
+		declared[e.Name] = e
+	}
+	var order []string
+	bySource := map[string][]string{}
+	for _, n := range p.Skills() {
+		if _, ok := lf.Entry(n); ok {
+			continue
+		}
+		src := declared[n].Source
+		if _, ok := bySource[src]; !ok {
+			order = append(order, src)
+		}
+		bySource[src] = append(bySource[src], n.String())
+	}
+	var groups []planGroup
+	if len(order) > 0 {
+		if err := resolve(); err != nil {
+			return plan, nil, err
+		}
+	}
+	for _, src := range order {
+		fetched, err := fetchSource(ctx, h.Add.Fetchers, src)
+		if err != nil {
+			return plan, nil, err
+		}
+		selected, err := selectSkills(fetched, bySource[src])
+		if err != nil {
+			return plan, nil, fmt.Errorf("source %s: %w", src, err)
+		}
+		untrusted, err := trustFindings(ctx, h.Add.Trust, src, trustScopes(cmd.Scope)...)
+		if err != nil {
+			return plan, nil, err
+		}
+		fetched.Source = h.Add.recordedSource(cmd.Scope, fetched.Source)
+		ip := InstallPlan{Source: fetched.Source, Commit: fetched.Commit, Targets: targets}
+		for _, s := range selected {
+			allow := policy.Allow{Scripts: cmd.AllowScripts || allowsScripts(declared[s.Package.Name()])}
+			report := policy.Inspect(s.Package, h.Add.Limits, allow)
+			report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
+			ip.Skills = append(ip.Skills, PlannedSkill{Package: s.Package, Path: s.Path, Report: report})
+		}
+		groups = append(groups, planGroup{raw: src, fetched: fetched, plan: ip})
+	}
+	if len(groups) > 0 {
+		r := h.Add.resolver(cmd.Scope, cmd.AllowScripts, lf)
+		r.allowScripts = func(n skill.Name) bool { return cmd.AllowScripts || allowsScripts(declared[n]) }
+		var err error
+		if groups, err = r.resolve(ctx, groups, targets); err != nil {
+			return plan, nil, err
+		}
+	}
+	var fetched []Fetched
+	for _, g := range groups {
+		plan.Install = append(plan.Install, g.plan)
+		fetched = append(fetched, g.fetched)
+	}
+
+	// What the profile's skills need stays, whether or not the profile
+	// names it.
+	keep := needed(p.Skills(), lf, groups)
 	for _, e := range lf.Entries() {
-		if p.Has(e.Skill) {
+		if keep[e.Skill] {
 			plan.Keep = append(plan.Keep, e)
 		} else {
 			plan.Remove = append(plan.Remove, e)
@@ -206,58 +277,7 @@ func (h UseProfileHandler) plan(ctx context.Context, cmd UseProfile, m Manifest,
 		}
 		plan.Keep = kept
 	}
-
-	// Skills to install, grouped by the source skilus.yaml records, in
-	// the order the profile lists them.
-	declared := map[skill.Name]ManifestEntry{}
-	for _, e := range m.Skills {
-		declared[e.Name] = e
-	}
-	var order []string
-	bySource := map[string][]string{}
-	for _, n := range p.Skills() {
-		if _, ok := lf.Entry(n); ok {
-			continue
-		}
-		src := declared[n].Source
-		if _, ok := bySource[src]; !ok {
-			order = append(order, src)
-		}
-		bySource[src] = append(bySource[src], n.String())
-	}
-	if len(order) == 0 {
-		return plan, nil, nil
-	}
-	if err := resolve(); err != nil {
-		return plan, nil, err
-	}
-
-	var groups []Fetched
-	for _, src := range order {
-		fetched, err := fetchSource(ctx, h.Add.Fetchers, src)
-		if err != nil {
-			return plan, nil, err
-		}
-		selected, err := selectSkills(fetched, bySource[src])
-		if err != nil {
-			return plan, nil, fmt.Errorf("source %s: %w", src, err)
-		}
-		untrusted, err := trustFindings(ctx, h.Add.Trust, src, trustScopes(cmd.Scope)...)
-		if err != nil {
-			return plan, nil, err
-		}
-		fetched.Source = h.Add.recordedSource(cmd.Scope, fetched.Source)
-		ip := InstallPlan{Source: fetched.Source, Commit: fetched.Commit, Targets: targets}
-		for _, s := range selected {
-			allow := policy.Allow{Scripts: cmd.AllowScripts || allowsScripts(declared[s.Package.Name()])}
-			report := policy.Inspect(s.Package, h.Add.Limits, allow)
-			report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
-			ip.Skills = append(ip.Skills, PlannedSkill{Package: s.Package, Path: s.Path, Report: report})
-		}
-		plan.Install = append(plan.Install, ip)
-		groups = append(groups, fetched)
-	}
-	return plan, groups, nil
+	return plan, fetched, nil
 }
 
 // retarget compares where e is deployed with where the profile wants it,
@@ -325,8 +345,9 @@ func profileGate(plan ProfilePlan, cmd UseProfile, m Manifest) error {
 
 func (h UseProfileHandler) apply(ctx context.Context, cmd UseProfile, plan ProfilePlan, groups []Fetched, lf *lock.Lockfile) (UseProfileResult, error) {
 	res := UseProfileResult{Plan: plan}
-	for i, ip := range plan.Install {
-		installed, err := h.Add.install(ctx, AddSkill{Scope: cmd.Scope}, groups[i], ip, lf)
+	// Requirements from other sources come last in Install; install them first.
+	for i := len(plan.Install) - 1; i >= 0; i-- {
+		installed, err := h.Add.install(ctx, AddSkill{Scope: cmd.Scope}, groups[i], plan.Install[i], lf)
 		res.Installed = append(res.Installed, installed...)
 		if err != nil {
 			return res, err

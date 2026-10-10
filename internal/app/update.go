@@ -30,6 +30,9 @@ type UpdatePlan struct {
 	Skills []PlannedUpdate
 	// Current lists the skills whose ref still points to the locked commit.
 	Current []lock.Entry
+	// Dependencies installs what the new versions require and the lock
+	// lacks, one plan per source.
+	Dependencies []InstallPlan
 }
 
 // PlannedUpdate is one skill moving to a new commit.
@@ -54,6 +57,8 @@ func (u PlannedUpdate) ContentChanged() bool {
 type UpdateResult struct {
 	Plan    UpdatePlan
 	Updated []lock.Entry
+	// Installed lists the requirements installed along the way.
+	Installed []lock.Entry
 }
 
 // UpdateHandler runs Update.
@@ -100,6 +105,13 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 	if len(plan.Skills) == 0 {
 		return UpdateResult{Plan: plan}, nil
 	}
+	deps, err := h.dependencies(ctx, cmd, plan, sources, lf)
+	if err != nil {
+		return UpdateResult{Plan: plan}, err
+	}
+	for _, g := range deps {
+		plan.Dependencies = append(plan.Dependencies, g.plan)
+	}
 
 	if err := updateGate(plan, cmd); err != nil {
 		return UpdateResult{Plan: plan}, err
@@ -118,7 +130,15 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 		}
 	}
 
-	var updated []lock.Entry
+	var updated, installed []lock.Entry
+	for i := len(deps) - 1; i >= 0; i-- {
+		add := AddSkillHandler{Store: h.Store, Deployer: h.Deployer, Locks: h.Locks, Manifests: noManifest{}}
+		got, err := add.install(ctx, AddSkill{Scope: cmd.Scope}, deps[i].fetched, deps[i].plan, lf)
+		installed = append(installed, got...)
+		if err != nil {
+			return UpdateResult{Plan: plan, Installed: installed}, err
+		}
+	}
 	for i, u := range plan.Skills {
 		if u.ContentChanged() {
 			storeDir, err := h.Store.Put(ctx, u.Package)
@@ -136,6 +156,7 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 		}
 		e := u.Previous
 		e.Commit, e.TreeHash, e.Executables = u.Commit, u.Package.TreeHash(), skill.Executables(u.Package.Files())
+		e.Requires = requiredNames(u.Package)
 		if err := lf.Update(e); err != nil {
 			return UpdateResult{Plan: plan}, err
 		}
@@ -145,8 +166,81 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 		return UpdateResult{Plan: plan}, fmt.Errorf("save lock: %w", err)
 	}
 	lf.PullEvents()
-	return UpdateResult{Plan: plan, Updated: updated}, nil
+	return UpdateResult{Plan: plan, Updated: updated, Installed: installed}, nil
 }
+
+// dependencies plans what the new versions require and the lock lacks.
+// Each requirement goes to the agents of the skill that needs it.
+func (h UpdateHandler) dependencies(ctx context.Context, cmd Update, plan UpdatePlan, sources map[string]Fetched, lf *lock.Lockfile) ([]planGroup, error) {
+	byID, err := agentsByID(ctx, h.Catalog)
+	if err != nil {
+		return nil, err
+	}
+	var groups []planGroup
+	for _, u := range plan.Skills {
+		src, err := source.Parse(u.Previous.Source)
+		if err != nil {
+			return nil, err
+		}
+		if src.Kind == source.KindGit {
+			src.Ref = u.Previous.Requested
+		}
+		var targets []PlannedTarget
+		for _, t := range u.Previous.Targets {
+			if a, ok := byID[t.Agent]; ok {
+				targets = append(targets, PlannedTarget{Target: t, Dir: skillsDir(a, t.Scope, h.ProjectRoot)})
+			}
+		}
+		fetched := sources[src.String()]
+		groups = append(groups, planGroup{raw: src.String(), fetched: fetched, plan: InstallPlan{
+			Source: fetched.Source, Commit: fetched.Commit, Targets: targets,
+			Skills: []PlannedSkill{{Package: u.Package, Path: u.Previous.Path}},
+		}})
+	}
+	add := AddSkillHandler{Fetchers: h.Fetchers, Trust: h.Trust, Limits: h.Limits, ProjectRoot: h.ProjectRoot}
+	groups, err = add.resolver(cmd.Scope, cmd.AllowScripts, lf).resolve(ctx, groups, nil)
+	if err != nil {
+		return nil, err
+	}
+	// Keep only the requirements; the updated skills are planned apart.
+	var out []planGroup
+	for _, g := range groups {
+		var deps []PlannedSkill
+		for _, s := range g.plan.Skills {
+			if s.Dependency {
+				deps = append(deps, s)
+			}
+		}
+		if len(deps) == 0 {
+			continue
+		}
+		g.plan.Skills = deps
+		if g.plan.Targets == nil {
+			// A new source takes the agents of the first skill needing it.
+			g.plan.Targets = groups[firstRequirer(groups, deps[0])].plan.Targets
+		}
+		out = append(out, g)
+	}
+	return out, nil
+}
+
+// firstRequirer returns the group holding the skill that required s.
+func firstRequirer(groups []planGroup, s PlannedSkill) int {
+	for i, g := range groups {
+		for _, p := range g.plan.Skills {
+			if len(s.RequiredBy) > 0 && p.Package.Name() == s.RequiredBy[0] {
+				return i
+			}
+		}
+	}
+	return 0
+}
+
+// noManifest is for installs that must not touch skilus.yaml.
+type noManifest struct{}
+
+func (noManifest) AddSkill(context.Context, agent.Scope, ManifestEntry) error { return nil }
+func (noManifest) RemoveSkill(context.Context, agent.Scope, skill.Name) error { return nil }
 
 // pickEntries returns the named entries, or all of them, checking every
 // name first.
@@ -260,6 +354,11 @@ func (h UpdateHandler) stored(ctx context.Context, e lock.Entry) []skill.File {
 // did not have before need --allow-scripts.
 func updateGate(plan UpdatePlan, cmd Update) error {
 	var reasons []string
+	for _, ip := range plan.Dependencies {
+		if err := gate(ip, AddSkill{Yes: cmd.Yes, Strict: cmd.Strict, AllowScripts: cmd.AllowScripts}); err != nil {
+			reasons = append(reasons, strings.TrimSuffix(err.Error(), ": "+ErrRejected.Error()))
+		}
+	}
 	for _, u := range plan.Skills {
 		r, name := u.Report, u.Previous.Skill
 		newScripts := false

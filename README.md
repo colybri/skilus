@@ -36,7 +36,8 @@ skilus add ./mis-skills --agent claude-code --scope global
 
 skilus list                                 # skills instaladas con commit, hash y agentes
 skilus list --scope global --json
-skilus remove review                        # la quita de los agentes, del lock y de skilus.yaml
+skilus remove review                        # la quita de los agentes, del lock y de skilus.yaml,
+                                            # con las dependencias que ya nadie necesita
 
 skilus inspect anthropics/skills --skill pdf # lo que add revisaría, sin instalar nada
 skilus inspect ./mis-skills --strict --json # para CI: código 5 si add lo rechazaría
@@ -126,6 +127,19 @@ Los resultados de los índices salen primero, y con una lista `trust:` cada uno 
 - Además vuelve a inspeccionar el contenido del almacén, por si las heurísticas han cambiado desde que se instaló. Los ejecutables que ya aceptaste no se repiten.
 
 Un commit sin firma, o un ZIP o tar.gz, que nunca la llevan, da un aviso `unsigned-commit`. Con `--strict` los avisos hacen fallar la auditoría con código 5.
+
+Una skill puede necesitar otras. Lo declara en el frontmatter de su `SKILL.md`, bajo `metadata`, que el formato de Agent Skills reserva para datos propios de cada herramienta y que los agentes ignoran:
+
+```yaml
+---
+name: report
+description: Genera informes en PDF y Word
+metadata:
+  requires: pdf anthropics/skills#docx   # o una lista YAML
+---
+```
+
+Cada entrada es un nombre, que se busca en el mismo origen que la skill, u `origen#nombre` para otro origen (no un directorio local). `skilus add` instala las que falten en los mismos agentes, con la misma inspección y comprobación de `trust:`, y las enseña en el plan. En `skilus.lock` cada skill guarda qué necesita y las instaladas así quedan marcadas como dependencia; en `skilus.yaml` solo se anota lo que pediste. Una necesidad se da por cumplida si ya hay instalada una skill con ese nombre, venga de donde venga. `skilus remove` no quita una skill que otra necesita salvo que quites ambas, y al quitar la última que necesitaba una dependencia, la quita también. `skilus update` instala lo que pida la versión nueva y `skilus profile use` despliega las dependencias de las skills del perfil.
 
 Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
 

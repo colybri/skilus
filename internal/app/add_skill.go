@@ -48,6 +48,13 @@ type InstallPlan struct {
 	// Skipped are skills of the source that could not be read; they are
 	// not installed.
 	Skipped []InvalidSkill
+	// More holds the other sources that requirements pull skills from.
+	More []InstallPlan
+}
+
+// All returns the plan and the plans in More.
+func (p InstallPlan) All() []InstallPlan {
+	return append([]InstallPlan{p}, p.More...)
 }
 
 // PlannedSkill is one skill with its inspection report.
@@ -55,6 +62,10 @@ type PlannedSkill struct {
 	Package skill.Package
 	Path    string
 	Report  policy.Report
+	// Dependency marks a skill installed because others in RequiredBy need
+	// it, not because it was asked for.
+	Dependency bool
+	RequiredBy []skill.Name
 }
 
 // PlannedTarget is one destination directory.
@@ -132,6 +143,14 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 		report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
 		plan.Skills = append(plan.Skills, PlannedSkill{Package: s.Package, Path: s.Path, Report: report})
 	}
+	groups, err := h.resolver(cmd.Scope, cmd.AllowScripts, lf).resolve(ctx, []planGroup{{raw: cmd.Source, fetched: fetched, plan: plan}}, targets)
+	if err != nil {
+		return AddResult{Plan: plan}, err
+	}
+	plan = groups[0].plan
+	for _, g := range groups[1:] {
+		plan.More = append(plan.More, g.plan)
+	}
 
 	if err := gate(plan, cmd); err != nil {
 		return AddResult{Plan: plan}, err
@@ -146,11 +165,39 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 		}
 	}
 
-	installed, err := h.install(ctx, cmd, fetched, plan, lf)
+	installed, err := h.installGroups(ctx, cmd.Scope, groups, plan, lf)
 	if err != nil {
-		return AddResult{Plan: plan}, err
+		return AddResult{Plan: plan, Installed: installed}, err
 	}
 	return AddResult{Plan: plan, Installed: installed}, nil
+}
+
+// resolver returns the dependency resolver for an install in scope.
+func (h AddSkillHandler) resolver(scope agent.Scope, allowScripts bool, lf *lock.Lockfile) depResolver {
+	return depResolver{
+		fetchers:     h.Fetchers,
+		trust:        h.Trust,
+		limits:       h.Limits,
+		scope:        scope,
+		allowScripts: func(skill.Name) bool { return allowScripts },
+		record:       func(src string) string { return h.recordedSource(scope, src) },
+		lf:           lf,
+	}
+}
+
+// installGroups installs the groups, dependencies' sources first, with the
+// plans as they were confirmed (final holds groups[0] and then More).
+func (h AddSkillHandler) installGroups(ctx context.Context, scope agent.Scope, groups []planGroup, final InstallPlan, lf *lock.Lockfile) ([]lock.Entry, error) {
+	plans := final.All()
+	var installed []lock.Entry
+	for i := len(groups) - 1; i >= 0; i-- {
+		got, err := h.install(ctx, AddSkill{Scope: scope}, groups[i].fetched, plans[i], lf)
+		installed = append(installed, got...)
+		if err != nil {
+			return installed, err
+		}
+	}
+	return installed, nil
 }
 
 func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.Mode) ([]PlannedTarget, error) {
@@ -269,7 +316,11 @@ func selectSkills(fetched Fetched, names []string) ([]FetchedSkill, error) {
 // --strict, and scripts that were not explicitly allowed under --yes.
 func gate(plan InstallPlan, cmd AddSkill) error {
 	var reasons []string
-	for _, s := range plan.Skills {
+	var skills []PlannedSkill
+	for _, p := range plan.All() {
+		skills = append(skills, p.Skills...)
+	}
+	for _, s := range skills {
 		r := s.Report
 		switch {
 		case r.Blocking():
@@ -326,11 +377,16 @@ func (h AddSkillHandler) install(ctx context.Context, cmd AddSkill, fetched Fetc
 			TreeHash:    s.Package.TreeHash(),
 			Executables: skill.Executables(s.Package.Files()),
 			Targets:     targets,
+			Requires:    requiredNames(s.Package),
+			Dependency:  s.Dependency,
 		}
 		if err := lf.Install(e); err != nil {
 			return nil, err
 		}
 		installed = append(installed, e)
+		if s.Dependency {
+			continue // skilus.yaml records what was asked for; requirements follow from it
+		}
 
 		var allow []string
 		if len(s.Report.Executables) > 0 {

@@ -60,6 +60,8 @@ type lockEntry struct {
 	TreeSHA256  string       `yaml:"tree_sha256"`
 	Executables []string     `yaml:"executables,omitempty"`
 	Targets     []lockTarget `yaml:"targets"`
+	Requires    []string     `yaml:"requires,omitempty"`
+	Dependency  bool         `yaml:"dependency,omitempty"`
 }
 
 type lockTarget struct {
@@ -105,7 +107,14 @@ func (raw lockEntry) toDomain(name string) (lock.Entry, error) {
 	if err != nil {
 		return lock.Entry{}, err
 	}
-	e := lock.Entry{Skill: n, Source: raw.Source, Requested: raw.Requested, Commit: raw.Commit, Path: raw.Path, TreeHash: h, Executables: raw.Executables}
+	e := lock.Entry{Skill: n, Source: raw.Source, Requested: raw.Requested, Commit: raw.Commit, Path: raw.Path, TreeHash: h, Executables: raw.Executables, Dependency: raw.Dependency}
+	for _, r := range raw.Requires {
+		rn, err := skill.NewName(r)
+		if err != nil {
+			return lock.Entry{}, err
+		}
+		e.Requires = append(e.Requires, rn)
+	}
 	for _, t := range raw.Targets {
 		id, err := agent.NewID(t.Agent)
 		if err != nil {
@@ -128,7 +137,10 @@ func (raw lockEntry) toDomain(name string) (lock.Entry, error) {
 func (r Repo) Save(_ context.Context, scope agent.Scope, l *lock.Lockfile) error {
 	doc := lockDoc{Version: 1, Skills: map[string]lockEntry{}}
 	for _, e := range l.Entries() {
-		raw := lockEntry{Source: e.Source, Requested: e.Requested, Commit: e.Commit, Path: e.Path, TreeSHA256: e.TreeHash.String(), Executables: e.Executables}
+		raw := lockEntry{Source: e.Source, Requested: e.Requested, Commit: e.Commit, Path: e.Path, TreeSHA256: e.TreeHash.String(), Executables: e.Executables, Dependency: e.Dependency}
+		for _, r := range e.Requires {
+			raw.Requires = append(raw.Requires, r.String())
+		}
 		for _, t := range e.Targets {
 			raw.Targets = append(raw.Targets, lockTarget{Agent: t.Agent.String(), Scope: string(t.Scope), Mode: string(t.Mode)})
 		}
