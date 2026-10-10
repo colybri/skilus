@@ -63,13 +63,16 @@ func (f LocalFetcher) Fetch(_ context.Context, src source.Source) (app.Fetched, 
 }
 
 // manifests lists the regular SKILL.md files where skillsrc.Discover looks:
-// the root, skills/*/ and */.
+// the root and the subdirectories of skillsrc.SkillDirs.
 func manifests(root string) ([]string, error) {
 	var out []string
 	if isFile(filepath.Join(root, skill.ManifestFile)) {
 		out = append(out, skill.ManifestFile)
 	}
-	for _, base := range []string{"skills", "."} {
+	for _, base := range skillsrc.SkillDirs {
+		if base == "" {
+			base = "."
+		}
 		entries, err := os.ReadDir(filepath.Join(root, base))
 		if errors.Is(err, fs.ErrNotExist) {
 			continue
