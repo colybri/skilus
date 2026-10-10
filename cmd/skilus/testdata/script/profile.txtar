@@ -47,6 +47,11 @@ exists .agents/skills/debug/SKILL.md
 exists .agents/skills/ui/SKILL.md
 ! grep 'api:' skilus.lock
 cmp skilus.yaml $WORK/before.yaml
+# verify catches the broken profile in skilus.yaml (exit code 2).
+! exec skilus verify
+stdout 'ERROR el perfil broken \(project\) usa nope'
+! stdout 'NO INSTALADA'
+exec skilus profile delete broken
 exec skilus verify
 exec skilus profile list
 stdout '^\* +web '

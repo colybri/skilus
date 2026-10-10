@@ -42,7 +42,7 @@ skilus remove review                        # la quita de los agentes, del lock 
 skilus inspect anthropics/skills --skill pdf # lo que add revisaría, sin instalar nada
 skilus inspect ./mis-skills --strict --json # para CI: código 5 si add lo rechazaría
 
-skilus verify                               # comprueba que lo instalado coincide con el lock
+skilus verify                               # comprueba que lo instalado y skilus.yaml coinciden con el lock
 skilus verify --json
 skilus sync                                 # deja los agentes como dice el lock (como npm ci)
 skilus sync --force                         # sobrescribe también lo cambiado a mano
@@ -88,7 +88,7 @@ Con la lista, cualquier otra fuente recibe un aviso `untrusted-source`, que con 
 
 El contenido se guarda en `~/.skilus/store/<sha256>`. En el proyecto se instala como copia (para poder versionarla) y en global como symlink al almacén. El resultado queda en `skilus.lock` (qué contenido exacto hay instalado y dónde) y la intención en `skilus.yaml`; en global, ambos viven en `~/.skilus/`.
 
-`skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. `skilus outdated` consulta con `git ls-remote`, sin descargar contenido, a qué commit apunta ahora la rama o el tag de cada skill; las fijadas a un commit no se comprueban. `skilus update` descarga esa versión, enseña los ficheros añadidos, borrados y modificados y la inspección de la versión nueva (los ejecutables que ya tenía no vuelven a preguntarse) y, tras confirmar, reemplaza las copias instaladas y actualiza el lock; `skilus.yaml` no cambia porque guarda la rama o el tag, no el commit.
+`skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. También comprueba `skilus.yaml`: que se puede leer, que cada skill de `skills:` está instalada (salvo las que no pertenecen al perfil activo), que cada skill instalada, salvo las dependencias, está en `skills:` y que los perfiles solo usan skills declaradas; si el fichero tiene errores sale con código 2 y, si no coincide con el lock, con código 6, proponiendo el comando que lo arregla. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. `skilus outdated` consulta con `git ls-remote`, sin descargar contenido, a qué commit apunta ahora la rama o el tag de cada skill; las fijadas a un commit no se comprueban. `skilus update` descarga esa versión, enseña los ficheros añadidos, borrados y modificados y la inspección de la versión nueva (los ejecutables que ya tenía no vuelven a preguntarse) y, tras confirmar, reemplaza las copias instaladas y actualiza el lock; `skilus.yaml` no cambia porque guarda la rama o el tag, no el commit.
 
 Un perfil agrupa skills ya declaradas en `skills:` de `skilus.yaml` y, si quieres, los agentes donde van:
 

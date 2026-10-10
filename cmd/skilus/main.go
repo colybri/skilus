@@ -111,7 +111,7 @@ func run() int {
 			ProjectRoot: cwd,
 			Limits:      policy.DefaultLimits,
 		},
-		Verify:       app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
+		Verify:       app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, Manifest: repo, ProjectRoot: cwd},
 		Sync:         sync,
 		ListProfiles: app.ListProfilesHandler{Manifest: repo, Locks: repo},
 		UseProfile:   app.UseProfileHandler{Add: add, Sync: sync, Manifest: repo},

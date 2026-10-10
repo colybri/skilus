@@ -43,10 +43,41 @@ type TargetCheck struct {
 	Changes []skill.Change
 }
 
-// VerifyResult lists every checked target, in lock order.
-type VerifyResult struct {
-	Checks []TargetCheck
+// ManifestProblem says what is wrong with a scope's skilus.yaml.
+type ManifestProblem string
+
+// Problems Verify finds in skilus.yaml.
+const (
+	// ManifestInvalid: the file cannot be read; Detail says why.
+	ManifestInvalid ManifestProblem = "manifest-invalid"
+	// NotInstalled: skills: declares a skill the lock does not hold.
+	NotInstalled ManifestProblem = "not-installed"
+	// NotDeclared: the lock holds a skill skills: does not declare.
+	NotDeclared ManifestProblem = "not-declared"
+	// ProfileUndeclared: a profile uses a skill skills: does not declare.
+	ProfileUndeclared ManifestProblem = "profile-undeclared"
+)
+
+// ManifestCheck is one problem found in skilus.yaml.
+type ManifestCheck struct {
+	Scope   agent.Scope
+	Problem ManifestProblem
+	Skill   skill.Name // empty for ManifestInvalid
+	Source  string     // for NotInstalled, where skills: says it comes from
+	Profile string     // for ProfileUndeclared
+	Detail  string
 }
+
+// VerifyResult lists every checked target, in lock order, and the problems
+// found in skilus.yaml.
+type VerifyResult struct {
+	Checks   []TargetCheck
+	Manifest []ManifestCheck
+}
+
+// ErrInvalidManifest means a skilus.yaml that Verify read is broken: it
+// cannot be read, or a profile uses a skill skills: does not declare.
+var ErrInvalidManifest = fmt.Errorf("skilus.yaml has errors: %w", domain.ErrInvalid)
 
 // Problems returns the checks that failed.
 func (r VerifyResult) Problems() []TargetCheck {
@@ -65,11 +96,14 @@ type VerifyHandler struct {
 	Store       Store
 	Trees       TreeReader
 	Locks       LockRepository
+	Manifest    ManifestReader
 	ProjectRoot string
 }
 
-// Handle checks every target of every skill in the scopes' locks. It
-// returns ErrDrift, together with the full result, when any check fails.
+// Handle checks every target of every skill in the scopes' locks, and
+// that each scope's skilus.yaml can be read and agrees with its lock. It
+// returns the full result together with ErrInvalidManifest when a
+// skilus.yaml is broken, or else ErrDrift when any other check fails.
 func (h VerifyHandler) Handle(ctx context.Context, q Verify) (VerifyResult, error) {
 	byID, err := agentsByID(ctx, h.Catalog)
 	if err != nil {
@@ -110,11 +144,54 @@ func (h VerifyHandler) Handle(ctx context.Context, q Verify) (VerifyResult, erro
 				res.Checks = append(res.Checks, c)
 			}
 		}
+		res.Manifest = append(res.Manifest, h.checkManifest(ctx, scope, lf)...)
 	}
-	if len(res.Problems()) > 0 {
+	for _, c := range res.Manifest {
+		if c.Problem == ManifestInvalid || c.Problem == ProfileUndeclared {
+			return res, ErrInvalidManifest
+		}
+	}
+	if len(res.Problems()) > 0 || len(res.Manifest) > 0 {
 		return res, ErrDrift
 	}
 	return res, nil
+}
+
+// checkManifest compares a scope's skilus.yaml with its lock. When a
+// profile is active the lock holds only that profile's skills, so the
+// other declared skills are not missing.
+func (h VerifyHandler) checkManifest(ctx context.Context, scope agent.Scope, lf *lock.Lockfile) []ManifestCheck {
+	m, err := h.Manifest.Manifest(ctx, scope)
+	if err != nil {
+		return []ManifestCheck{{Scope: scope, Problem: ManifestInvalid, Detail: err.Error()}}
+	}
+	var out []ManifestCheck
+	for _, p := range m.Profiles {
+		for _, n := range undeclared(m, p) {
+			out = append(out, ManifestCheck{Scope: scope, Problem: ProfileUndeclared, Skill: n, Profile: p.Name()})
+		}
+	}
+	declared := map[skill.Name]bool{}
+	for _, e := range m.Skills {
+		declared[e.Name] = true
+	}
+	active := false
+	for _, p := range m.Profiles {
+		active = active || isActive(p, lf)
+	}
+	if !active {
+		for _, e := range m.Skills {
+			if _, ok := lf.Entry(e.Name); !ok {
+				out = append(out, ManifestCheck{Scope: scope, Problem: NotInstalled, Skill: e.Name, Source: e.Source})
+			}
+		}
+	}
+	for _, e := range lf.Entries() {
+		if !e.Dependency && !declared[e.Skill] {
+			out = append(out, ManifestCheck{Scope: scope, Problem: NotDeclared, Skill: e.Skill})
+		}
+	}
+	return out
 }
 
 // stored returns the entry's content from the store, or nil when the store

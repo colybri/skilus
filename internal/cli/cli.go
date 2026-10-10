@@ -65,9 +65,18 @@ func Run(deps Deps, args []string, stdin io.Reader, stdout, stderr io.Writer) in
 	if err == nil {
 		return ExitOK
 	}
-	fmt.Fprintln(stderr, "skilus:", err)
+	var r reported
+	if !errors.As(err, &r) {
+		fmt.Fprintln(stderr, "skilus:", err)
+	}
 	return exitCode(err)
 }
+
+// reported wraps an error the command already explained in its output, so
+// Run keeps its exit code without printing it again.
+type reported struct{ error }
+
+func (r reported) Unwrap() error { return r.error }
 
 func exitCode(err error) int {
 	switch {

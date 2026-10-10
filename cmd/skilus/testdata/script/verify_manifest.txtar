@@ -1,0 +1,52 @@
+# skilus verify also checks that skilus.yaml can be read and agrees with
+# skilus.lock.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home/.claude project
+cd project
+
+exec skilus add ../src --agent claude-code --yes
+exec skilus verify
+stdout 'Todo en orden'
+
+# A skill declared in skills: but not installed is drift (exit code 6).
+cp skilus.yaml $WORK/good.yaml
+exec sh -c 'printf "  - name: extra\n    source: ../more\n" >> skilus.yaml'
+! exec skilus verify
+stdout 'NO INSTALADA extra \(project\) está en skills: de skilus.yaml pero no en skilus.lock'
+stdout 'Instálala con skilus add \.\./more --skill extra'
+! exec skilus verify --json
+stdout '"status": "not-installed"'
+stdout '"source": "\.\./more"'
+
+# An installed skill missing from skills: is drift too.
+cp $WORK/empty.yaml skilus.yaml
+! exec skilus verify
+stdout 'NO DECLARADA review \(project\) está en skilus.lock pero no en skills:'
+stdout 'Retírala con skilus remove review'
+
+# A file that cannot be read is an error (exit code 2), reported in the
+# user's language.
+cp $WORK/broken.yaml skilus.yaml
+env SKILUS_LANG=en
+! exec skilus verify
+stdout 'ERROR skilus.yaml \(project\) cannot be read:'
+! stderr .
+
+cp $WORK/good.yaml skilus.yaml
+exec skilus verify
+
+-- empty.yaml --
+version: 1
+skills: []
+-- broken.yaml --
+version: 1
+skills: [
+-- src/skills/review/SKILL.md --
+---
+name: review
+description: Revisa cambios
+---
