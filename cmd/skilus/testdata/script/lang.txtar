@@ -7,12 +7,12 @@ env LANGUAGE=
 env LC_ALL=
 env LC_MESSAGES=
 
-# Without any locale variable: English.
+# Without any locale variable: English (on Windows, the runner's own en-US).
 env LANG=
 exec skilus list
 stdout '^No skills installed\.$'
 exec skilus lang
-stdout '^Language: English \(en\), default'
+stdout '^Language: English \(en\), (default|from the system)'
 stdout '^  \* en  English$'
 
 # The system language when skilus speaks it.
