@@ -1,5 +1,5 @@
 // skilus docs content: all 13 languages have full pages (es/en here, the rest in i18n/).
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './i18n/shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './i18n/shared.js';
 import fr from './i18n/fr.js';
 import de from './i18n/de.js';
 import pt from './i18n/pt.js';
@@ -36,21 +36,21 @@ export const langs = [
   { code: 'hi', native: 'हिन्दी', name: 'Hindi' },
 ];
 
-const UI_KEYS = ['search', 'noResults', 'onThisPage', 'copy', 'copied', 'helpful', 'yes', 'no', 'thanks', 'prev', 'next', 'notice', 'dark', 'light', 'menu', 'docs', 'tip', 'warn', 'info'];
+const UI_KEYS = ['search', 'noResults', 'onThisPage', 'copy', 'copied', 'helpful', 'yes', 'no', 'thanks', 'prev', 'next', 'notice', 'dark', 'light', 'menu', 'docs', 'tip', 'warn', 'info', 'forYou', 'allReleases'];
 const UI = {
-  es: ['Buscar en la documentación', 'Sin resultados', 'En esta página', 'Copiar', 'Copiado', '¿Te ha resultado útil esta página?', 'Sí', 'No', '¡Gracias por tu opinión!', 'Anterior', 'Siguiente', 'Esta página aún no está traducida; se muestra la versión en inglés.', 'Oscuro', 'Claro', 'Menú', 'Documentación', 'Consejo', 'Importante', 'Nota'],
-  en: ['Search the docs', 'No results', 'On this page', 'Copy', 'Copied', 'Was this page helpful?', 'Yes', 'No', 'Thanks for your feedback!', 'Previous', 'Next', 'This page is not translated yet; showing the English version.', 'Dark', 'Light', 'Menu', 'Documentation', 'Tip', 'Important', 'Note'],
-  fr: ['Rechercher dans la doc', 'Aucun résultat', 'Sur cette page', 'Copier', 'Copié', 'Cette page vous a-t-elle été utile ?', 'Oui', 'Non', 'Merci pour votre retour !', 'Précédent', 'Suivant', 'Cette page n’est pas encore traduite ; la version anglaise est affichée.', 'Sombre', 'Clair', 'Menu', 'Documentation', 'Astuce', 'Important', 'Remarque'],
-  de: ['Dokumentation durchsuchen', 'Keine Ergebnisse', 'Auf dieser Seite', 'Kopieren', 'Kopiert', 'War diese Seite hilfreich?', 'Ja', 'Nein', 'Danke für dein Feedback!', 'Zurück', 'Weiter', 'Diese Seite ist noch nicht übersetzt; die englische Version wird angezeigt.', 'Dunkel', 'Hell', 'Menü', 'Dokumentation', 'Tipp', 'Wichtig', 'Hinweis'],
-  pt: ['Pesquisar na documentação', 'Nenhum resultado', 'Nesta página', 'Copiar', 'Copiado', 'Esta página foi útil?', 'Sim', 'Não', 'Obrigado pelo feedback!', 'Anterior', 'Próximo', 'Esta página ainda não foi traduzida; exibindo a versão em inglês.', 'Escuro', 'Claro', 'Menu', 'Documentação', 'Dica', 'Importante', 'Nota'],
-  zh: ['搜索文档', '无结果', '本页内容', '复制', '已复制', '本页对你有帮助吗？', '是', '否', '感谢你的反馈！', '上一页', '下一页', '本页尚未翻译，正在显示英文版本。', '深色', '浅色', '菜单', '文档', '提示', '重要', '注意'],
-  ja: ['ドキュメントを検索', '結果がありません', 'このページの内容', 'コピー', 'コピーしました', 'このページは役に立ちましたか？', 'はい', 'いいえ', 'フィードバックありがとうございます！', '前へ', '次へ', 'このページはまだ翻訳されていません。英語版を表示しています。', 'ダーク', 'ライト', 'メニュー', 'ドキュメント', 'ヒント', '重要', '注記'],
-  id: ['Cari di dokumentasi', 'Tidak ada hasil', 'Di halaman ini', 'Salin', 'Tersalin', 'Apakah halaman ini membantu?', 'Ya', 'Tidak', 'Terima kasih atas masukan Anda!', 'Sebelumnya', 'Berikutnya', 'Halaman ini belum diterjemahkan; menampilkan versi bahasa Inggris.', 'Gelap', 'Terang', 'Menu', 'Dokumentasi', 'Tips', 'Penting', 'Catatan'],
-  ar: ['ابحث في التوثيق', 'لا توجد نتائج', 'في هذه الصفحة', 'نسخ', 'تم النسخ', 'هل كانت هذه الصفحة مفيدة؟', 'نعم', 'لا', 'شكرًا على ملاحظاتك!', 'السابق', 'التالي', 'لم تُترجم هذه الصفحة بعد؛ تُعرض النسخة الإنجليزية.', 'داكن', 'فاتح', 'القائمة', 'التوثيق', 'نصيحة', 'مهم', 'ملاحظة'],
-  ru: ['Поиск по документации', 'Ничего не найдено', 'На этой странице', 'Копировать', 'Скопировано', 'Была ли эта страница полезной?', 'Да', 'Нет', 'Спасибо за отзыв!', 'Назад', 'Далее', 'Эта страница ещё не переведена; показана английская версия.', 'Тёмная', 'Светлая', 'Меню', 'Документация', 'Совет', 'Важно', 'Примечание'],
-  pl: ['Szukaj w dokumentacji', 'Brak wyników', 'Na tej stronie', 'Kopiuj', 'Skopiowano', 'Czy ta strona była pomocna?', 'Tak', 'Nie', 'Dziękujemy za opinię!', 'Wstecz', 'Dalej', 'Ta strona nie jest jeszcze przetłumaczona; wyświetlana jest wersja angielska.', 'Ciemny', 'Jasny', 'Menu', 'Dokumentacja', 'Wskazówka', 'Ważne', 'Uwaga'],
-  ur: ['دستاویزات میں تلاش کریں', 'کوئی نتیجہ نہیں', 'اس صفحے پر', 'کاپی', 'کاپی ہو گیا', 'کیا یہ صفحہ مفید تھا؟', 'ہاں', 'نہیں', 'آپ کی رائے کا شکریہ!', 'پچھلا', 'اگلا', 'یہ صفحہ ابھی ترجمہ نہیں ہوا؛ انگریزی ورژن دکھایا جا رہا ہے۔', 'گہرا', 'ہلکا', 'مینو', 'دستاویزات', 'مشورہ', 'اہم', 'نوٹ'],
-  hi: ['दस्तावेज़ में खोजें', 'कोई परिणाम नहीं', 'इस पेज पर', 'कॉपी करें', 'कॉपी हो गया', 'क्या यह पेज मददगार था?', 'हाँ', 'नहीं', 'आपकी प्रतिक्रिया के लिए धन्यवाद!', 'पिछला', 'अगला', 'यह पेज अभी अनुवादित नहीं है; अंग्रेज़ी संस्करण दिखाया जा रहा है।', 'डार्क', 'लाइट', 'मेन्यू', 'दस्तावेज़', 'सुझाव', 'महत्वपूर्ण', 'नोट'],
+  es: ['Buscar en la documentación', 'Sin resultados', 'En esta página', 'Copiar', 'Copiado', '¿Te ha resultado útil esta página?', 'Sí', 'No', '¡Gracias por tu opinión!', 'Anterior', 'Siguiente', 'Esta página aún no está traducida; se muestra la versión en inglés.', 'Oscuro', 'Claro', 'Menú', 'Documentación', 'Consejo', 'Importante', 'Nota', "Para tu sistema", "Todas las versiones"],
+  en: ['Search the docs', 'No results', 'On this page', 'Copy', 'Copied', 'Was this page helpful?', 'Yes', 'No', 'Thanks for your feedback!', 'Previous', 'Next', 'This page is not translated yet; showing the English version.', 'Dark', 'Light', 'Menu', 'Documentation', 'Tip', 'Important', 'Note', "For your system", "All releases"],
+  fr: ['Rechercher dans la doc', 'Aucun résultat', 'Sur cette page', 'Copier', 'Copié', 'Cette page vous a-t-elle été utile ?', 'Oui', 'Non', 'Merci pour votre retour !', 'Précédent', 'Suivant', 'Cette page n’est pas encore traduite ; la version anglaise est affichée.', 'Sombre', 'Clair', 'Menu', 'Documentation', 'Astuce', 'Important', 'Remarque', "Pour votre système", "Toutes les versions"],
+  de: ['Dokumentation durchsuchen', 'Keine Ergebnisse', 'Auf dieser Seite', 'Kopieren', 'Kopiert', 'War diese Seite hilfreich?', 'Ja', 'Nein', 'Danke für dein Feedback!', 'Zurück', 'Weiter', 'Diese Seite ist noch nicht übersetzt; die englische Version wird angezeigt.', 'Dunkel', 'Hell', 'Menü', 'Dokumentation', 'Tipp', 'Wichtig', 'Hinweis', "Für dein System", "Alle Versionen"],
+  pt: ['Pesquisar na documentação', 'Nenhum resultado', 'Nesta página', 'Copiar', 'Copiado', 'Esta página foi útil?', 'Sim', 'Não', 'Obrigado pelo feedback!', 'Anterior', 'Próximo', 'Esta página ainda não foi traduzida; exibindo a versão em inglês.', 'Escuro', 'Claro', 'Menu', 'Documentação', 'Dica', 'Importante', 'Nota', "Para o seu sistema", "Todas as versões"],
+  zh: ['搜索文档', '无结果', '本页内容', '复制', '已复制', '本页对你有帮助吗？', '是', '否', '感谢你的反馈！', '上一页', '下一页', '本页尚未翻译，正在显示英文版本。', '深色', '浅色', '菜单', '文档', '提示', '重要', '注意', "适合你的系统", "所有版本"],
+  ja: ['ドキュメントを検索', '結果がありません', 'このページの内容', 'コピー', 'コピーしました', 'このページは役に立ちましたか？', 'はい', 'いいえ', 'フィードバックありがとうございます！', '前へ', '次へ', 'このページはまだ翻訳されていません。英語版を表示しています。', 'ダーク', 'ライト', 'メニュー', 'ドキュメント', 'ヒント', '重要', '注記', "お使いのシステム向け", "すべてのリリース"],
+  id: ['Cari di dokumentasi', 'Tidak ada hasil', 'Di halaman ini', 'Salin', 'Tersalin', 'Apakah halaman ini membantu?', 'Ya', 'Tidak', 'Terima kasih atas masukan Anda!', 'Sebelumnya', 'Berikutnya', 'Halaman ini belum diterjemahkan; menampilkan versi bahasa Inggris.', 'Gelap', 'Terang', 'Menu', 'Dokumentasi', 'Tips', 'Penting', 'Catatan', "Untuk sistem Anda", "Semua rilis"],
+  ar: ['ابحث في التوثيق', 'لا توجد نتائج', 'في هذه الصفحة', 'نسخ', 'تم النسخ', 'هل كانت هذه الصفحة مفيدة؟', 'نعم', 'لا', 'شكرًا على ملاحظاتك!', 'السابق', 'التالي', 'لم تُترجم هذه الصفحة بعد؛ تُعرض النسخة الإنجليزية.', 'داكن', 'فاتح', 'القائمة', 'التوثيق', 'نصيحة', 'مهم', 'ملاحظة', "لنظامك", "كل الإصدارات"],
+  ru: ['Поиск по документации', 'Ничего не найдено', 'На этой странице', 'Копировать', 'Скопировано', 'Была ли эта страница полезной?', 'Да', 'Нет', 'Спасибо за отзыв!', 'Назад', 'Далее', 'Эта страница ещё не переведена; показана английская версия.', 'Тёмная', 'Светлая', 'Меню', 'Документация', 'Совет', 'Важно', 'Примечание', "Для вашей системы", "Все версии"],
+  pl: ['Szukaj w dokumentacji', 'Brak wyników', 'Na tej stronie', 'Kopiuj', 'Skopiowano', 'Czy ta strona była pomocna?', 'Tak', 'Nie', 'Dziękujemy za opinię!', 'Wstecz', 'Dalej', 'Ta strona nie jest jeszcze przetłumaczona; wyświetlana jest wersja angielska.', 'Ciemny', 'Jasny', 'Menu', 'Dokumentacja', 'Wskazówka', 'Ważne', 'Uwaga', "Dla twojego systemu", "Wszystkie wersje"],
+  ur: ['دستاویزات میں تلاش کریں', 'کوئی نتیجہ نہیں', 'اس صفحے پر', 'کاپی', 'کاپی ہو گیا', 'کیا یہ صفحہ مفید تھا؟', 'ہاں', 'نہیں', 'آپ کی رائے کا شکریہ!', 'پچھلا', 'اگلا', 'یہ صفحہ ابھی ترجمہ نہیں ہوا؛ انگریزی ورژن دکھایا جا رہا ہے۔', 'گہرا', 'ہلکا', 'مینو', 'دستاویزات', 'مشورہ', 'اہم', 'نوٹ', "آپ کے سسٹم کے لیے", "تمام ورژن"],
+  hi: ['दस्तावेज़ में खोजें', 'कोई परिणाम नहीं', 'इस पेज पर', 'कॉपी करें', 'कॉपी हो गया', 'क्या यह पेज मददगार था?', 'हाँ', 'नहीं', 'आपकी प्रतिक्रिया के लिए धन्यवाद!', 'पिछला', 'अगला', 'यह पेज अभी अनुवादित नहीं है; अंग्रेज़ी संस्करण दिखाया जा रहा है।', 'डार्क', 'लाइट', 'मेन्यू', 'दस्तावेज़', 'सुझाव', 'महत्वपूर्ण', 'नोट', "आपके सिस्टम के लिए", "सभी रिलीज़"],
 };
 export const ui = Object.fromEntries(Object.entries(UI).map(([k, arr]) => [k, Object.fromEntries(UI_KEYS.map((key, i) => [key, arr[i]]))]));
 
@@ -92,9 +92,23 @@ const es = {
   'getting-started': { title: 'Primeros pasos', lead: 'Instala skilus, verifica la descarga y añade tu primera skill en unos minutos.', blocks: [
     h2('requisitos', 'Requisitos'),
     ul('Linux, macOS o Windows (amd64 o arm64).', '`git` instalado, para las fuentes Git.'),
-    h2('instalacion', 'Instalación'),
-    ol('Descarga el archivo de tu sistema desde [Releases](https://github.com/colybri/skilus/releases).', 'Descomprímelo y deja el binario `skilus` en tu `PATH`.', 'Comprueba que funciona y qué agentes detecta:'),
-    code('skilus agents'),
+    h2("descarga", "Descarga"),
+    p("Descarga directa del binario de la última versión. Cada archivo incluye `skilus` (o `skilus.exe` en Windows), la licencia y el README."),
+    dl(),
+    h2("instalacion", "Instalación paso a paso"),
+    p("Elige tu sistema operativo y sigue los pasos. Si prefieres la terminal, el bloque de cada sistema hace todo de una vez."),
+    h3('Linux'),
+    ol("Descarga el `.tar.gz` de Linux: `amd64` para la mayoría de PCs y servidores, `arm64` para Raspberry Pi o servidores ARM. Si no lo sabes, `uname -m` muestra `x86_64` (amd64) o `aarch64` (arm64).", "Abre una terminal en la carpeta de la descarga y descomprímelo con `tar -xzf skilus_*_linux_*.tar.gz`.", "Copia el binario a una carpeta del `PATH`: `sudo install -m 0755 skilus /usr/local/bin/skilus`, o a `~/.local/bin` si no tienes permisos de administrador.", "Comprueba que funciona con `skilus agents`."),
+    p("O todo desde la terminal:"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("Descarga el `.tar.gz` de macOS: `arm64` si tu Mac tiene chip Apple (M1 o posterior), `amd64` si es Intel. Lo ves en menú Apple > Acerca de este Mac.", "Descomprímelo con doble clic en Finder o con `tar -xzf skilus_*_darwin_*.tar.gz` en Terminal.", "Si lo descargaste con el navegador, quita la cuarentena de Gatekeeper: `xattr -d com.apple.quarantine skilus`. Sin esto, macOS dirá que no puede verificar al desarrollador.", "Muévelo a una carpeta del `PATH`: `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`.", "Comprueba que funciona con `skilus agents`."),
+    p("O todo desde la terminal:"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("Descarga el `.zip` de Windows: `amd64` para la mayoría de PCs, `arm64` para equipos ARM (Snapdragon, Surface Pro X). Lo ves en Configuración > Sistema > Información > Tipo de sistema.", "Haz clic derecho en el `.zip` > Extraer todo y elige una carpeta fija, por ejemplo `%LOCALAPPDATA%\\Programs\\skilus`.", "Añade esa carpeta al `PATH`: busca «variables de entorno» en Inicio > Editar las variables de entorno de esta cuenta > `Path` > Editar > Nuevo.", "Abre una terminal nueva (PowerShell o Terminal) y ejecuta `skilus agents`. Si SmartScreen avisa, pulsa Más información > Ejecutar de todas formas."),
+    p("O todo desde PowerShell, sin permisos de administrador:"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verificar', 'Verificar la descarga'),
     p('Cada release publica `checksums.txt` firmado con cosign sin claves (identidad OIDC del workflow) y un SBOM por archivo.'),
     code(COSIGN),
@@ -261,9 +275,23 @@ const en = {
   'getting-started': { title: 'Getting Started', lead: 'Install skilus, verify the download and add your first skill in a few minutes.', blocks: [
     h2('requirements', 'Requirements'),
     ul('Linux, macOS or Windows (amd64 or arm64).', '`git` installed, for Git sources.'),
-    h2('install', 'Installation'),
-    ol('Download the archive for your system from [Releases](https://github.com/colybri/skilus/releases).', 'Extract it and put the `skilus` binary on your `PATH`.', 'Check that it works and which agents it detects:'),
-    code('skilus agents'),
+    h2("download", "Download"),
+    p("Direct download of the latest release binary. Each archive contains `skilus` (or `skilus.exe` on Windows), the license and the README."),
+    dl(),
+    h2("install", "Step-by-step installation"),
+    p("Pick your operating system and follow the steps. If you prefer the terminal, each system’s block does everything at once."),
+    h3('Linux'),
+    ol("Download the Linux `.tar.gz`: `amd64` for most PCs and servers, `arm64` for Raspberry Pi or ARM servers. If unsure, `uname -m` prints `x86_64` (amd64) or `aarch64` (arm64).", "Open a terminal in the download folder and extract it with `tar -xzf skilus_*_linux_*.tar.gz`.", "Copy the binary to a folder on your `PATH`: `sudo install -m 0755 skilus /usr/local/bin/skilus`, or to `~/.local/bin` if you don’t have admin rights.", "Check that it works with `skilus agents`."),
+    p("Or do it all from the terminal:"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("Download the macOS `.tar.gz`: `arm64` if your Mac has Apple silicon (M1 or later), `amd64` if it is Intel. You can see it under Apple menu > About This Mac.", "Extract it by double-clicking in Finder, or with `tar -xzf skilus_*_darwin_*.tar.gz` in Terminal.", "If you downloaded it with a browser, remove the Gatekeeper quarantine: `xattr -d com.apple.quarantine skilus`. Otherwise macOS will say it cannot verify the developer.", "Move it to a folder on your `PATH`: `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`.", "Check that it works with `skilus agents`."),
+    p("Or do it all from the terminal:"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("Download the Windows `.zip`: `amd64` for most PCs, `arm64` for ARM devices (Snapdragon, Surface Pro X). You can see it under Settings > System > About > System type.", "Right-click the `.zip` > Extract All and choose a permanent folder, for example `%LOCALAPPDATA%\\Programs\\skilus`.", "Add that folder to your `PATH`: search “environment variables” in Start > Edit environment variables for your account > `Path` > Edit > New.", "Open a new terminal (PowerShell or Terminal) and run `skilus agents`. If SmartScreen warns you, click More info > Run anyway."),
+    p("Or do it all from PowerShell, without admin rights:"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', 'Verify the download'),
     p('Each release publishes a `checksums.txt` signed with keyless cosign (the workflow’s OIDC identity) and an SBOM per archive.'),
     code(COSIGN),

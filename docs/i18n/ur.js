@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './shared.js';
 export default {
   overview: { title: 'جائزہ', lead: 'اے آئی ایجنٹس کے لیے اسکل مینیجر: کمٹ پر مقرر، مواد کا ہیش، اور انسٹال سے پہلے جانچ۔', blocks: [
     p('skilus اے آئی ایجنٹس کی اسکلز (`SKILL.md`) کا مینیجر ہے، جو ایک واحد Go بائنری کے طور پر دستیاب ہے۔ یہ Git، ZIP یا tar.gz آرکائیو، یا مقامی فولڈر سے اسکلز انسٹال کرتا ہے اور انہیں آپ کے انسٹال شدہ ایجنٹس میں لگاتا ہے۔'),
@@ -21,9 +21,23 @@ export default {
   'getting-started': { title: 'آغاز', lead: 'چند منٹ میں skilus انسٹال کریں، ڈاؤن لوڈ کی تصدیق کریں اور اپنی پہلی اسکل شامل کریں۔', blocks: [
     h2('requirements', 'تقاضے'),
     ul('Linux، macOS یا Windows (amd64 یا arm64)۔', 'Git ماخذوں کے لیے `git` انسٹال ہو۔'),
-    h2('install', 'انسٹالیشن'),
-    ol('[Releases](https://github.com/colybri/skilus/releases) سے اپنے سسٹم کا آرکائیو ڈاؤن لوڈ کریں۔', 'اسے کھولیں اور `skilus` بائنری کو اپنے `PATH` میں رکھیں۔', 'تصدیق کریں کہ یہ چلتا ہے اور کون سے ایجنٹس پہچانتا ہے:'),
-    code('skilus agents'),
+    h2("download", "ڈاؤن لوڈ"),
+    p("تازہ ترین ورژن کی بائنری براہِ راست ڈاؤن لوڈ کریں۔ ہر آرکائیو میں `skilus` (Windows پر `skilus.exe`)، لائسنس اور README شامل ہیں۔"),
+    dl(),
+    h2("install", "مرحلہ وار انسٹالیشن"),
+    p("اپنا آپریٹنگ سسٹم منتخب کریں اور مراحل پر عمل کریں۔ اگر آپ ٹرمینل پسند کرتے ہیں تو ہر سسٹم کا کوڈ بلاک سب کچھ ایک ساتھ کر دیتا ہے۔"),
+    h3('Linux'),
+    ol("Linux کی `.tar.gz` ڈاؤن لوڈ کریں: زیادہ تر کمپیوٹرز اور سرورز کے لیے `amd64`، اور Raspberry Pi یا ARM سرورز کے لیے `arm64`۔ یقین نہ ہو تو `uname -m` یا تو `x86_64` (amd64) دکھاتا ہے یا `aarch64` (arm64)۔", "ڈاؤن لوڈ والے فولڈر میں ٹرمینل کھولیں اور `tar -xzf skilus_*_linux_*.tar.gz` سے فائل کھولیں۔", "بائنری کو `PATH` والے فولڈر میں کاپی کریں: `sudo install -m 0755 skilus /usr/local/bin/skilus`، یا ایڈمن اجازت نہ ہو تو `~/.local/bin` میں۔", "`skilus agents` چلا کر تصدیق کریں۔"),
+    p("یا سب کچھ ٹرمینل سے:"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("macOS کی `.tar.gz` ڈاؤن لوڈ کریں: اگر آپ کے Mac میں Apple چپ (M1 یا نئی) ہے تو `arm64`، اور Intel ہو تو `amd64`۔ یہ Apple مینو > About This Mac میں نظر آتا ہے۔", "Finder میں ڈبل کلک کر کے یا Terminal میں `tar -xzf skilus_*_darwin_*.tar.gz` سے فائل کھولیں۔", "اگر براؤزر سے ڈاؤن لوڈ کیا ہے تو Gatekeeper کا قرنطینہ ہٹائیں: `xattr -d com.apple.quarantine skilus`۔ ورنہ macOS کہے گا کہ وہ ڈویلپر کی تصدیق نہیں کر سکتا۔", "اسے `PATH` والے فولڈر میں منتقل کریں: `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`۔", "`skilus agents` چلا کر تصدیق کریں۔"),
+    p("یا سب کچھ ٹرمینل سے:"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("Windows کی `.zip` ڈاؤن لوڈ کریں: زیادہ تر کمپیوٹرز کے لیے `amd64`، اور ARM آلات (Snapdragon، Surface Pro X) کے لیے `arm64`۔ یہ Settings > System > About > System type میں نظر آتا ہے۔", "`.zip` پر رائٹ کلک کریں > Extract All، اور ایک مستقل فولڈر منتخب کریں، مثلاً `%LOCALAPPDATA%\\Programs\\skilus`۔", "اس فولڈر کو `PATH` میں شامل کریں: Start میں “environment variables” تلاش کریں > Edit environment variables for your account > `Path` > Edit > New۔", "نیا ٹرمینل (PowerShell یا Terminal) کھولیں اور `skilus agents` چلائیں۔ اگر SmartScreen انتباہ دے تو More info > Run anyway پر کلک کریں۔"),
+    p("یا سب کچھ PowerShell سے، ایڈمن اجازت کے بغیر:"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', 'ڈاؤن لوڈ کی تصدیق'),
     p('ہر ریلیز بغیر کلید cosign (ورک فلو کی OIDC شناخت) سے دستخط شدہ `checksums.txt` اور ہر آرکائیو کے لیے ایک SBOM شائع کرتی ہے۔'),
     code(COSIGN),

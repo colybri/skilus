@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './shared.js';
 export default {
   overview: { title: 'Vue d’ensemble', lead: 'Un gestionnaire de skills pour agents d’IA : épinglées à un commit, hachées et inspectées avant l’installation.', blocks: [
     p('skilus est un gestionnaire de skills (`SKILL.md`) pour agents d’IA, distribué sous forme d’un binaire Go unique. Il installe des skills depuis Git, une archive ZIP ou tar.gz ou un dossier local, et les déploie dans les agents que vous avez installés.'),
@@ -21,9 +21,23 @@ export default {
   'getting-started': { title: 'Prise en main', lead: 'Installez skilus, vérifiez le téléchargement et ajoutez votre première skill en quelques minutes.', blocks: [
     h2('requirements', 'Prérequis'),
     ul('Linux, macOS ou Windows (amd64 ou arm64).', '`git` installé, pour les sources Git.'),
-    h2('install', 'Installation'),
-    ol('Téléchargez l’archive de votre système depuis les [Releases](https://github.com/colybri/skilus/releases).', 'Décompressez-la et placez le binaire `skilus` dans votre `PATH`.', 'Vérifiez qu’il fonctionne et quels agents il détecte :'),
-    code('skilus agents'),
+    h2("download", "Téléchargement"),
+    p("Téléchargement direct du binaire de la dernière version. Chaque archive contient `skilus` (ou `skilus.exe` sous Windows), la licence et le README."),
+    dl(),
+    h2("install", "Installation pas à pas"),
+    p("Choisissez votre système d’exploitation et suivez les étapes. Si vous préférez le terminal, le bloc de chaque système fait tout d’un coup."),
+    h3('Linux'),
+    ol("Téléchargez le `.tar.gz` Linux : `amd64` pour la plupart des PC et serveurs, `arm64` pour Raspberry Pi ou serveurs ARM. En cas de doute, `uname -m` affiche `x86_64` (amd64) ou `aarch64` (arm64).", "Ouvrez un terminal dans le dossier de téléchargement et décompressez avec `tar -xzf skilus_*_linux_*.tar.gz`.", "Copiez le binaire dans un dossier du `PATH` : `sudo install -m 0755 skilus /usr/local/bin/skilus`, ou dans `~/.local/bin` sans droits administrateur.", "Vérifiez qu’il fonctionne avec `skilus agents`."),
+    p("Ou tout depuis le terminal :"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("Téléchargez le `.tar.gz` macOS : `arm64` si votre Mac a une puce Apple (M1 ou plus récente), `amd64` s’il est Intel. Vous le voyez dans menu Pomme > À propos de ce Mac.", "Décompressez-le d’un double-clic dans le Finder, ou avec `tar -xzf skilus_*_darwin_*.tar.gz` dans le Terminal.", "Si vous l’avez téléchargé avec un navigateur, retirez la quarantaine Gatekeeper : `xattr -d com.apple.quarantine skilus`. Sinon macOS dira qu’il ne peut pas vérifier le développeur.", "Placez-le dans un dossier du `PATH` : `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`.", "Vérifiez qu’il fonctionne avec `skilus agents`."),
+    p("Ou tout depuis le terminal :"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("Téléchargez le `.zip` Windows : `amd64` pour la plupart des PC, `arm64` pour les appareils ARM (Snapdragon, Surface Pro X). Vous le voyez dans Paramètres > Système > Informations système > Type du système.", "Clic droit sur le `.zip` > Extraire tout, puis choisissez un dossier permanent, par exemple `%LOCALAPPDATA%\\Programs\\skilus`.", "Ajoutez ce dossier au `PATH` : cherchez « variables d’environnement » dans Démarrer > Modifier les variables d’environnement pour votre compte > `Path` > Modifier > Nouveau.", "Ouvrez un nouveau terminal (PowerShell ou Terminal) et lancez `skilus agents`. Si SmartScreen vous avertit, cliquez sur Informations complémentaires > Exécuter quand même."),
+    p("Ou tout depuis PowerShell, sans droits administrateur :"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', 'Vérifier le téléchargement'),
     p('Chaque release publie un `checksums.txt` signé avec cosign sans clé (identité OIDC du workflow) et un SBOM par archive.'),
     code(COSIGN),

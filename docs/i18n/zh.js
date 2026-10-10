@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './shared.js';
 export default {
   overview: { title: '概览', lead: '面向 AI 智能体的技能管理器：固定到提交、计算内容哈希，并在安装前检查。', blocks: [
     p('skilus 是面向 AI 智能体的技能（`SKILL.md`）管理器，以单个 Go 二进制文件发布。它可以从 Git、ZIP 或 tar.gz 压缩包或本地目录安装技能，并部署到你已安装的智能体中。'),
@@ -21,9 +21,23 @@ export default {
   'getting-started': { title: '快速入门', lead: '几分钟内安装 skilus、验证下载并添加你的第一个技能。', blocks: [
     h2('requirements', '环境要求'),
     ul('Linux、macOS 或 Windows（amd64 或 arm64）。', '已安装 `git`，用于 Git 来源。'),
-    h2('install', '安装'),
-    ol('从 [Releases](https://github.com/colybri/skilus/releases) 下载适合你系统的压缩包。', '解压后将 `skilus` 二进制文件放入 `PATH`。', '确认它能运行以及检测到了哪些智能体：'),
-    code('skilus agents'),
+    h2("download", "下载"),
+    p("直接下载最新版本的二进制文件。每个压缩包都包含 `skilus`（Windows 上为 `skilus.exe`）、许可证和 README。"),
+    dl(),
+    h2("install", "分步安装"),
+    p("选择你的操作系统并按步骤操作。如果你更喜欢终端，每个系统的代码块可以一次完成全部步骤。"),
+    h3('Linux'),
+    ol("下载 Linux 的 `.tar.gz`：大多数 PC 和服务器选 `amd64`，树莓派或 ARM 服务器选 `arm64`。不确定时，`uname -m` 会显示 `x86_64`（amd64）或 `aarch64`（arm64）。", "在下载目录打开终端，用 `tar -xzf skilus_*_linux_*.tar.gz` 解压。", "将二进制文件复制到 `PATH` 中的目录：`sudo install -m 0755 skilus /usr/local/bin/skilus`；没有管理员权限时可放到 `~/.local/bin`。", "运行 `skilus agents` 确认可用。"),
+    p("或者全部在终端中完成："),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("下载 macOS 的 `.tar.gz`：Apple 芯片（M1 及以后）的 Mac 选 `arm64`，Intel 机型选 `amd64`。可在 苹果菜单 > 关于本机 中查看。", "在访达中双击解压，或在终端中运行 `tar -xzf skilus_*_darwin_*.tar.gz`。", "如果是用浏览器下载的，请移除 Gatekeeper 隔离属性：`xattr -d com.apple.quarantine skilus`。否则 macOS 会提示无法验证开发者。", "将其移动到 `PATH` 中的目录：`sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`。", "运行 `skilus agents` 确认可用。"),
+    p("或者全部在终端中完成："),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("下载 Windows 的 `.zip`：大多数 PC 选 `amd64`，ARM 设备（骁龙、Surface Pro X）选 `arm64`。可在 设置 > 系统 > 系统信息 > 系统类型 中查看。", "右键单击 `.zip` > 全部解压缩，选择一个固定目录，例如 `%LOCALAPPDATA%\\Programs\\skilus`。", "将该目录加入 `PATH`：在开始菜单搜索“环境变量” > 编辑账户的环境变量 > `Path` > 编辑 > 新建。", "打开新的终端（PowerShell 或终端）并运行 `skilus agents`。如果 SmartScreen 发出警告，点击 更多信息 > 仍要运行。"),
+    p("或者全部在 PowerShell 中完成，无需管理员权限："),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', '验证下载'),
     p('每个版本都会发布用无密钥 cosign（工作流的 OIDC 身份）签名的 `checksums.txt`，以及每个压缩包对应的 SBOM。'),
     code(COSIGN),

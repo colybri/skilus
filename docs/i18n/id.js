@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './shared.js';
 export default {
   overview: { title: 'Ikhtisar', lead: 'Pengelola skill untuk agen AI: dipatok ke sebuah commit, di-hash isinya, dan diperiksa sebelum dipasang.', blocks: [
     p('skilus adalah pengelola skill (`SKILL.md`) untuk agen AI, didistribusikan sebagai satu biner Go. Ia memasang skill dari Git, dari arsip ZIP atau tar.gz, atau dari direktori lokal, lalu menerapkannya ke agen yang terpasang di komputer Anda.'),
@@ -21,9 +21,23 @@ export default {
   'getting-started': { title: 'Memulai', lead: 'Pasang skilus, verifikasi unduhan, dan tambahkan skill pertama Anda dalam beberapa menit.', blocks: [
     h2('requirements', 'Persyaratan'),
     ul('Linux, macOS, atau Windows (amd64 atau arm64).', '`git` terpasang, untuk sumber Git.'),
-    h2('install', 'Pemasangan'),
-    ol('Unduh arsip untuk sistem Anda dari [Releases](https://github.com/colybri/skilus/releases).', 'Ekstrak dan letakkan biner `skilus` di `PATH` Anda.', 'Pastikan berjalan dan lihat agen apa saja yang terdeteksi:'),
-    code('skilus agents'),
+    h2("download", "Unduhan"),
+    p("Unduh langsung biner rilis terbaru. Setiap arsip berisi `skilus` (atau `skilus.exe` di Windows), lisensi, dan README."),
+    dl(),
+    h2("install", "Pemasangan langkah demi langkah"),
+    p("Pilih sistem operasi Anda dan ikuti langkahnya. Jika lebih suka terminal, blok untuk setiap sistem melakukan semuanya sekaligus."),
+    h3('Linux'),
+    ol("Unduh `.tar.gz` untuk Linux: `amd64` untuk sebagian besar PC dan server, `arm64` untuk Raspberry Pi atau server ARM. Jika ragu, `uname -m` menampilkan `x86_64` (amd64) atau `aarch64` (arm64).", "Buka terminal di folder unduhan dan ekstrak dengan `tar -xzf skilus_*_linux_*.tar.gz`.", "Salin biner ke folder di `PATH`: `sudo install -m 0755 skilus /usr/local/bin/skilus`, atau ke `~/.local/bin` jika Anda tidak punya hak admin.", "Pastikan berfungsi dengan `skilus agents`."),
+    p("Atau semuanya dari terminal:"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("Unduh `.tar.gz` untuk macOS: `arm64` jika Mac Anda memakai chip Apple (M1 atau lebih baru), `amd64` jika Intel. Anda dapat melihatnya di menu Apple > Tentang Mac Ini.", "Ekstrak dengan klik dua kali di Finder, atau dengan `tar -xzf skilus_*_darwin_*.tar.gz` di Terminal.", "Jika diunduh lewat peramban, hapus karantina Gatekeeper: `xattr -d com.apple.quarantine skilus`. Tanpa ini, macOS akan mengatakan tidak dapat memverifikasi pengembang.", "Pindahkan ke folder di `PATH`: `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`.", "Pastikan berfungsi dengan `skilus agents`."),
+    p("Atau semuanya dari terminal:"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("Unduh `.zip` untuk Windows: `amd64` untuk sebagian besar PC, `arm64` untuk perangkat ARM (Snapdragon, Surface Pro X). Anda dapat melihatnya di Pengaturan > Sistem > Tentang > Jenis sistem.", "Klik kanan `.zip` > Ekstrak Semua dan pilih folder tetap, misalnya `%LOCALAPPDATA%\\Programs\\skilus`.", "Tambahkan folder itu ke `PATH`: cari “variabel lingkungan” di Start > Edit variabel lingkungan untuk akun Anda > `Path` > Edit > Baru.", "Buka terminal baru (PowerShell atau Terminal) dan jalankan `skilus agents`. Jika SmartScreen memperingatkan, klik Info selengkapnya > Tetap jalankan."),
+    p("Atau semuanya dari PowerShell, tanpa hak admin:"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', 'Verifikasi unduhan'),
     p('Setiap rilis menerbitkan `checksums.txt` yang ditandatangani dengan cosign tanpa kunci (identitas OIDC workflow) dan SBOM untuk setiap arsip.'),
     code(COSIGN),
