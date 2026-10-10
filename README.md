@@ -52,7 +52,7 @@ skilus update review --yes --allow-scripts
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
 
-`skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/` o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh` y accesos a credenciales (`~/.ssh`, `.aws/credentials`…) en cualquier fichero de texto, y de texto invisible y secuencias de escape en el Markdown. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
+`skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/`, `skills/.curated/<nombre>/` (como openai/skills) o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh` y accesos a credenciales (`~/.ssh`, `.aws/credentials`…) en cualquier fichero de texto, y de texto invisible y secuencias de escape en el Markdown. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
 
 Para limitar de dónde se instala, añade `trust:` a `skilus.yaml` (del proyecto o el global en `~/.skilus/`):
 
@@ -92,7 +92,7 @@ internal/adapter/  implementaciones de los puertos
 internal/cli/      comandos Cobra
 ```
 
-`test/gate/run.sh` contiene las puertas de las fases 1 y 2: instala 10 skills reales de tres repositorios públicos, fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`; después borra los agentes y el almacén, comprueba que `sync` lo reconstruye y que `verify` detecta un fichero cambiado a mano. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
+`test/gate/run.sh` contiene las puertas de las fases 1 y 2: instala 12 skills reales de cuatro repositorios públicos (uno de ellos, openai/skills, con las skills en `skills/.curated/`), fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`; después borra los agentes y el almacén, comprueba que `sync` lo reconstruye y que `verify` detecta un fichero cambiado a mano. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
 
 Las reglas completas están en el plan del proyecto, sección "Reglas de arquitectura", y `.golangci.yml` las hace cumplir.
 

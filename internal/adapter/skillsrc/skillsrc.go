@@ -15,10 +15,15 @@ import (
 	"github.com/colybri/skilus/internal/domain/skill"
 )
 
+// SkillDirs are the directories, relative to the source root and in order
+// of preference, whose subdirectories Discover takes for skills.
+var SkillDirs = []string{"skills/", "skills/.curated/", ""}
+
 // Discover returns the skill directories of a source, given the paths of
 // its regular SKILL.md files (forward slashes, relative to the source root).
 // A SKILL.md at the root makes the source a single skill; otherwise skills
-// are looked for in skills/<name>/ and then in <name>/. Hidden directories
+// are looked for in skills/<name>/, then in skills/.curated/<name>/ (the
+// layout of openai/skills) and then in <name>/. Other hidden directories
 // are ignored.
 func Discover(manifests []string) []string {
 	set := make(map[string]bool, len(manifests))
@@ -28,7 +33,7 @@ func Discover(manifests []string) []string {
 	if set[skill.ManifestFile] {
 		return []string{"."}
 	}
-	for _, base := range []string{"skills/", ""} {
+	for _, base := range SkillDirs {
 		var found []string
 		for m := range set {
 			rest, ok := strings.CutPrefix(m, base)
