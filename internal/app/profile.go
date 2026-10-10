@@ -48,18 +48,23 @@ func (h ListProfilesHandler) Handle(ctx context.Context, q ListProfiles) ([]Prof
 	if err != nil {
 		return nil, fmt.Errorf("load lock: %w", err)
 	}
-	installed := lockedNames(lf)
 	out := make([]ProfileStatus, 0, len(m.Profiles))
 	for _, p := range m.Profiles {
-		// The profile's skills and what they need are exactly what is installed.
-		want := needed(p.Skills(), lf, nil)
-		active := len(want) == len(installed)
-		for _, n := range installed {
-			active = active && want[n]
-		}
-		out = append(out, ProfileStatus{Profile: p, Active: active, Undeclared: undeclared(m, p)})
+		out = append(out, ProfileStatus{Profile: p, Active: isActive(p, lf), Undeclared: undeclared(m, p)})
 	}
 	return out, nil
+}
+
+// isActive reports whether the profile's skills and what they need are
+// exactly what the lock holds.
+func isActive(p profile.Profile, lf *lock.Lockfile) bool {
+	want := needed(p.Skills(), lf, nil)
+	installed := lockedNames(lf)
+	active := len(want) == len(installed)
+	for _, n := range installed {
+		active = active && want[n]
+	}
+	return active
 }
 
 // UseProfile is the command behind `skilus profile use`.

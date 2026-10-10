@@ -127,6 +127,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('重新计算每个智能体中每个技能的哈希并与锁文件比较。如有缺失或文件被修改，会指出具体项并以代码 6 退出。'),
     code('skilus verify\nskilus verify --json'),
+    p('它还会检查 `skilus.yaml`：文件能否读取；`skills:` 中的每个 skill 是否已安装（不属于当前配置档的除外）；每个已安装的 skill（依赖除外）是否都在 `skills:` 中；配置档是否只使用已声明的 skill。文件有错误时以代码 2 退出；与 lock 不一致时以代码 6 退出，并给出修复用的命令。'),
     h2('sync', '`skilus sync`'),
     p('从存储中安装缺失的内容；如果存储中没有，则按提交下载每个技能；哈希不匹配时失败。它从不修改 `skilus.lock` 或 `skilus.yaml`，也不会改动手动编辑过的技能，除非使用 `--force`。'),
     code('skilus sync\nskilus sync --force'),

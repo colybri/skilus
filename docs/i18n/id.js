@@ -127,6 +127,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('Menghitung ulang hash setiap skill di setiap agen dan membandingkannya dengan lock. Jika ada yang hilang atau file berubah, ia menyebutkan yang mana dan keluar dengan kode 6.'),
     code('skilus verify\nskilus verify --json'),
+    p('Perintah ini juga memeriksa `skilus.yaml`: bahwa berkas bisa dibaca, setiap skill di `skills:` terpasang (kecuali yang tidak termasuk profil aktif), setiap skill terpasang, selain dependensi, ada di `skills:`, dan profil hanya memakai skill yang dideklarasikan. Jika berkas berisi galat, keluar dengan kode 2; jika tidak cocok dengan lock, dengan kode 6, dan menyarankan perintah untuk memperbaikinya.'),
     h2('sync', '`skilus sync`'),
     p('Memasang yang kurang dari penyimpanan atau, jika tidak ada, dengan mengunduh setiap skill pada commit-nya, dan gagal jika hash tidak cocok. Tidak pernah mengubah `skilus.lock` atau `skilus.yaml` dan tidak menyentuh skill yang diubah manual, kecuali dengan `--force`.'),
     code('skilus sync\nskilus sync --force'),

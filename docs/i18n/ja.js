@@ -127,6 +127,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('各エージェントの各スキルのハッシュを再計算してロックと比較します。欠落や変更されたファイルがあれば、それを示してコード 6 で終了します。'),
     code('skilus verify\nskilus verify --json'),
+    p('`skilus.yaml` も確認します。ファイルを読めること、`skills:` の各 skill がインストールされていること（有効なプロファイルに含まれないものを除く）、インストール済みの各 skill（依存関係を除く）が `skills:` にあること、プロファイルが宣言済みの skill だけを使うことです。ファイルにエラーがあればコード 2 で、lock と一致しなければコード 6 で終了し、修正するコマンドを示します。'),
     h2('sync', '`skilus sync`'),
     p('不足分をストアから、なければ各スキルをそのコミットでダウンロードしてインストールし、ハッシュが一致しなければ失敗します。`skilus.lock` や `skilus.yaml` は変更せず、手動で編集されたスキルは `--force` を付けない限り触りません。'),
     code('skilus sync\nskilus sync --force'),

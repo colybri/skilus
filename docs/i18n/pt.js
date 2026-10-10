@@ -127,6 +127,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('Recalcula o hash de cada skill em cada agente e compara com o lock. Se faltar alguma ou um arquivo mudou, diz qual e sai com código 6.'),
     code('skilus verify\nskilus verify --json'),
+    p('Também verifica o `skilus.yaml`: que pode ser lido, que cada skill de `skills:` está instalada (exceto as que não pertencem ao perfil ativo), que cada skill instalada, exceto as dependências, está em `skills:` e que os perfis só usam skills declaradas. Se o ficheiro tiver erros, sai com o código 2; se não coincidir com o lock, com o código 6, e sugere o comando que o corrige.'),
     h2('sync', '`skilus sync`'),
     p('Instala o que falta a partir do armazenamento ou, se não estiver lá, baixando cada skill pelo seu commit, e falha se o hash não coincidir. Nunca altera `skilus.lock` nem `skilus.yaml` e não mexe em skills editadas à mão, salvo com `--force`.'),
     code('skilus sync\nskilus sync --force'),
