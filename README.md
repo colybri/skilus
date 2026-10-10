@@ -60,6 +60,10 @@ skilus search pdf --owner anthropics --json
 
 skilus audit                                # confianza, firmas e inspección de lo instalado
 skilus audit --strict --json                # para CI: código 5 si hay avisos
+
+skilus lang                                 # idioma en uso, de dónde sale y los disponibles
+skilus lang set en                          # cambia el idioma de skilus para tu usuario
+skilus lang set auto                        # vuelve a seguir al sistema
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
@@ -140,6 +144,8 @@ metadata:
 ```
 
 Cada entrada es un nombre, que se busca en el mismo origen que la skill, u `origen#nombre` para otro origen (no un directorio local). `skilus add` instala las que falten en los mismos agentes, con la misma inspección y comprobación de `trust:`, y las enseña en el plan. En `skilus.lock` cada skill guarda qué necesita y las instaladas así quedan marcadas como dependencia; en `skilus.yaml` solo se anota lo que pediste. Una necesidad se da por cumplida si ya hay instalada una skill con ese nombre, venga de donde venga. `skilus remove` no quita una skill que otra necesita salvo que quites ambas, y al quitar la última que necesitaba una dependencia, la quita también. `skilus update` instala lo que pida la versión nueva y `skilus profile use` despliega las dependencias de las skills del perfil.
+
+skilus escribe en el idioma del sistema si es uno de los 13 de la documentación (español, inglés, francés, alemán, portugués, chino, japonés, indonesio, árabe, ruso, polaco, urdu e hindi). Lo lee de `LANGUAGE`, `LC_ALL`, `LC_MESSAGES` y `LANG`, en ese orden, y en Windows del idioma del usuario; si ninguno es uno de esos, usa el inglés. `skilus lang set <idioma>` lo fija en `~/.skilus/config.yaml` para tu usuario y `skilus lang set auto` lo quita. La variable `SKILUS_LANG` manda sobre todo lo demás, útil en CI. Se traducen los mensajes, las preguntas y la ayuda; la salida `--json`, los códigos de los hallazgos y los detalles técnicos de los errores no cambian.
 
 Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
 

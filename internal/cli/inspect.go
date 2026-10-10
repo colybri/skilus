@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/colybri/skilus/internal/app"
+	"github.com/colybri/skilus/internal/cli/i18n"
 )
 
 type inspectJSON struct {
@@ -40,17 +41,17 @@ type skippedJSON struct {
 	Error string `json:"error"`
 }
 
-func newInspectCommand(q app.InspectHandler) *cobra.Command {
+func newInspectCommand(q app.InspectHandler, t *i18n.Catalog) *cobra.Command {
 	var (
 		c      app.Inspect
 		asJSON bool
 	)
 	cmd := &cobra.Command{
-		Use:   "inspect <origen>",
-		Short: "Inspecciona las skills de un origen sin instalar nada",
-		Long: `Lee las skills del origen y muestra lo mismo que skilus add antes de
+		Use:   t.T("inspect <origen>"),
+		Short: t.T("Inspecciona las skills de un origen sin instalar nada"),
+		Long: t.T(`Lee las skills del origen y muestra lo mismo que skilus add antes de
 preguntar: ficheros, tamaño, hash, ejecutables y hallazgos. Sale con
-código 5 si add rechazaría instalarlas (bloqueos, o avisos con --strict).`,
+código 5 si add rechazaría instalarlas (bloqueos, o avisos con --strict).`),
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c.Source = args[0]
@@ -60,7 +61,7 @@ código 5 si add rechazaría instalarlas (bloqueos, o avisos con --strict).`,
 			}
 			out := cmd.OutOrStdout()
 			if !asJSON {
-				renderPlan(out, plan)
+				renderPlan(out, plan, t)
 				return err
 			}
 			doc := inspectJSON{Source: plan.Source, Commit: plan.Commit, Skills: []inspectSkillJSON{}}
@@ -91,9 +92,9 @@ código 5 si add rechazaría instalarlas (bloqueos, o avisos con --strict).`,
 		},
 	}
 	f := cmd.Flags()
-	f.StringSliceVar(&c.Skills, "skill", nil, "inspecciona solo estas skills del origen (repetible)")
-	f.BoolVar(&c.Strict, "strict", false, "trata los avisos como bloqueos")
-	f.BoolVar(&c.AllowScripts, "allow-scripts", false, "no avises de los ficheros ejecutables")
-	f.BoolVar(&asJSON, "json", false, "salida en JSON")
+	f.StringSliceVar(&c.Skills, "skill", nil, t.T("inspecciona solo estas skills del origen (repetible)"))
+	f.BoolVar(&c.Strict, "strict", false, t.T("trata los avisos como bloqueos"))
+	f.BoolVar(&c.AllowScripts, "allow-scripts", false, t.T("no avises de los ficheros ejecutables"))
+	f.BoolVar(&asJSON, "json", false, t.T("salida en JSON"))
 	return cmd
 }

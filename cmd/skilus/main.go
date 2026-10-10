@@ -84,10 +84,13 @@ func run() int {
 		ProjectRoot: cwd,
 	}
 	deps := cli.Deps{
-		Version:    version,
-		ListAgents: app.ListAgents{Catalog: agents, Detector: detector},
-		AddSkill:   add,
-		ListSkills: app.ListSkills{Locks: repo},
+		Version:      version,
+		Language:     app.LanguageSetting{Settings: repo},
+		Getenv:       os.Getenv,
+		SystemLocale: osfs.SystemLocale(),
+		ListAgents:   app.ListAgents{Catalog: agents, Detector: detector},
+		AddSkill:     add,
+		ListSkills:   app.ListSkills{Locks: repo},
 		RemoveSkill: app.RemoveSkillHandler{
 			Catalog:     agents,
 			Deployer:    osfs.Deployer{},

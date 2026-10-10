@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/colybri/skilus/internal/app"
+	"github.com/colybri/skilus/internal/cli/i18n"
 )
 
 type auditJSON struct {
@@ -28,7 +29,7 @@ type signatureJSON struct {
 	Signer     string `json:"signer,omitempty"`
 }
 
-func newAuditCommand(h app.AuditHandler) *cobra.Command {
+func newAuditCommand(h app.AuditHandler, t *i18n.Catalog) *cobra.Command {
 	var (
 		q      app.Audit
 		scope  string
@@ -36,14 +37,14 @@ func newAuditCommand(h app.AuditHandler) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "audit",
-		Short: "Revisa lo instalado con las reglas de hoy: confianza, firmas e inspección",
-		Long: `Para cada skill de skilus.lock comprueba si su origen está en trust:, si
+		Short: t.T("Revisa lo instalado con las reglas de hoy: confianza, firmas e inspección"),
+		Long: t.T(`Para cada skill de skilus.lock comprueba si su origen está en trust:, si
 el commit fijado está firmado y la firma se puede verificar (con tus claves
 de git o, en GitHub, con las que GitHub conoce) y vuelve a inspeccionar el
 contenido con las heurísticas actuales. Los ejecutables aceptados al
 instalar no se repiten.
 
-Sale con código 5 si hay bloqueos, o avisos con --strict, para usarlo en CI.`,
+Sale con código 5 si hay bloqueos, o avisos con --strict, para usarlo en CI.`),
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			scopes, err := parseScopes(scope)
@@ -75,20 +76,20 @@ Sale con código 5 si hay bloqueos, o avisos con --strict, para usarlo en CI.`,
 				}
 				return err
 			}
-			renderAudit(out, res)
+			renderAudit(out, res, t)
 			return err
 		},
 	}
 	f := cmd.Flags()
-	f.StringVar(&scope, "scope", "all", "project, global o all")
-	f.BoolVar(&q.Strict, "strict", false, "los avisos también hacen fallar la auditoría")
-	f.BoolVar(&asJSON, "json", false, "salida en JSON")
+	f.StringVar(&scope, "scope", "all", t.T("project, global o all"))
+	f.BoolVar(&q.Strict, "strict", false, t.T("los avisos también hacen fallar la auditoría"))
+	f.BoolVar(&asJSON, "json", false, t.T("salida en JSON"))
 	return cmd
 }
 
-func renderAudit(w io.Writer, res app.AuditResult) {
+func renderAudit(w io.Writer, res app.AuditResult, t *i18n.Catalog) {
 	if len(res.Skills) == 0 {
-		fmt.Fprintln(w, "No hay skills instaladas.")
+		fmt.Fprintln(w, t.T("No hay skills instaladas."))
 		return
 	}
 	blocks, warns := 0, 0
@@ -99,35 +100,35 @@ func renderAudit(w io.Writer, res app.AuditResult) {
 			where += " @ " + short(e.Commit)
 		}
 		fmt.Fprintf(w, "%s (%s)  %s\n", e.Skill, a.Scope, where)
-		if line := signatureLine(a); line != "" {
-			fmt.Fprintf(w, "    firma: %s\n", line)
+		if line := signatureLine(a, t); line != "" {
+			fmt.Fprint(w, t.T("    firma: %s\n", line))
 		}
 		if !a.ContentChecked {
-			fmt.Fprintln(w, "    contenido: no está en el almacén, no se ha revisado; ejecuta skilus sync")
+			fmt.Fprintln(w, t.T("    contenido: no está en el almacén, no se ha revisado; ejecuta skilus sync"))
 		}
-		renderReport(w, a.Report())
+		renderReport(w, a.Report(), t)
 		r := a.Report()
 		blocks += len(r.Findings) - r.Warnings()
 		warns += r.Warnings()
 	}
-	fmt.Fprintf(w, "Auditadas %d skill(s): %d bloqueo(s), %d aviso(s).\n", len(res.Skills), blocks, warns)
+	fmt.Fprint(w, t.T("Auditadas %d skill(s): %d bloqueo(s), %d aviso(s).\n", len(res.Skills), blocks, warns))
 }
 
-func signatureLine(a app.AuditedSkill) string {
+func signatureLine(a app.AuditedSkill, t *i18n.Catalog) string {
 	s := a.Signature
 	if s == nil {
 		return ""
 	}
 	switch s.State {
 	case app.Verified:
-		line := fmt.Sprintf("verificada por %s (%s)", s.VerifiedBy, s.Format)
+		line := t.T("verificada por %s (%s)", s.VerifiedBy, s.Format)
 		if s.Signer != "" {
 			line += ", " + clean(s.Signer)
 		}
 		return line
 	case app.Signed:
-		return fmt.Sprintf("firmada (%s), pero ni tus claves ni el servidor la verifican", s.Format)
+		return t.T("firmada (%s), pero ni tus claves ni el servidor la verifican", s.Format)
 	default:
-		return "sin firmar"
+		return t.T("sin firmar")
 	}
 }
