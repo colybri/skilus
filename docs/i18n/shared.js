@@ -10,6 +10,8 @@ export const table = (head, rows) => ({ t: 'table', head, rows });
 export const cards = (...items) => ({ t: 'cards', items });
 export const faq = (...items) => ({ t: 'faq', items });
 export const dl = () => ({ t: 'dl' });
+export const tabs = () => ({ t: 'tabs' });
+export const only = (os, block) => ({ ...block, os });
 
 export const COSIGN = String.raw`cosign verify-blob checksums.txt \
   --certificate checksums.txt.pem --signature checksums.txt.sig \
