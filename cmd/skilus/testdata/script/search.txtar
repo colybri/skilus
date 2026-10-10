@@ -1,0 +1,41 @@
+# skilus search reads the indexes of skilus.yaml; an unreachable registry
+# is reported without hiding them.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env SKILUS_REGISTRY_URL=https://127.0.0.1:1
+mkdir home/.skilus project
+cd project
+exec sh -c 'printf "version: 1\nindexes:\n  - file://%s/index.yaml\ntrust:\n  - github.com/anthropics\n" "$WORK" > skilus.yaml'
+
+exec skilus search pdf
+stderr 'No se pudo consultar skills.sh'
+stdout '^SKILL +ORIGEN +INSTALACIONES +ENCONTRADA EN +CONFIANZA$'
+stdout '^pdf +anthropics/skills@v1 +- +file://.*index.yaml +sí$'
+stdout '^pdf-lite +someone/pdf +- +.* +no$'
+! stdout docx
+stdout 'Revisa una con: skilus inspect anthropics/skills@v1 --skill pdf'
+
+exec skilus search pdf --owner anthropics --no-registry --json
+! stderr .
+stdout '"name": "pdf"'
+stdout '"trusted": true'
+! stdout pdf-lite
+
+exec skilus search nada --no-registry
+stdout 'Sin resultados\.'
+
+! exec skilus search --no-registry
+stderr 'requires at least 1 arg'
+
+-- index.yaml --
+version: 1
+skills:
+  - name: pdf
+    source: anthropics/skills@v1
+    description: Lee y crea PDF
+  - name: docx
+    source: anthropics/skills
+    description: Documentos de Word
+  - name: pdf-lite
+    source: someone/pdf
+    description: PDF mínimo

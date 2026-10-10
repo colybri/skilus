@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 
@@ -147,6 +148,17 @@ func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, erro
 				return app.Manifest{}, fmt.Errorf("%s: skill %s has no source: %w", p, n, domain.ErrInvalid)
 			}
 			m.Skills = append(m.Skills, app.ManifestEntry{Name: n, Source: s.Source, Allow: s.Allow})
+		}
+	}
+
+	if node := mappingValue(root, "indexes"); node != nil && node.Tag != "!!null" {
+		if err := node.Decode(&m.Indexes); err != nil {
+			return app.Manifest{}, fmt.Errorf("%s: indexes must be a list of URLs: %w", p, domain.ErrInvalid)
+		}
+		for _, u := range m.Indexes {
+			if strings.TrimSpace(u) == "" {
+				return app.Manifest{}, fmt.Errorf("%s: indexes has an empty entry: %w", p, domain.ErrInvalid)
+			}
 		}
 	}
 
