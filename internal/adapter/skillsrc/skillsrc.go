@@ -74,7 +74,19 @@ func Build(files []skill.File) (skill.Package, error) {
 	if err != nil {
 		return skill.Package{}, err
 	}
-	return skill.NewPackage(name, meta.Description, files)
+	p, err := skill.NewPackage(name, meta.Description, files)
+	if err != nil {
+		return skill.Package{}, err
+	}
+	raw, err := meta.requires()
+	if err != nil {
+		return skill.Package{}, err
+	}
+	reqs, err := skill.ParseRequires(raw)
+	if err != nil {
+		return skill.Package{}, fmt.Errorf("%s metadata.%s: %w", skill.ManifestFile, skill.RequiresKey, err)
+	}
+	return p.WithRequires(reqs)
 }
 
 // Under reports whether p is inside dir ("." is the root) and returns its
@@ -87,8 +99,35 @@ func Under(dir, p string) (string, bool) {
 }
 
 type frontmatter struct {
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
+	Name        string    `yaml:"name"`
+	Description string    `yaml:"description"`
+	Metadata    yaml.Node `yaml:"metadata"`
+}
+
+// requires returns metadata.requires. The specification wants a string;
+// a list of strings is accepted too.
+func (fm frontmatter) requires() (string, error) {
+	// Other tools put anything under metadata: only requires is read.
+	var node *yaml.Node
+	if fm.Metadata.Kind == yaml.MappingNode {
+		for i := 0; i+1 < len(fm.Metadata.Content); i += 2 {
+			if fm.Metadata.Content[i].Value == skill.RequiresKey {
+				node = fm.Metadata.Content[i+1]
+			}
+		}
+	}
+	if node == nil {
+		return "", nil
+	}
+	var s string
+	if err := node.Decode(&s); err == nil && node.Kind == yaml.ScalarNode {
+		return s, nil
+	}
+	var list []string
+	if err := node.Decode(&list); err != nil {
+		return "", fmt.Errorf("%s metadata.%s must be a string: %w", skill.ManifestFile, skill.RequiresKey, domain.ErrInvalid)
+	}
+	return strings.Join(list, " "), nil
 }
 
 // parseFrontmatter reads the YAML block between the leading "---" lines.

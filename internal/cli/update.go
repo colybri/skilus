@@ -131,6 +131,9 @@ actualiza skilus.lock. skilus.yaml no cambia.`,
 				fmt.Fprintln(out, "Todo al día.")
 				return nil
 			}
+			for _, e := range res.Installed {
+				fmt.Fprintf(out, "Instalada %s (%s), que ahora se necesita.\n", e.Skill, e.TreeHash.Short())
+			}
 			for _, e := range res.Updated {
 				fmt.Fprintf(out, "Actualizada %s a %s (%s).\n", e.Skill, short(e.Commit), e.TreeHash.Short())
 			}
@@ -163,5 +166,9 @@ func renderUpdatePlan(w io.Writer, plan app.UpdatePlan) {
 			}
 		}
 		renderReport(w, u.Report)
+	}
+	for _, ip := range plan.Dependencies {
+		fmt.Fprintln(w, "Requeridas por las skills actualizadas:")
+		renderPlan(w, ip)
 	}
 }

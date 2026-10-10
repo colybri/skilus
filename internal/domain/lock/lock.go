@@ -104,4 +104,56 @@ type Entry struct {
 	// checked on file systems that do not keep the executable bit.
 	Executables []string
 	Targets     []agent.Target
+	// Requires lists the installed skills this one needs.
+	Requires []skill.Name
+	// Dependency marks a skill installed only because another needs it;
+	// it goes away when nothing needs it any more.
+	Dependency bool
+}
+
+// Needs reports whether e requires n.
+func (e Entry) Needs(n skill.Name) bool {
+	for _, r := range e.Requires {
+		if r == n {
+			return true
+		}
+	}
+	return false
+}
+
+// Dependents returns the installed skills, other than those in except,
+// that require name.
+func (l *Lockfile) Dependents(name skill.Name, except map[skill.Name]bool) []skill.Name {
+	var out []skill.Name
+	for _, e := range l.Entries() {
+		if !except[e.Skill] && e.Needs(name) {
+			out = append(out, e.Skill)
+		}
+	}
+	return out
+}
+
+// Unneeded returns the dependency entries nothing would need once the
+// skills in gone are removed, following chains: a dependency only needed
+// by another unneeded dependency is unneeded too. gone is not changed.
+func (l *Lockfile) Unneeded(gone map[skill.Name]bool) []Entry {
+	removed := make(map[skill.Name]bool, len(gone))
+	for n := range gone {
+		removed[n] = true
+	}
+	var out []Entry
+	for changed := true; changed; {
+		changed = false
+		for _, e := range l.Entries() {
+			if removed[e.Skill] || !e.Dependency {
+				continue
+			}
+			if len(l.Dependents(e.Skill, removed)) == 0 {
+				removed[e.Skill] = true
+				out = append(out, e)
+				changed = true
+			}
+		}
+	}
+	return out
 }

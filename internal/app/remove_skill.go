@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
@@ -26,9 +27,11 @@ type RemoveSkillHandler struct {
 	ProjectRoot string
 }
 
-// Handle removes the skills from their agents, the lock and skilus.yaml.
-// Every name is checked before anything is touched. Content in the store
-// is kept: other projects may use it.
+// Handle removes the skills from their agents, the lock and skilus.yaml,
+// together with the dependencies nothing else needs any more. It refuses
+// to remove a skill another installed skill requires, unless that one goes
+// too. Every name is checked before anything is touched. Content in the
+// store is kept: other projects may use it.
 func (h RemoveSkillHandler) Handle(ctx context.Context, cmd RemoveSkill) ([]lock.Entry, error) {
 	if len(cmd.Names) == 0 {
 		return nil, fmt.Errorf("name at least one skill: %w", domain.ErrInvalid)
@@ -54,6 +57,20 @@ func (h RemoveSkillHandler) Handle(ctx context.Context, cmd RemoveSkill) ([]lock
 		}
 		entries = append(entries, e)
 	}
+	gone := map[skill.Name]bool{}
+	for _, e := range entries {
+		gone[e.Skill] = true
+	}
+	var blocked []string
+	for _, e := range entries {
+		if deps := lf.Dependents(e.Skill, gone); len(deps) > 0 {
+			blocked = append(blocked, fmt.Sprintf("%s is required by %s", e.Skill, joinNames(deps)))
+		}
+	}
+	if len(blocked) > 0 {
+		return nil, fmt.Errorf("%s; remove those too: %w", strings.Join(blocked, "; "), domain.ErrConflict)
+	}
+	entries = append(entries, lf.Unneeded(gone)...)
 
 	agents, err := h.Catalog.Agents(ctx)
 	if err != nil {

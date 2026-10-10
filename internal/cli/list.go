@@ -21,6 +21,8 @@ type skillJSON struct {
 	Path       string       `json:"path"`
 	TreeSHA256 string       `json:"tree_sha256"`
 	Targets    []targetJSON `json:"targets"`
+	Requires   []string     `json:"requires,omitempty"`
+	Dependency bool         `json:"dependency,omitempty"`
 }
 
 type targetJSON struct {
@@ -55,7 +57,10 @@ func newListCommand(q app.ListSkills) *cobra.Command {
 				rows := make([]skillJSON, 0, len(skills))
 				for _, s := range skills {
 					e := s.Entry
-					row := skillJSON{Name: e.Skill.String(), Scope: string(s.Scope), Source: e.Source, Requested: e.Requested, Commit: e.Commit, Path: e.Path, TreeSHA256: e.TreeHash.String()}
+					row := skillJSON{Name: e.Skill.String(), Scope: string(s.Scope), Source: e.Source, Requested: e.Requested, Commit: e.Commit, Path: e.Path, TreeSHA256: e.TreeHash.String(), Dependency: e.Dependency}
+					for _, r := range e.Requires {
+						row.Requires = append(row.Requires, r.String())
+					}
 					for _, t := range e.Targets {
 						row.Targets = append(row.Targets, targetJSON{Agent: t.Agent.String(), Mode: string(t.Mode)})
 					}
@@ -87,7 +92,19 @@ func newListCommand(q app.ListSkills) *cobra.Command {
 				}
 				fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\n", e.Skill, s.Scope, clean(source), commit, e.TreeHash.Short(), strings.Join(agents, ","))
 			}
-			return tw.Flush()
+			if err := tw.Flush(); err != nil {
+				return err
+			}
+			for _, s := range skills {
+				if e := s.Entry; len(e.Requires) > 0 {
+					names := make([]string, len(e.Requires))
+					for i, r := range e.Requires {
+						names[i] = r.String()
+					}
+					fmt.Fprintf(out, "%s necesita %s.\n", e.Skill, strings.Join(names, ", "))
+				}
+			}
+			return nil
 		},
 	}
 	cmd.Flags().BoolVar(&asJSON, "json", false, "salida en JSON")
@@ -109,7 +126,11 @@ func newRemoveCommand(h app.RemoveSkillHandler) *cobra.Command {
 			}
 			removed, err := h.Handle(cmd.Context(), app.RemoveSkill{Names: args, Scope: s})
 			for _, e := range removed {
-				fmt.Fprintf(cmd.OutOrStdout(), "Eliminada %s de %d destino(s).\n", e.Skill, len(e.Targets))
+				note := ""
+				if e.Dependency {
+					note = " (era una dependencia)"
+				}
+				fmt.Fprintf(cmd.OutOrStdout(), "Eliminada %s%s de %d destino(s).\n", e.Skill, note, len(e.Targets))
 			}
 			return err
 		},

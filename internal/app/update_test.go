@@ -70,6 +70,7 @@ type updateFixture struct {
 	handler  app.UpdateHandler
 	prompter *fakePrompter
 	next     skill.Package
+	extra    []app.FetchedSkill // served next to demo
 }
 
 // newUpdateFixture installs demo with sync and serves a v2 in which run.sh
@@ -102,7 +103,39 @@ func (f *updateFixture) Fetch(_ context.Context, src source.Source) (app.Fetched
 	if src.Ref != "v1" {
 		return app.Fetched{}, fmt.Errorf("fetched ref %q, want the requested one", src.Ref)
 	}
-	return app.Fetched{Source: src.ID, Requested: src.Ref, Commit: newCommit, Skills: []app.FetchedSkill{{Path: "skills/demo", Package: f.next}}}, nil
+	return app.Fetched{Source: src.ID, Requested: src.Ref, Commit: newCommit, Skills: append([]app.FetchedSkill{{Path: "skills/demo", Package: f.next}}, f.extra...)}, nil
+}
+
+func TestUpdateInstallsNewRequirements(t *testing.T) {
+	f := newUpdateFixture(t)
+	ctx := context.Background()
+	helper := pkg(t, "helper")
+	f.extra = []app.FetchedSkill{{Path: "skills/helper", Package: helper}}
+	reqs, err := skill.ParseRequires("helper")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.next, err = f.next.WithRequires(reqs); err != nil {
+		t.Fatal(err)
+	}
+
+	res, err := f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject, AllowScripts: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Installed) != 1 || res.Installed[0].Skill != helper.Name() || !res.Installed[0].Dependency {
+		t.Fatalf("installed = %+v", res.Installed)
+	}
+	e, _ := f.locks.lf.Entry(f.entry.Skill)
+	if len(e.Requires) != 1 || e.Requires[0] != helper.Name() {
+		t.Fatalf("demo requires = %v", e.Requires)
+	}
+	if len(res.Installed[0].Targets) != len(e.Targets) {
+		t.Fatalf("helper targets = %+v, want those of demo %+v", res.Installed[0].Targets, e.Targets)
+	}
+	if _, err := f.verify.Handle(ctx, app.Verify{Scopes: project}); err != nil {
+		t.Fatalf("verify after update: %v", err)
+	}
 }
 
 func TestUpdateShowsChangesAndReplacesInstalledCopy(t *testing.T) {
