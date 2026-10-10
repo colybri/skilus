@@ -1,0 +1,49 @@
+# ~/.skilus/agents.yaml adds agents to the catalog and replaces existing ones.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+cd project
+
+exec skilus agents
+! stdout windsurf
+
+cp $WORK/agents.yaml $HOME/.skilus/agents.yaml
+exec skilus agents
+stdout '^windsurf +\.windsurf/skills +.*/home/\.codeium/windsurf/skills +no$'
+stdout '^claude-code +\.claude/skills +.*/home/dotfiles/claude/skills '
+
+exec skilus add ./src --agent windsurf --yes
+exists .windsurf/skills/review/SKILL.md
+
+# A broken file is reported, not ignored.
+cp $WORK/broken.yaml $HOME/.skilus/agents.yaml
+! exec skilus agents
+stderr 'agents.yaml: agent x project dir "../fuera" must be a relative path inside the project'
+
+-- home/.skilus/.keep --
+-- agents.yaml --
+version: 1
+agents:
+  - id: claude-code
+    name: Claude Code
+    project_dir: .claude/skills
+    global_dir: ~/dotfiles/claude/skills
+  - id: windsurf
+    name: Windsurf
+    project_dir: .windsurf/skills
+    global_dir: ~/.codeium/windsurf/skills
+    detect: ~/.codeium/windsurf
+-- broken.yaml --
+version: 1
+agents:
+  - id: x
+    name: X
+    project_dir: ../fuera
+    global_dir: /x
+-- project/src/SKILL.md --
+---
+name: review
+description: Revisa cambios
+---

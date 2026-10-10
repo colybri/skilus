@@ -2,10 +2,13 @@ package catalog_test
 
 import (
 	"context"
+	"errors"
+	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/colybri/skilus/internal/adapter/catalog"
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 )
 
@@ -72,5 +75,58 @@ func TestEnvironmentOverrides(t *testing.T) {
 	}
 	if got := byID(t, agents, "universal").GlobalDir(); got != filepath.FromSlash("/xdg/agents/skills") {
 		t.Errorf("universal global = %q", got)
+	}
+}
+
+func TestUserFileExtendsAndOverrides(t *testing.T) {
+	dir := t.TempDir()
+	user := filepath.Join(dir, "agents.yaml")
+	c := catalog.New("/home/ana", env(nil)).WithUserFile(user)
+
+	base, err := c.Agents(context.Background())
+	if err != nil {
+		t.Fatalf("missing user file: %v", err)
+	}
+
+	data := `version: 1
+agents:
+  - id: claude-code
+    name: Claude Code (mi ruta)
+    project_dir: .claude/skills
+    global_dir: ~/dotfiles/claude/skills
+  - id: windsurf
+    name: Windsurf
+    project_dir: .windsurf/skills
+    global_dir: ~/.codeium/windsurf/skills
+    detect: ~/.codeium/windsurf
+`
+	if err := os.WriteFile(user, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	agents, err := c.Agents(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(agents) != len(base)+1 || agents[len(agents)-1].ID().String() != "windsurf" {
+		t.Fatalf("agents = %v", agents)
+	}
+	if got := byID(t, agents, "claude-code").GlobalDir(); got != filepath.FromSlash("/home/ana/dotfiles/claude/skills") {
+		t.Errorf("claude-code global dir = %q", got)
+	}
+	if agents[0].ID().String() != "claude-code" {
+		t.Error("an override should keep the agent's place")
+	}
+
+	for _, bad := range []string{
+		"version: 2\nagents: []\n",
+		"version: 1\nagents:\n  - id: x\n    name: X\n    project_dir: ../out\n    global_dir: /x\n",
+		"version: 1\nagents:\n  - id: x\n    name: X\n    project_dir: x\n    global_dir: /x\n  - id: x\n    name: X\n    project_dir: x\n    global_dir: /x\n",
+	} {
+		if err := os.WriteFile(user, []byte(bad), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := c.Agents(context.Background()); !errors.Is(err, domain.ErrInvalid) {
+			t.Errorf("%q: err = %v, want ErrInvalid", bad, err)
+		}
 	}
 }

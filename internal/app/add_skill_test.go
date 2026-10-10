@@ -108,6 +108,11 @@ func (f *fakePrompter) ConfirmUpdate(context.Context, app.UpdatePlan) (bool, err
 	return f.answer, nil
 }
 
+func (f *fakePrompter) ConfirmProfile(context.Context, app.ProfilePlan) (bool, error) {
+	f.asked = true
+	return f.answer, nil
+}
+
 func pkg(t *testing.T, n string, extra ...skill.File) skill.Package {
 	t.Helper()
 	name, err := skill.NewName(n)

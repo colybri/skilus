@@ -40,7 +40,7 @@ func run() int {
 	}
 	skilusHome := filepath.Join(home, ".skilus")
 
-	agents := catalog.New(home, os.Getenv)
+	agents := catalog.New(home, os.Getenv).WithUserFile(filepath.Join(skilusHome, "agents.yaml"))
 	detector := osfs.Detector{}
 	repo := yamlrepo.Repo{ProjectRoot: cwd, GlobalDir: skilusHome}
 
@@ -59,22 +59,32 @@ func run() int {
 	}
 	store := osfs.Store{Root: filepath.Join(skilusHome, "store")}
 
+	add := app.AddSkillHandler{
+		Catalog:      agents,
+		Detector:     detector,
+		Fetchers:     fetchers,
+		Store:        store,
+		Deployer:     osfs.Deployer{},
+		Locks:        repo,
+		Manifests:    repo,
+		Trust:        repo,
+		ProjectRoot:  cwd,
+		DefaultModes: map[agent.Scope]agent.Mode{agent.ScopeProject: agent.ModeCopy, agent.ScopeGlobal: globalMode},
+		Limits:       policy.DefaultLimits,
+	}
+	sync := app.SyncHandler{
+		Catalog:     agents,
+		Fetchers:    fetchers,
+		Store:       store,
+		Deployer:    osfs.Deployer{},
+		Trees:       osfs.TreeReader{},
+		Locks:       repo,
+		ProjectRoot: cwd,
+	}
 	deps := cli.Deps{
 		Version:    version,
 		ListAgents: app.ListAgents{Catalog: agents, Detector: detector},
-		AddSkill: app.AddSkillHandler{
-			Catalog:      agents,
-			Detector:     detector,
-			Fetchers:     fetchers,
-			Store:        store,
-			Deployer:     osfs.Deployer{},
-			Locks:        repo,
-			Manifests:    repo,
-			Trust:        repo,
-			ProjectRoot:  cwd,
-			DefaultModes: map[agent.Scope]agent.Mode{agent.ScopeProject: agent.ModeCopy, agent.ScopeGlobal: globalMode},
-			Limits:       policy.DefaultLimits,
-		},
+		AddSkill:   add,
 		ListSkills: app.ListSkills{Locks: repo},
 		RemoveSkill: app.RemoveSkillHandler{
 			Catalog:     agents,
@@ -96,16 +106,10 @@ func run() int {
 			ProjectRoot: cwd,
 			Limits:      policy.DefaultLimits,
 		},
-		Verify: app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
-		Sync: app.SyncHandler{
-			Catalog:     agents,
-			Fetchers:    fetchers,
-			Store:       store,
-			Deployer:    osfs.Deployer{},
-			Trees:       osfs.TreeReader{},
-			Locks:       repo,
-			ProjectRoot: cwd,
-		},
+		Verify:       app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
+		Sync:         sync,
+		ListProfiles: app.ListProfilesHandler{Manifest: repo, Locks: repo},
+		UseProfile:   app.UseProfileHandler{Add: add, Sync: sync, Manifest: repo},
 	}
 	return cli.Run(deps, os.Args[1:], os.Stdin, os.Stdout, os.Stderr)
 }
