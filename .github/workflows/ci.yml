@@ -33,6 +33,9 @@ jobs:
       - uses: golangci/golangci-lint-action@v8
         with:
           version: v2.5.0
+          # config verify downloads the JSON schema from golangci-lint.run on
+          # every run; when that site is slow, lint fails without linting.
+          verify: false
 
   release-snapshot:
     # Builds every release archive without publishing, so a broken
