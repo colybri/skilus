@@ -1,0 +1,49 @@
+# skilus add reads skills from a tar.gz or ZIP archive, and sync and verify
+# work with it like with any other source.
+[!exec:git] skip 'git is not installed'
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+env GIT_AUTHOR_NAME=t
+env GIT_AUTHOR_EMAIL=t@example.com
+env GIT_COMMITTER_NAME=t
+env GIT_COMMITTER_EMAIL=t@example.com
+env GIT_CONFIG_NOSYSTEM=1
+mkdir home project
+
+# Archives shaped like the ones GitHub serves: one top directory.
+cd src
+exec git init --quiet --initial-branch=main
+exec git add .
+exec git commit --quiet -m v1
+exec git archive --format=tar.gz --prefix=src-main/ -o $WORK/skills.tar.gz HEAD
+exec git archive --format=zip --prefix=src-main/ -o $WORK/skills.zip HEAD
+cd $WORK/project
+
+exec skilus inspect file://$WORK/skills.zip
+stdout 'review  1 ficheros'
+
+exec skilus add file://$WORK/skills.tar.gz --agent claude-code --yes
+stdout 'Instalada review'
+exists .claude/skills/review/SKILL.md
+grep 'source: file://.*/skills.tar.gz$' skilus.lock
+! grep 'commit:' skilus.lock
+
+rm $WORK/home/.skilus/store .claude/skills/review
+exec skilus sync
+stdout 'Descargada review'
+exec skilus verify
+
+# Archives take no ref, and URLs with a query are refused.
+! exec skilus add file://$WORK/skills.zip@v1 --agent claude-code --yes
+! exec skilus add 'https://example.com/s.zip?token=x' --agent claude-code --yes
+stderr 'query'
+
+-- src/skills/review/SKILL.md --
+---
+name: review
+description: Reviews code.
+---
+Review the diff.

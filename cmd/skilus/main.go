@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"runtime"
 
+	"github.com/colybri/skilus/internal/adapter/archivesrc"
 	"github.com/colybri/skilus/internal/adapter/catalog"
 	"github.com/colybri/skilus/internal/adapter/gitsrc"
 	"github.com/colybri/skilus/internal/adapter/osfs"
@@ -52,8 +53,9 @@ func run() int {
 
 	git := gitsrc.Fetcher{MaxSkillBytes: policy.DefaultLimits.MaxTotalBytes}
 	fetchers := map[source.Kind]app.Fetcher{
-		source.KindLocal: osfs.LocalFetcher{Dir: cwd},
-		source.KindGit:   git,
+		source.KindLocal:   osfs.LocalFetcher{Dir: cwd},
+		source.KindGit:     git,
+		source.KindArchive: archivesrc.Fetcher{MaxUnpacked: policy.DefaultLimits.MaxTotalBytes * 4},
 	}
 	store := osfs.Store{Root: filepath.Join(skilusHome, "store")}
 
