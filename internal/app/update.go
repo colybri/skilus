@@ -65,6 +65,7 @@ type UpdateHandler struct {
 	Trees       TreeReader
 	Locks       LockRepository
 	Prompter    Prompter
+	Trust       TrustList // nil skips the trust check
 	ProjectRoot string
 	Limits      policy.Limits
 }
@@ -222,7 +223,12 @@ func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, sourc
 			u.Changes = skill.Diff(old, p.Files())
 		}
 	}
+	untrusted, err := trustFindings(ctx, h.Trust, e.Source, trustScopes(cmd.Scope)...)
+	if err != nil {
+		return nil, err
+	}
 	u.Report = policy.Inspect(p, h.Limits, policy.Allow{Scripts: cmd.AllowScripts})
+	u.Report.Findings = append(append([]policy.Finding(nil), untrusted...), u.Report.Findings...)
 	known := map[string]bool{}
 	for _, x := range e.Executables {
 		known[x] = true

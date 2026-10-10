@@ -12,6 +12,7 @@ import (
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
+	"github.com/colybri/skilus/internal/domain/policy"
 	"github.com/colybri/skilus/internal/domain/skill"
 )
 
@@ -96,6 +97,25 @@ func (r Repo) RemoveSkill(_ context.Context, scope agent.Scope, name skill.Name)
 		return err
 	}
 	return writeAtomic(p, data)
+}
+
+// Trust implements app.TrustList: the trust: list of the scope's
+// skilus.yaml, empty when the file or the key is missing.
+func (r Repo) Trust(_ context.Context, scope agent.Scope) (policy.Trust, error) {
+	p := r.path(scope, ManifestFile)
+	doc, err := readNode(p)
+	if err != nil {
+		return nil, err
+	}
+	node := mappingValue(doc.Content[0], "trust")
+	if node == nil || node.Tag == "!!null" {
+		return nil, nil
+	}
+	var trust policy.Trust
+	if err := node.Decode(&trust); err != nil {
+		return nil, fmt.Errorf("%s: trust must be a list of sources: %w", p, domain.ErrInvalid)
+	}
+	return trust, nil
 }
 
 func readNode(p string) (*yaml.Node, error) {

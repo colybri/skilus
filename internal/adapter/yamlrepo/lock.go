@@ -30,6 +30,7 @@ const (
 var (
 	_ app.LockRepository     = Repo{}
 	_ app.ManifestRepository = Repo{}
+	_ app.TrustList          = Repo{}
 )
 
 // Repo stores the files of both scopes.

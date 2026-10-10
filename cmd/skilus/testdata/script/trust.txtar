@@ -1,0 +1,49 @@
+# trust: in skilus.yaml lists the trusted sources; any other one gets a
+# warning, which --strict turns into a rejection. Local folders are exempt.
+[!exec:git] skip 'git is not installed'
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+env GIT_AUTHOR_NAME=t
+env GIT_AUTHOR_EMAIL=t@example.com
+env GIT_COMMITTER_NAME=t
+env GIT_COMMITTER_EMAIL=t@example.com
+env GIT_CONFIG_NOSYSTEM=1
+mkdir home/.skilus
+
+cd remote
+exec git init --quiet --initial-branch=main
+exec git add .
+exec git commit --quiet -m v1
+cd $WORK/project
+
+exec skilus inspect file://$WORK/remote
+stdout 'aviso \[untrusted-source\]'
+! exec skilus add file://$WORK/remote --agent claude-code --yes --strict
+stderr 'warnings under --strict'
+! exists skilus.lock
+
+# A local folder is never checked.
+exec skilus inspect ../remote --strict
+
+# Trusting the source, here in the global skilus.yaml, clears the warning.
+cp $WORK/trusted.yaml $WORK/home/.skilus/skilus.yaml
+exec skilus add file://$WORK/remote --agent claude-code --yes --strict
+stdout 'Instalada review'
+
+-- project/skilus.yaml --
+version: 1
+trust:
+  - github.com/anthropics
+-- trusted.yaml --
+version: 1
+trust:
+  - file:///
+-- remote/skills/review/SKILL.md --
+---
+name: review
+description: Reviews code.
+---
+Review the diff.

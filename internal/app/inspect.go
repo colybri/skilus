@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/policy"
 	"github.com/colybri/skilus/internal/domain/source"
 )
@@ -19,6 +20,7 @@ type Inspect struct {
 // InspectHandler runs Inspect. It reads the source and nothing else.
 type InspectHandler struct {
 	Fetchers map[source.Kind]Fetcher
+	Trust    TrustList // nil skips the trust check
 	Limits   policy.Limits
 }
 
@@ -37,8 +39,13 @@ func (h InspectHandler) Handle(ctx context.Context, q Inspect) (InstallPlan, err
 	if len(q.Skills) == 0 {
 		plan.Skipped = fetched.Invalid
 	}
+	untrusted, err := trustFindings(ctx, h.Trust, q.Source, agent.ScopeProject, agent.ScopeGlobal)
+	if err != nil {
+		return InstallPlan{}, err
+	}
 	for _, s := range selected {
 		report := policy.Inspect(s.Package, h.Limits, policy.Allow{Scripts: q.AllowScripts})
+		report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
 		plan.Skills = append(plan.Skills, PlannedSkill{Package: s.Package, Path: s.Path, Report: report})
 	}
 	return plan, gate(plan, AddSkill{Strict: q.Strict, AllowScripts: q.AllowScripts})
