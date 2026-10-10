@@ -68,7 +68,7 @@ commit y las locales no se comprueban.`,
 				app.FreshCurrent:  "al día",
 				app.FreshOutdated: "hay versión nueva",
 				app.FreshPinned:   "fijada a un commit",
-				app.FreshLocal:    "local",
+				app.FreshLocal:    "local o archivo, sin ref",
 				app.FreshUnknown:  "no se pudo consultar",
 			}
 			tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)

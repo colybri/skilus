@@ -25,6 +25,9 @@ func TestParse(t *testing.T) {
 		{"git@github.com:o/r.git@v1", "git@github.com:o/r.git", "git@github.com:o/r.git", "v1", source.KindGit},
 		{"ssh://git@host/o/r", "ssh://git@host/o/r", "ssh://git@host/o/r", "", source.KindGit},
 		{"file:///tmp/repo@0123abc", "file:///tmp/repo", "file:///tmp/repo", "0123abc", source.KindGit},
+		{"https://example.com/dl/skills.zip", "https://example.com/dl/skills.zip", "https://example.com/dl/skills.zip", "", source.KindArchive},
+		{"https://github.com/o/r/archive/v1@x.tar.gz", "https://github.com/o/r/archive/v1@x.tar.gz", "https://github.com/o/r/archive/v1@x.tar.gz", "", source.KindArchive},
+		{"file:///tmp/s.TGZ", "file:///tmp/s.TGZ", "file:///tmp/s.TGZ", "", source.KindArchive},
 	}
 	for _, tt := range tests {
 		got, err := source.Parse(tt.raw)
@@ -49,6 +52,9 @@ func TestParseRejects(t *testing.T) {
 		"https://u:token@github.com/o/r", // credentials
 		"http://github.com/o/r",          // plain HTTP
 		"git://github.com/o/r",           // unauthenticated protocol
+		"https://x.com/s.zip?token=abc",  // a token would end up in the lock
+		"https://me@x.com/s.zip",         // credentials
+		"http://x.com/s.zip",             // plain HTTP
 	} {
 		if _, err := source.Parse(raw); !errors.Is(err, domain.ErrInvalid) {
 			t.Errorf("Parse(%q) err = %v, want ErrInvalid", raw, err)
