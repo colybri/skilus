@@ -178,3 +178,24 @@ func TestSaveProfileCreatesTheSection(t *testing.T) {
 		t.Errorf("delete in a scope without skilus.yaml: %v", err)
 	}
 }
+
+func TestSaveProfileOnCRLFFile(t *testing.T) {
+	ctx := context.Background()
+	repo := yamlrepo.Repo{ProjectRoot: t.TempDir()}
+	path := filepath.Join(repo.ProjectRoot, yamlrepo.ManifestFile)
+	crlf := "# Skills del equipo\r\nversion: 1\r\nskills:\r\n  - name: ui\r\n    source: ./src # local\r\n"
+	if err := os.WriteFile(path, []byte(crlf), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := repo.SaveProfile(ctx, agent.ScopeProject, mustProfile(t, "web", []string{"ui"})); err != nil {
+		t.Fatal(err)
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "# Skills del equipo\nversion: 1\nskills:\n  - name: ui\n    source: ./src # local\nprofiles:\n  web:\n    skills: [ui]\n"
+	if string(data) != want {
+		t.Errorf("got:\n%q\nwant:\n%q", data, want)
+	}
+}

@@ -1,6 +1,7 @@
 package yamlrepo
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -211,6 +212,9 @@ func readNode(p string) (*yaml.Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	// yaml.v3 turns the "\r" of a CRLF file into blank lines after comments
+	// when the tree is written back; Windows editors save CRLF.
+	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
 	var doc yaml.Node
 	if err := yaml.Unmarshal(data, &doc); err != nil {
 		return nil, fmt.Errorf("%s: %w: %w", p, err, domain.ErrInvalid)
