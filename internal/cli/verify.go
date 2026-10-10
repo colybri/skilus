@@ -63,7 +63,7 @@ cambiado, y dice cuál.`),
 			}
 			out := cmd.OutOrStdout()
 			if asJSON {
-				if jerr := renderChecksJSON(out, res.Checks, t); jerr != nil {
+				if jerr := renderChecksJSON(out, res.Checks); jerr != nil {
 					return jerr
 				}
 				return err
@@ -105,7 +105,7 @@ func renderChecks(w io.Writer, res app.VerifyResult, t *i18n.Catalog) {
 	fmt.Fprintln(w, t.T("Ejecuta skilus sync para restaurarlas (con --force si las has cambiado a mano)."))
 }
 
-func renderChecksJSON(w io.Writer, checks []app.TargetCheck, t *i18n.Catalog) error {
+func renderChecksJSON(w io.Writer, checks []app.TargetCheck) error {
 	rows := make([]checkJSON, 0, len(checks))
 	for _, c := range checks {
 		row := checkJSON{Skill: c.Skill.String(), Scope: string(c.Scope), Agent: c.Target.Agent.String(), Dir: c.Dir, Status: "ok", Detail: c.Detail}
