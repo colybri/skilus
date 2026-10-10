@@ -194,3 +194,12 @@ type Prompter interface {
 	ConfirmUpdate(ctx context.Context, plan UpdatePlan) (bool, error)
 	ConfirmProfile(ctx context.Context, plan ProfilePlan) (bool, error)
 }
+
+// SettingsRepository keeps the user's own preferences, which belong to the
+// user and not to a project.
+type SettingsRepository interface {
+	// Language returns the saved language code, or "" when none is saved.
+	Language(ctx context.Context) (string, error)
+	// SetLanguage saves code; "" removes the setting.
+	SetLanguage(ctx context.Context, code string) error
+}

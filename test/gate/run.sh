@@ -17,6 +17,8 @@
 # Usage: test/gate/run.sh <path to the skilus binary>
 # GATE_UPDATE=1 rewrites the committed lock instead of comparing.
 set -euo pipefail
+# The checks below read skilus's Spanish messages.
+export SKILUS_LANG=es
 
 bin=$(cd "$(dirname "$1")" && pwd)/$(basename "$1")
 here=$(cd "$(dirname "$0")" && pwd)

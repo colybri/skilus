@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/colybri/skilus/internal/app"
+	"github.com/colybri/skilus/internal/cli/i18n"
 	"github.com/colybri/skilus/internal/domain/agent"
 )
 
@@ -18,7 +19,7 @@ type syncJSON struct {
 	Action string `json:"action"`
 }
 
-func newSyncCommand(h app.SyncHandler) *cobra.Command {
+func newSyncCommand(h app.SyncHandler, t *i18n.Catalog) *cobra.Command {
 	var (
 		c      app.Sync
 		asJSON bool
@@ -26,13 +27,13 @@ func newSyncCommand(h app.SyncHandler) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "sync",
-		Short: "Deja los agentes exactamente como dice el lock",
-		Long: `Instala cada skill de skilus.lock en sus agentes, descargándola por su
+		Short: t.T("Deja los agentes exactamente como dice el lock"),
+		Long: t.T(`Instala cada skill de skilus.lock en sus agentes, descargándola por su
 commit si el almacén no la tiene, y falla si su hash no coincide con el del
 lock. No cambia skilus.lock ni skilus.yaml.
 
 Si una skill instalada se ha modificado a mano, no toca nada y avisa; con
---force la sobrescribe.`,
+--force la sobrescribe.`),
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			scopes, err := parseScopes(scope)
@@ -44,8 +45,8 @@ Si una skill instalada se ha modificado a mano, no toca nada y avisa; con
 			out := cmd.OutOrStdout()
 			if asJSON {
 				rows := make([]syncJSON, 0, len(res.Targets))
-				for _, t := range res.Targets {
-					rows = append(rows, syncJSON{Skill: t.Entry.Skill.String(), Scope: string(t.Scope), Agent: t.Target.Agent.String(), Dir: t.Dir, Action: string(t.Action)})
+				for _, tg := range res.Targets {
+					rows = append(rows, syncJSON{Skill: tg.Entry.Skill.String(), Scope: string(tg.Scope), Agent: tg.Target.Agent.String(), Dir: tg.Dir, Action: string(tg.Action)})
 				}
 				enc := json.NewEncoder(out)
 				enc.SetIndent("", "  ")
@@ -54,34 +55,34 @@ Si una skill instalada se ha modificado a mano, no toca nada y avisa; con
 				}
 				return err
 			}
-			for _, t := range res.Targets {
-				if t.Action == app.SyncBlocked {
-					fmt.Fprintf(cmd.ErrOrStderr(), "Modificada a mano: %s (%s)\n", clean(t.Dir), t.Entry.Skill)
+			for _, tg := range res.Targets {
+				if tg.Action == app.SyncBlocked {
+					fmt.Fprint(cmd.ErrOrStderr(), t.T("Modificada a mano: %s (%s)\n", clean(tg.Dir), tg.Entry.Skill))
 				}
 			}
 			if err != nil {
 				return err
 			}
 			for _, e := range res.Downloaded {
-				fmt.Fprintf(out, "Descargada %s (%s)\n", e.Skill, e.TreeHash.Short())
+				fmt.Fprint(out, t.T("Descargada %s (%s)\n", e.Skill, e.TreeHash.Short()))
 			}
 			count := map[app.SyncAction]int{}
-			for _, t := range res.Targets {
-				switch t.Action {
+			for _, tg := range res.Targets {
+				switch tg.Action {
 				case app.SyncCreated:
-					fmt.Fprintf(out, "Instalada %s en %s\n", t.Entry.Skill, clean(t.Dir))
+					fmt.Fprint(out, t.T("Instalada %s en %s\n", tg.Entry.Skill, clean(tg.Dir)))
 				case app.SyncReplaced:
-					fmt.Fprintf(out, "Reemplazada %s en %s\n", t.Entry.Skill, clean(t.Dir))
+					fmt.Fprint(out, t.T("Reemplazada %s en %s\n", tg.Entry.Skill, clean(tg.Dir)))
 				}
-				count[t.Action]++
+				count[tg.Action]++
 			}
-			fmt.Fprintf(out, "Sincronizado: %d instalada(s), %d reemplazada(s), %d sin cambios.\n", count[app.SyncCreated], count[app.SyncReplaced], count[app.SyncUnchanged])
+			fmt.Fprint(out, t.T("Sincronizado: %d instalada(s), %d reemplazada(s), %d sin cambios.\n", count[app.SyncCreated], count[app.SyncReplaced], count[app.SyncUnchanged]))
 			return nil
 		},
 	}
 	f := cmd.Flags()
-	f.BoolVar(&c.Force, "force", false, "sobrescribe las skills modificadas a mano")
-	f.BoolVar(&asJSON, "json", false, "salida en JSON")
-	f.StringVar(&scope, "scope", string(agent.ScopeProject), "project, global o all")
+	f.BoolVar(&c.Force, "force", false, t.T("sobrescribe las skills modificadas a mano"))
+	f.BoolVar(&asJSON, "json", false, t.T("salida en JSON"))
+	f.StringVar(&scope, "scope", string(agent.ScopeProject), t.T("project, global o all"))
 	return cmd
 }

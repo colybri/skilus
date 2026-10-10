@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/colybri/skilus/internal/app"
+	"github.com/colybri/skilus/internal/cli/i18n"
 )
 
 type agentJSON struct {
@@ -18,11 +19,11 @@ type agentJSON struct {
 	Installed  bool   `json:"installed"`
 }
 
-func newAgentsCommand(q app.ListAgents) *cobra.Command {
+func newAgentsCommand(q app.ListAgents, t *i18n.Catalog) *cobra.Command {
 	var asJSON bool
 	cmd := &cobra.Command{
 		Use:   "agents",
-		Short: "Lista los agentes soportados y cuáles están instalados",
+		Short: t.T("Lista los agentes soportados y cuáles están instalados"),
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			statuses, err := q.Handle(cmd.Context())
@@ -46,17 +47,17 @@ func newAgentsCommand(q app.ListAgents) *cobra.Command {
 				return enc.Encode(rows)
 			}
 			tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-			fmt.Fprintln(tw, "AGENTE\tPROYECTO\tGLOBAL\tDETECTADO")
+			fmt.Fprintln(tw, t.T("AGENTE\tPROYECTO\tGLOBAL\tDETECTADO"))
 			for _, s := range statuses {
-				detected := "no"
+				detected := t.T("no")
 				if s.Installed {
-					detected = "sí"
+					detected = t.T("sí")
 				}
 				fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", s.Agent.ID(), s.Agent.ProjectDir(), s.Agent.GlobalDir(), detected)
 			}
 			return tw.Flush()
 		},
 	}
-	cmd.Flags().BoolVar(&asJSON, "json", false, "salida en JSON")
+	cmd.Flags().BoolVar(&asJSON, "json", false, t.T("salida en JSON"))
 	return cmd
 }

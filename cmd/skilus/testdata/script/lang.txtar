@@ -1,0 +1,54 @@
+# skilus follows the system language, falls back to English and remembers
+# the one chosen with skilus lang set.
+env HOME=$WORK/home
+env USERPROFILE=$WORK/home
+env SKILUS_LANG=
+env LANGUAGE=
+env LC_ALL=
+env LC_MESSAGES=
+
+# Without any locale variable: English (on Windows, the runner's own en-US).
+env LANG=
+exec skilus list
+stdout '^No skills installed\.$'
+exec skilus lang
+stdout '^Language: English \(en\), (default|from the system)'
+stdout '^  \* en  English$'
+
+# The system language when skilus speaks it.
+env LANG=fr_FR.UTF-8
+exec skilus lang
+stdout '^Langue : Français \(fr\)'
+env LANG=it_IT.UTF-8
+exec skilus list
+stdout '^No skills installed\.$'
+
+# skilus lang set wins over the environment and confirms in the new language.
+env LANG=fr_FR.UTF-8
+exec skilus lang set es_ES
+stdout '^Idioma cambiado a Español \(es\)\.$'
+exists home/.skilus/config.yaml
+exec skilus list
+stdout '^No hay skills instaladas\.$'
+exec skilus lang
+stdout 'elegido con skilus lang set'
+
+# SKILUS_LANG wins over everything.
+env SKILUS_LANG=en
+exec skilus list
+stdout '^No skills installed\.$'
+env SKILUS_LANG=
+
+# auto goes back to the system; an unknown language is a usage error.
+exec skilus lang set auto
+exec skilus lang
+stdout '^Langue : Français \(fr\)'
+! exec skilus lang set it
+stderr 'it'
+stderr 'es, en, fr'
+
+# Help and prompts are translated too.
+env LANG=en_US.UTF-8
+exec skilus --help
+stdout '^Usage:$'
+stdout '^  lang +Show or change the language skilus writes in$'

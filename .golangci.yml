@@ -8,6 +8,12 @@ linters:
     - misspell
     - revive
   settings:
+    misspell:
+      # The CLI's message ids are Spanish.
+      ignore-rules:
+        - comando
+        - comandos
+        - argumentos
     errcheck:
       # Writes to the CLI's stdout/stderr; tabwriter reports errors on Flush.
       exclude-functions:
