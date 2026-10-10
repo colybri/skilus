@@ -116,6 +116,30 @@ type ManifestReader interface {
 type Manifest struct {
 	Skills   []ManifestEntry
 	Profiles []profile.Profile
+	// Indexes are the URLs of curated skill indexes skilus search reads.
+	Indexes []string
+}
+
+// Registry searches a public skill directory such as skills.sh.
+type Registry interface {
+	// Name identifies the registry in results, e.g. "skills.sh".
+	Name() string
+	Search(ctx context.Context, query, owner string, limit int) ([]Listing, error)
+}
+
+// IndexReader downloads a curated index: a file listing skills and their
+// sources.
+type IndexReader interface {
+	Index(ctx context.Context, url string) ([]Listing, error)
+}
+
+// Listing is a skill a registry or an index points to. Everything in it
+// comes from a third party: print it with care.
+type Listing struct {
+	Name        string
+	Source      string // what skilus add takes, e.g. owner/repo or owner/repo@v1
+	Description string
+	Installs    int // 0 when the origin does not count them
 }
 
 // TrustList reads the trust: list of a scope's skilus.yaml.

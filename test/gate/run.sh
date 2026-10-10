@@ -11,6 +11,8 @@
 # Phase 3: a team that only has skilus.yaml, with a backend and a web
 # profile, deploys backend and then moves to web with one command.
 #
+# Phase 4: search finds a real skill on skills.sh.
+#
 # Usage: test/gate/run.sh <path to the skilus binary>
 # GATE_UPDATE=1 rewrites the committed lock instead of comparing.
 set -euo pipefail
@@ -127,3 +129,8 @@ done
 "$bin" profile list | grep -q '^\* *web ' || { "$bin" profile list; echo "web is not active" >&2; exit 1; }
 diff "$work/team.yaml" skilus.yaml
 echo "Puerta de la fase 3 superada: el equipo pasa del perfil backend al web con un solo comando."
+
+# Phase 4: search finds a real skill on skills.sh, which the gate installs.
+"$bin" search pdf --owner anthropics --limit 5
+"$bin" search pdf --owner anthropics --limit 5 --json | grep -q '"source": "anthropics/skills"' ||
+  { echo "skills.sh did not return anthropics/skills for pdf" >&2; exit 1; }

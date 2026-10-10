@@ -2,7 +2,7 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 3 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local, un repositorio Git o un ZIP o tar.gz), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated`, `skilus update` y `skilus profile`.
+> Estado: fase 3 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local, un repositorio Git o un ZIP o tar.gz), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated`, `skilus update`, `skilus profile` y `skilus search`.
 
 ## Instalación
 
@@ -53,6 +53,9 @@ skilus update review --yes --allow-scripts
 skilus profile list                         # perfiles de skilus.yaml; * marca el activo
 skilus profile use web                      # despliega el perfil y retira lo que no le pertenece
 skilus profile use web --dry-run            # solo enseña el plan
+
+skilus search pdf                           # busca en skills.sh y en tus índices
+skilus search pdf --owner anthropics --json
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
@@ -101,6 +104,18 @@ agents:
 ```
 
 Solo se lee el de tu directorio personal: un repositorio clonado no puede decidir dónde escribe skilus fuera del proyecto.
+
+`skilus search` consulta [skills.sh](https://skills.sh) y los índices curados que declara `indexes:` en `skilus.yaml` (del proyecto y el global). Un índice es un fichero YAML, por https o `file://`, que un equipo mantiene con las skills que recomienda:
+
+```yaml
+version: 1
+skills:
+  - name: pdf
+    source: anthropics/skills@v1.0.0
+    description: Lee y crea PDF
+```
+
+Los resultados de los índices salen primero, y con una lista `trust:` cada uno dice si su origen es de confianza. Si un origen no responde se avisa y se muestran los demás; `--no-registry` deja solo los índices y `SKILUS_REGISTRY_URL` apunta a otro servidor compatible (solo https). `search` no instala nada: muestra el `skilus inspect` con el que revisar el resultado antes del `add`.
 
 Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
 

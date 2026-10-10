@@ -177,6 +177,8 @@ skills:
     allow: [scripts]
   - name: b
     source: ./skills
+indexes:
+  - https://example.com/skills.yaml
 profiles:
   web:
     skills: [b]
@@ -195,6 +197,9 @@ profiles:
 	if len(m.Skills) != 2 || m.Skills[0].Source != "owner/repo@v1" || m.Skills[0].Allow[0] != "scripts" {
 		t.Fatalf("skills = %+v", m.Skills)
 	}
+	if len(m.Indexes) != 1 || m.Indexes[0] != "https://example.com/skills.yaml" {
+		t.Fatalf("indexes = %v", m.Indexes)
+	}
 	var got []string
 	for _, pr := range m.Profiles {
 		got = append(got, pr.Name())
@@ -212,6 +217,8 @@ profiles:
 		"profiles:\n  web:\n    agents: [x_y]\n",
 		"profiles:\n  Web:\n    skills: []\n",
 		"skills:\n  - name: a\n",
+		"indexes: https://x\n",
+		"indexes: [\"\"]\n",
 	} {
 		if err := os.WriteFile(p, []byte(bad), 0o644); err != nil {
 			t.Fatal(err)

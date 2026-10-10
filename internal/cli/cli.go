@@ -41,6 +41,7 @@ type Deps struct {
 	// UseProfile is completed with the CLI's own Prompter.
 	ListProfiles app.ListProfilesHandler
 	UseProfile   app.UseProfileHandler
+	Search       app.SearchHandler
 }
 
 // Run executes the CLI with args and returns the process exit code.
@@ -88,6 +89,6 @@ func newRoot(deps Deps) *cobra.Command {
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
 		return fmt.Errorf("%w: %w", errUsage, err)
 	})
-	root.AddCommand(newAgentsCommand(deps.ListAgents), newAddCommand(deps.AddSkill), newListCommand(deps.ListSkills), newRemoveCommand(deps.RemoveSkill), newVerifyCommand(deps.Verify), newSyncCommand(deps.Sync), newInspectCommand(deps.Inspect), newOutdatedCommand(deps.Outdated), newUpdateCommand(deps.Update), newProfileCommand(deps.ListProfiles, deps.UseProfile))
+	root.AddCommand(newAgentsCommand(deps.ListAgents), newAddCommand(deps.AddSkill), newListCommand(deps.ListSkills), newRemoveCommand(deps.RemoveSkill), newVerifyCommand(deps.Verify), newSyncCommand(deps.Sync), newInspectCommand(deps.Inspect), newOutdatedCommand(deps.Outdated), newUpdateCommand(deps.Update), newProfileCommand(deps.ListProfiles, deps.UseProfile), newSearchCommand(deps.Search))
 	return root
 }
