@@ -2,7 +2,7 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 2 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local o un repositorio Git), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated` y `skilus update`.
+> Estado: fase 3 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local, un repositorio Git o un ZIP o tar.gz), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated`, `skilus update` y `skilus profile`.
 
 ## Instalación
 
@@ -49,6 +49,10 @@ skilus sync --force                         # sobrescribe también lo cambiado a
 skilus outdated                             # qué ramas o tags apuntan a un commit nuevo
 skilus update                               # muestra qué ficheros cambian, pregunta y actualiza
 skilus update review --yes --allow-scripts
+
+skilus profile list                         # perfiles de skilus.yaml; * marca el activo
+skilus profile use web                      # despliega el perfil y retira lo que no le pertenece
+skilus profile use web --dry-run            # solo enseña el plan
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
@@ -70,6 +74,33 @@ Con la lista, cualquier otra fuente recibe un aviso `untrusted-source`, que con 
 El contenido se guarda en `~/.skilus/store/<sha256>`. En el proyecto se instala como copia (para poder versionarla) y en global como symlink al almacén. El resultado queda en `skilus.lock` (qué contenido exacto hay instalado y dónde) y la intención en `skilus.yaml`; en global, ambos viven en `~/.skilus/`.
 
 `skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. `skilus outdated` consulta con `git ls-remote`, sin descargar contenido, a qué commit apunta ahora la rama o el tag de cada skill; las fijadas a un commit no se comprueban. `skilus update` descarga esa versión, enseña los ficheros añadidos, borrados y modificados y la inspección de la versión nueva (los ejecutables que ya tenía no vuelven a preguntarse) y, tras confirmar, reemplaza las copias instaladas y actualiza el lock; `skilus.yaml` no cambia porque guarda la rama o el tag, no el commit.
+
+Un perfil agrupa skills ya declaradas en `skills:` de `skilus.yaml` y, si quieres, los agentes donde van:
+
+```yaml
+profiles:
+  backend:
+    skills: [systematic-debugging, mcp-builder]
+    agents: [claude-code]
+  web:
+    skills: [systematic-debugging, web-design-guidelines]   # sin agents: los detectados
+```
+
+`skilus profile use web` instala las skills del perfil que faltan, desde el origen que registra `skills:` y con la misma inspección que `add` (`allow: [scripts]` en esa entrada cuenta como `--allow-scripts`); mueve a los agentes del perfil las que ya estaban, reutilizando el contenido fijado en el lock; y retira de los agentes y del lock las que el perfil no incluye. Primero instala y solo después retira, y `skilus.yaml` no cambia, así que volver a `backend` reinstala exactamente lo mismo. El perfil activo no se guarda: es aquel cuyas skills coinciden con las del lock.
+
+Para añadir un agente que skilus no trae, o cambiar las rutas de uno, crea `~/.skilus/agents.yaml` con el formato del catálogo incluido (`internal/adapter/catalog/agents.yaml`): un id que ya existe reemplaza a ese agente y uno nuevo se añade al final.
+
+```yaml
+version: 1
+agents:
+  - id: windsurf
+    name: Windsurf
+    project_dir: .windsurf/skills
+    global_dir: ~/.codeium/windsurf/skills
+    detect: ~/.codeium/windsurf
+```
+
+Solo se lee el de tu directorio personal: un repositorio clonado no puede decidir dónde escribe skilus fuera del proyecto.
 
 Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
 
@@ -95,7 +126,7 @@ internal/adapter/  implementaciones de los puertos
 internal/cli/      comandos Cobra
 ```
 
-`test/gate/run.sh` contiene las puertas de las fases 1 y 2: instala 12 skills reales de cuatro repositorios públicos (uno de ellos, openai/skills, con las skills en `skills/.curated/`), fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`; después borra los agentes y el almacén, comprueba que `sync` lo reconstruye y que `verify` detecta un fichero cambiado a mano. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
+`test/gate/run.sh` contiene las puertas de las fases 1, 2 y 3: instala 12 skills reales de cuatro repositorios públicos (uno de ellos, openai/skills, con las skills en `skills/.curated/`), fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`; después borra los agentes y el almacén, comprueba que `sync` lo reconstruye y que `verify` detecta un fichero cambiado a mano; por último, en un repositorio que solo tiene `skilus.yaml` con un perfil backend y otro web, despliega backend y pasa a web con un solo `skilus profile use web`. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
 
 Las reglas completas están en el plan del proyecto, sección "Reglas de arquitectura", y `.golangci.yml` las hace cumplir.
 

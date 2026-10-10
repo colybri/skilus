@@ -1,0 +1,109 @@
+# profiles: in skilus.yaml groups skills; skilus profile use deploys one to
+# its agents and takes away what does not belong to it.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home/.skilus
+cd project
+cp skilus.yaml $WORK/before.yaml
+chmod 755 src/skills/deploy/run.sh
+
+exec skilus profile list
+stdout '^ +backend +debug,api +claude-code$'
+stdout '^ +web +debug,ui +codex$'
+stderr 'El perfil broken usa skills que no están en skills: nope'
+
+! exec skilus profile use mobile
+stderr 'profile "mobile" is not in skilus.yaml; profiles: backend, web, ops, broken'
+
+! exec skilus profile use broken
+stderr 'does not declare: nope'
+
+exec skilus profile use backend --dry-run
+stdout 'Perfil: backend'
+! exists skilus.lock
+
+stdin $WORK/yes.txt
+exec skilus profile use backend
+stdout '¿Cambiar al perfil backend\?'
+stdout 'Perfil backend desplegado\.'
+exists .claude/skills/debug/SKILL.md
+exists .claude/skills/api/SKILL.md
+! exists .agents/skills
+exec skilus profile list
+stdout '^\* +backend '
+
+# One command moves the team to web: api leaves, ui arrives, debug moves to
+# codex. skilus.yaml does not change.
+exec skilus profile use web --yes
+stdout 'Instalada ui'
+stdout 'Movida debug a 1 destino\(s\)\.'
+stdout 'Retirada api\.'
+! exists .claude/skills/api
+! exists .claude/skills/debug
+exists .agents/skills/debug/SKILL.md
+exists .agents/skills/ui/SKILL.md
+! grep 'api:' skilus.lock
+cmp skilus.yaml $WORK/before.yaml
+exec skilus verify
+exec skilus profile list
+stdout '^\* +web '
+
+exec skilus profile use web
+stdout 'El perfil web ya está desplegado\.'
+
+# Executables need --allow-scripts or allow: [scripts] in skills:.
+! exec skilus profile use ops --yes
+stderr 'deploy: executable files need --allow-scripts'
+exec skilus profile use ops --yes --allow-scripts
+exists .agents/skills/deploy/run.sh
+
+-- yes.txt --
+s
+-- project/skilus.yaml --
+version: 1
+skills:
+  - name: debug
+    source: ./src
+  - name: api
+    source: ./src
+  - name: ui
+    source: ./src
+  - name: deploy
+    source: ./src
+profiles:
+  backend:
+    skills: [debug, api]
+    agents: [claude-code]
+  web:
+    skills: [debug, ui]
+    agents: [codex]
+  ops:
+    skills: [deploy]
+    agents: [codex]
+  broken:
+    skills: [nope]
+-- project/src/skills/debug/SKILL.md --
+---
+name: debug
+description: Depura
+---
+-- project/src/skills/api/SKILL.md --
+---
+name: api
+description: Diseña APIs
+---
+-- project/src/skills/ui/SKILL.md --
+---
+name: ui
+description: Diseña interfaces
+---
+-- project/src/skills/deploy/SKILL.md --
+---
+name: deploy
+description: Despliega
+---
+-- project/src/skills/deploy/run.sh --
+echo deploy

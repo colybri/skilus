@@ -13,6 +13,7 @@ import (
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/policy"
+	"github.com/colybri/skilus/internal/domain/profile"
 	"github.com/colybri/skilus/internal/domain/skill"
 )
 
@@ -116,6 +117,78 @@ func (r Repo) Trust(_ context.Context, scope agent.Scope) (policy.Trust, error) 
 		return nil, fmt.Errorf("%s: trust must be a list of sources: %w", p, domain.ErrInvalid)
 	}
 	return trust, nil
+}
+
+// Manifest implements app.ManifestReader. Profiles keep their file order.
+func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, error) {
+	p := r.path(scope, ManifestFile)
+	doc, err := readNode(p)
+	if err != nil {
+		return app.Manifest{}, err
+	}
+	root := doc.Content[0]
+	var m app.Manifest
+
+	if node := mappingValue(root, "skills"); node != nil && node.Tag != "!!null" {
+		var raw []struct {
+			Name   string   `yaml:"name"`
+			Source string   `yaml:"source"`
+			Allow  []string `yaml:"allow"`
+		}
+		if err := node.Decode(&raw); err != nil {
+			return app.Manifest{}, fmt.Errorf("%s: skills must be a list of name and source: %w", p, domain.ErrInvalid)
+		}
+		for _, s := range raw {
+			n, err := skill.NewName(s.Name)
+			if err != nil {
+				return app.Manifest{}, fmt.Errorf("%s: %w", p, err)
+			}
+			if s.Source == "" {
+				return app.Manifest{}, fmt.Errorf("%s: skill %s has no source: %w", p, n, domain.ErrInvalid)
+			}
+			m.Skills = append(m.Skills, app.ManifestEntry{Name: n, Source: s.Source, Allow: s.Allow})
+		}
+	}
+
+	node := mappingValue(root, "profiles")
+	if node == nil || node.Tag == "!!null" {
+		return m, nil
+	}
+	if node.Kind != yaml.MappingNode {
+		return app.Manifest{}, fmt.Errorf("%s: profiles must map names to skills and agents: %w", p, domain.ErrInvalid)
+	}
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		name := node.Content[i].Value
+		var raw struct {
+			Skills []string `yaml:"skills"`
+			Agents []string `yaml:"agents"`
+		}
+		if err := node.Content[i+1].Decode(&raw); err != nil {
+			return app.Manifest{}, fmt.Errorf("%s: profile %s must have skills and, optionally, agents: %w", p, name, domain.ErrInvalid)
+		}
+		var skills []skill.Name
+		for _, s := range raw.Skills {
+			n, err := skill.NewName(s)
+			if err != nil {
+				return app.Manifest{}, fmt.Errorf("%s: profile %s: %w", p, name, err)
+			}
+			skills = append(skills, n)
+		}
+		var agents []agent.ID
+		for _, a := range raw.Agents {
+			id, err := agent.NewID(a)
+			if err != nil {
+				return app.Manifest{}, fmt.Errorf("%s: profile %s: %w", p, name, err)
+			}
+			agents = append(agents, id)
+		}
+		prof, err := profile.New(name, skills, agents)
+		if err != nil {
+			return app.Manifest{}, fmt.Errorf("%s: %w", p, err)
+		}
+		m.Profiles = append(m.Profiles, prof)
+	}
+	return m, nil
 }
 
 func readNode(p string) (*yaml.Node, error) {

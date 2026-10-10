@@ -159,3 +159,65 @@ func TestTrust(t *testing.T) {
 		t.Fatalf("scalar trust err = %v, want ErrInvalid", err)
 	}
 }
+
+func TestManifestProfiles(t *testing.T) {
+	ctx := context.Background()
+	repo := yamlrepo.Repo{ProjectRoot: t.TempDir(), GlobalDir: t.TempDir()}
+	p := filepath.Join(repo.ProjectRoot, yamlrepo.ManifestFile)
+
+	m, err := repo.Manifest(ctx, agent.ScopeProject)
+	if err != nil || len(m.Skills) != 0 || len(m.Profiles) != 0 {
+		t.Fatalf("missing file = %+v, %v", m, err)
+	}
+
+	data := `version: 1
+skills:
+  - name: a
+    source: owner/repo@v1
+    allow: [scripts]
+  - name: b
+    source: ./skills
+profiles:
+  web:
+    skills: [b]
+  backend:
+    skills: [a, b]
+    agents: [claude-code]
+  empty:
+`
+	if err := os.WriteFile(p, []byte(data), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	m, err = repo.Manifest(ctx, agent.ScopeProject)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(m.Skills) != 2 || m.Skills[0].Source != "owner/repo@v1" || m.Skills[0].Allow[0] != "scripts" {
+		t.Fatalf("skills = %+v", m.Skills)
+	}
+	var got []string
+	for _, pr := range m.Profiles {
+		got = append(got, pr.Name())
+	}
+	if strings.Join(got, ",") != "web,backend,empty" {
+		t.Fatalf("profiles = %v, want file order", got)
+	}
+	if len(m.Profiles[1].Skills()) != 2 || m.Profiles[1].Agents()[0].String() != "claude-code" || len(m.Profiles[2].Skills()) != 0 {
+		t.Fatalf("backend = %+v", m.Profiles[1])
+	}
+
+	for _, bad := range []string{
+		"profiles: [web]\n",
+		"profiles:\n  web:\n    skills: [Bad]\n",
+		"profiles:\n  web:\n    agents: [x_y]\n",
+		"profiles:\n  Web:\n    skills: []\n",
+		"skills:\n  - name: a\n",
+	} {
+		if err := os.WriteFile(p, []byte(bad), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := repo.Manifest(ctx, agent.ScopeProject); !errors.Is(err, domain.ErrInvalid) {
+			t.Errorf("%q: err = %v, want ErrInvalid", bad, err)
+		}
+	}
+}

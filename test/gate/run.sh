@@ -8,6 +8,9 @@
 # Phase 2: with only the lock left, sync rebuilds the agents' directories
 # and verify passes; a file changed by hand makes verify fail.
 #
+# Phase 3: a team that only has skilus.yaml, with a backend and a web
+# profile, deploys backend and then moves to web with one command.
+#
 # Usage: test/gate/run.sh <path to the skilus binary>
 # GATE_UPDATE=1 rewrites the committed lock instead of comparing.
 set -euo pipefail
@@ -83,3 +86,44 @@ from_lock=$(awk '/^  pdf:/{p=1} p && /tree_sha256:/{print $2; exit}' skilus.lock
 test -n "$from_archive" && test "$from_archive" = "$from_lock" ||
   { echo "pdf from the archive: $from_archive; from git: $from_lock" >&2; exit 1; }
 echo "Puerta de la fase 2 superada: sync reproduce el entorno, verify detecta el cambio y el tar.gz coincide con git."
+
+# Phase 3: a new checkout of a team's repository holds only skilus.yaml,
+# with the sources recorded above and two profiles.
+mkdir "$work/team"
+cp skilus.yaml "$work/team/skilus.yaml"
+cd "$work/team"
+cat >> skilus.yaml <<'YAML'
+profiles:
+  backend:
+    skills: [systematic-debugging, test-driven-development, mcp-builder, skill-creator]
+    agents: [claude-code]
+  web:
+    skills: [systematic-debugging, test-driven-development, vercel-react-best-practices, web-design-guidelines, playwright]
+    agents: [universal]
+YAML
+cp skilus.yaml "$work/team.yaml"
+
+installed() { "$bin" list --json | sed -n 's/.*"name": "\(.*\)".*/\1/p' | sort | tr '\n' ' '; }
+
+# Scripts were accepted when the skills were added (allow: [scripts]), so
+# --yes needs no --allow-scripts.
+"$bin" profile use backend --yes
+test "$(installed)" = "mcp-builder skill-creator systematic-debugging test-driven-development " ||
+  { echo "backend installed: $(installed)" >&2; exit 1; }
+test -f .claude/skills/mcp-builder/SKILL.md
+test ! -e .agents/skills
+"$bin" verify
+
+"$bin" profile use web --yes
+test "$(installed)" = "playwright systematic-debugging test-driven-development vercel-react-best-practices web-design-guidelines " ||
+  { echo "web installed: $(installed)" >&2; exit 1; }
+for s in systematic-debugging test-driven-development vercel-react-best-practices web-design-guidelines playwright; do
+  test -f ".agents/skills/$s/SKILL.md" || { echo "missing .agents/skills/$s" >&2; exit 1; }
+done
+for s in mcp-builder skill-creator systematic-debugging test-driven-development; do
+  test ! -e ".claude/skills/$s" || { echo ".claude/skills/$s should be gone" >&2; exit 1; }
+done
+"$bin" verify
+"$bin" profile list | grep -q '^\* *web ' || { "$bin" profile list; echo "web is not active" >&2; exit 1; }
+diff "$work/team.yaml" skilus.yaml
+echo "Puerta de la fase 3 superada: el equipo pasa del perfil backend al web con un solo comando."

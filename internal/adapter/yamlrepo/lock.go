@@ -31,6 +31,7 @@ var (
 	_ app.LockRepository     = Repo{}
 	_ app.ManifestRepository = Repo{}
 	_ app.TrustList          = Repo{}
+	_ app.ManifestReader     = Repo{}
 )
 
 // Repo stores the files of both scopes.

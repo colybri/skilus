@@ -9,6 +9,7 @@ import (
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/policy"
+	"github.com/colybri/skilus/internal/domain/profile"
 	"github.com/colybri/skilus/internal/domain/skill"
 	"github.com/colybri/skilus/internal/domain/source"
 )
@@ -104,6 +105,19 @@ type ManifestRepository interface {
 	RemoveSkill(ctx context.Context, scope agent.Scope, name skill.Name) error
 }
 
+// ManifestReader reads what a scope's skilus.yaml declares.
+type ManifestReader interface {
+	// Manifest returns an empty Manifest when the file does not exist.
+	Manifest(ctx context.Context, scope agent.Scope) (Manifest, error)
+}
+
+// Manifest is the part of skilus.yaml profiles need: the declared skills,
+// with their sources, and the profiles, in file order.
+type Manifest struct {
+	Skills   []ManifestEntry
+	Profiles []profile.Profile
+}
+
 // TrustList reads the trust: list of a scope's skilus.yaml.
 type TrustList interface {
 	Trust(ctx context.Context, scope agent.Scope) (policy.Trust, error)
@@ -120,4 +134,5 @@ type ManifestEntry struct {
 type Prompter interface {
 	ConfirmInstall(ctx context.Context, plan InstallPlan) (bool, error)
 	ConfirmUpdate(ctx context.Context, plan UpdatePlan) (bool, error)
+	ConfirmProfile(ctx context.Context, plan ProfilePlan) (bool, error)
 }
