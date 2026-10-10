@@ -8,6 +8,7 @@ import (
 
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
+	"github.com/colybri/skilus/internal/domain/policy"
 	"github.com/colybri/skilus/internal/domain/skill"
 	"github.com/colybri/skilus/internal/domain/source"
 )
@@ -101,6 +102,11 @@ type ManifestRepository interface {
 	AddSkill(ctx context.Context, scope agent.Scope, e ManifestEntry) error
 	// RemoveSkill drops the entry for name; a missing entry is not an error.
 	RemoveSkill(ctx context.Context, scope agent.Scope, name skill.Name) error
+}
+
+// TrustList reads the trust: list of a scope's skilus.yaml.
+type TrustList interface {
+	Trust(ctx context.Context, scope agent.Scope) (policy.Trust, error)
 }
 
 // ManifestEntry is one skill line in skilus.yaml.

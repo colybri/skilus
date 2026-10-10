@@ -137,3 +137,25 @@ func TestManifestRemoveSkill(t *testing.T) {
 		t.Fatalf("manifest =\n%s\nwant\n%s", data, want)
 	}
 }
+
+func TestTrust(t *testing.T) {
+	ctx := context.Background()
+	repo := yamlrepo.Repo{ProjectRoot: t.TempDir(), GlobalDir: t.TempDir()}
+	if got, err := repo.Trust(ctx, agent.ScopeProject); err != nil || got != nil {
+		t.Fatalf("missing file = %v, %v", got, err)
+	}
+	p := filepath.Join(repo.ProjectRoot, yamlrepo.ManifestFile)
+	if err := os.WriteFile(p, []byte("version: 1\ntrust:\n  - github.com/anthropics\n  - github.com/obra/superpowers\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	got, err := repo.Trust(ctx, agent.ScopeProject)
+	if err != nil || len(got) != 2 || got[1] != "github.com/obra/superpowers" {
+		t.Fatalf("trust = %v, %v", got, err)
+	}
+	if err := os.WriteFile(p, []byte("version: 1\ntrust: github.com/x\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.Trust(ctx, agent.ScopeProject); !errors.Is(err, domain.ErrInvalid) {
+		t.Fatalf("scalar trust err = %v, want ErrInvalid", err)
+	}
+}

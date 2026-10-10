@@ -52,7 +52,17 @@ skilus update review --yes --allow-scripts
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
 
-`skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/` o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh`, texto invisible y secuencias de escape. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
+`skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/` o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh` y accesos a credenciales (`~/.ssh`, `.aws/credentials`…) en cualquier fichero de texto, y de texto invisible y secuencias de escape en el Markdown. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
+
+Para limitar de dónde se instala, añade `trust:` a `skilus.yaml` (del proyecto o el global en `~/.skilus/`):
+
+```yaml
+trust:
+  - github.com/anthropics          # la organización entera
+  - github.com/obra/superpowers    # un repositorio
+```
+
+Con la lista, cualquier otra fuente recibe un aviso `untrusted-source`, que con `--strict` impide instalarla. Sin lista no se comprueba nada, y los directorios locales nunca.
 
 El contenido se guarda en `~/.skilus/store/<sha256>`. En el proyecto se instala como copia (para poder versionarla) y en global como symlink al almacén. El resultado queda en `skilus.lock` (qué contenido exacto hay instalado y dónde) y la intención en `skilus.yaml`; en global, ambos viven en `~/.skilus/`.
 

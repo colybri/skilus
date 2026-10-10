@@ -8,6 +8,7 @@ import (
 	"path"
 	"regexp"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/colybri/skilus/internal/domain/skill"
 )
@@ -35,6 +36,8 @@ const (
 	CodePipeToShell   Code = "pipe-to-shell"
 	CodeInvisibleText Code = "invisible-text"
 	CodeControlChars  Code = "control-characters"
+	CodeUntrusted     Code = "untrusted-source"
+	CodeCredentials   Code = "credential-access"
 )
 
 // Finding is one result of the inspection.
@@ -84,6 +87,7 @@ func (r Report) count(s Severity) int {
 }
 
 var (
+	credentialsRe = regexp.MustCompile(`(?i)~/\.ssh\b|\bid_(rsa|ed25519|ecdsa)\b|\.aws/credentials|\.netrc\b|\.git-credentials|\.docker/config\.json|/etc/shadow|\bsecurity\s+find-(generic|internet)-password|\.config/gh/hosts\.yml`)
 	pipeToShellRe = regexp.MustCompile(`(?i)\b(curl|wget|iwr|invoke-webrequest)\b[^\n|]*\|\s*(sudo\s+)?(ba|z|da)?sh\b|\b(curl|wget)\b[^\n|]*\|\s*(sudo\s+)?(python3?|node|perl|ruby)\b|\biex\s*\(`)
 )
 
@@ -117,6 +121,9 @@ func Inspect(p skill.Package, limits Limits, allow Allow) Report {
 		if limits.MaxFileBytes > 0 && f.Size() > limits.MaxFileBytes {
 			add(CodeFileTooLarge, Block, f.Path, fmt.Sprintf("%d bytes, limit %d", f.Size(), limits.MaxFileBytes))
 		}
+		if f.Kind != skill.KindSymlink && utf8.Valid(f.Data) {
+			inspectCode(f, add)
+		}
 		if f.Path == skill.ManifestFile || strings.HasSuffix(f.Path, ".md") {
 			inspectText(f, add)
 		}
@@ -133,11 +140,21 @@ func escapes(file, target string) bool {
 	return resolved == ".." || strings.HasPrefix(resolved, "../")
 }
 
-func inspectText(f skill.File, add func(Code, Severity, string, string)) {
+// inspectCode looks in every text file, scripts included, for code that
+// downloads and runs more code or reads the user's credentials.
+func inspectCode(f skill.File, add func(Code, Severity, string, string)) {
 	text := string(f.Data)
 	if m := pipeToShellRe.FindString(text); m != "" {
 		add(CodePipeToShell, Warn, f.Path, "downloads and runs code: "+truncate(m, 80))
 	}
+	if m := credentialsRe.FindString(text); m != "" {
+		add(CodeCredentials, Warn, f.Path, "mentions credentials: "+truncate(m, 80))
+	}
+}
+
+// inspectText looks in Markdown for text the user would not see.
+func inspectText(f skill.File, add func(Code, Severity, string, string)) {
+	text := string(f.Data)
 	if r, ok := firstInvisible(text); ok {
 		add(CodeInvisibleText, Warn, f.Path, fmt.Sprintf("contains invisible character U+%04X", r))
 	}

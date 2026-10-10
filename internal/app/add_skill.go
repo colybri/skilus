@@ -79,6 +79,7 @@ type AddSkillHandler struct {
 	Locks       LockRepository
 	Manifests   ManifestRepository
 	Prompter    Prompter
+	Trust       TrustList // nil skips the trust check
 	ProjectRoot string
 	// DefaultModes gives the mode per scope when the command sets none.
 	DefaultModes map[agent.Scope]agent.Mode
@@ -119,11 +120,16 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 	if len(cmd.Skills) == 0 {
 		plan.Skipped = fetched.Invalid
 	}
+	untrusted, err := trustFindings(ctx, h.Trust, cmd.Source, trustScopes(cmd.Scope)...)
+	if err != nil {
+		return AddResult{}, err
+	}
 	for _, s := range selected {
 		if _, ok := lf.Entry(s.Package.Name()); ok {
 			return AddResult{}, fmt.Errorf("skill %s is already installed; use skilus update: %w", s.Package.Name(), domain.ErrAlreadyExists)
 		}
 		report := policy.Inspect(s.Package, h.Limits, policy.Allow{Scripts: cmd.AllowScripts})
+		report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
 		plan.Skills = append(plan.Skills, PlannedSkill{Package: s.Package, Path: s.Path, Report: report})
 	}
 
