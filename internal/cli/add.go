@@ -23,13 +23,15 @@ func newAddCommand(h app.AddSkillHandler) *cobra.Command {
 	)
 	cmd := &cobra.Command{
 		Use:   "add <origen>",
-		Short: "Inspecciona e instala skills desde un directorio local",
+		Short: "Inspecciona e instala skills desde un directorio, un repositorio Git o un ZIP o tar.gz",
 		Long: `Lee las skills del origen, las inspecciona y, tras tu confirmación,
 las instala en los agentes detectados (o en los de --agent). Registra el
 resultado en skilus.lock y la intención en skilus.yaml.
 
-El origen puede ser una skill (con SKILL.md en su raíz) o un directorio con
-skills en skills/<nombre>/ o <nombre>/.`,
+El origen puede ser un directorio (./skills), un repositorio Git
+(owner/repo[@ref] o una URL) o un archivo ZIP o tar.gz por https. Dentro,
+una skill (con SKILL.md en su raíz) o skills en skills/<nombre>/ o
+<nombre>/.`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := agent.ParseScope(scope)

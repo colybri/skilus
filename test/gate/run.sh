@@ -71,4 +71,11 @@ grep -q 'modificado: SKILL.md' "$work/verify.out"
 
 "$bin" sync --force
 "$bin" verify
-echo "Puerta de la fase 2 superada: sync reproduce el entorno y verify detecta el cambio."
+
+# The same commit read as a GitHub archive gives the same content hash.
+archive=https://github.com/anthropics/skills/archive/dbd4588f9e1033efb41dad4bef2f7947c8993d44.tar.gz
+from_archive=$("$bin" inspect "$archive" --skill pdf --json | sed -n 's/.*"tree_sha256": "\([0-9a-f]*\)".*/\1/p')
+from_lock=$(awk '/^  pdf:/{p=1} p && /tree_sha256:/{print $2; exit}' skilus.lock)
+test -n "$from_archive" && test "$from_archive" = "$from_lock" ||
+  { echo "pdf from the archive: $from_archive; from git: $from_lock" >&2; exit 1; }
+echo "Puerta de la fase 2 superada: sync reproduce el entorno, verify detecta el cambio y el tar.gz coincide con git."

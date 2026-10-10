@@ -1,5 +1,6 @@
 // Package source parses what the user types as the origin of a skill:
-// a local directory or a Git repository with an optional ref.
+// a local directory, a Git repository with an optional ref, or a ZIP or
+// tar.gz archive.
 package source
 
 import (
@@ -16,16 +17,21 @@ type Kind string
 
 // Kinds.
 const (
-	KindLocal Kind = "local"
-	KindGit   Kind = "git"
+	KindLocal   Kind = "local"
+	KindGit     Kind = "git"
+	KindArchive Kind = "archive"
 )
+
+// archiveExts are the file endings of the archives skilus can read.
+var archiveExts = []string{".zip", ".tar.gz", ".tgz"}
 
 // Source is a parsed origin.
 type Source struct {
 	Kind Kind
 	// Raw is the text the user typed, without the ref.
 	Raw string
-	// URL is what git fetches from; empty for local sources.
+	// URL is what git or the archive reader fetches; empty for local
+	// sources.
 	URL string
 	// ID is the normalized name recorded in the lock: the path for local
 	// sources, host/path for HTTPS remotes (github.com/owner/repo) and the
@@ -50,6 +56,7 @@ var (
 //	owner/repo[@ref]                     github.com/owner/repo
 //	host.tld/owner/repo[@ref]            https://host.tld/owner/repo
 //	https://…, ssh://…, file://…[@ref]   that URL
+//	https://….zip, file://….tar.gz      an archive (also .tgz); no ref
 //	user@host:owner/repo[@ref]           SSH, scp syntax
 func Parse(raw string) (Source, error) {
 	raw = strings.TrimSpace(raw)
@@ -58,6 +65,9 @@ func Parse(raw string) (Source, error) {
 		return Source{}, fmt.Errorf("empty source: %w", domain.ErrInvalid)
 	case isLocal(raw):
 		return Source{Kind: KindLocal, Raw: raw, ID: raw}, nil
+	}
+	if src, ok, err := parseArchive(raw); ok || err != nil {
+		return src, err
 	}
 
 	// Split "<prefix><path>[@ref]" so the "@" of "git@host:" or of URL
@@ -99,6 +109,36 @@ func Parse(raw string) (Source, error) {
 		return Source{}, fmt.Errorf("source %q is neither a directory (start it with ./) nor a Git repository: %w", raw, domain.ErrInvalid)
 	}
 	return src, nil
+}
+
+// parseArchive recognizes https and file URLs of archives. Their content
+// is pinned by its hash in the lock, so they take no ref; a query string
+// is refused because it often carries a token, which would end up there.
+func parseArchive(raw string) (Source, bool, error) {
+	if !strings.HasPrefix(raw, "https://") && !strings.HasPrefix(raw, "file://") {
+		return Source{}, false, nil
+	}
+	u, err := url.Parse(raw)
+	if err != nil || !isArchive(u.Path) {
+		return Source{}, false, nil
+	}
+	switch {
+	case u.User != nil:
+		return Source{}, true, fmt.Errorf("the URL contains credentials; skilus never stores tokens: %w", domain.ErrInvalid)
+	case u.RawQuery != "" || u.Fragment != "":
+		return Source{}, true, fmt.Errorf("archive URLs cannot have a query or fragment, which would be recorded in the lock: %w", domain.ErrInvalid)
+	}
+	return Source{Kind: KindArchive, Raw: raw, URL: raw, ID: raw}, true, nil
+}
+
+func isArchive(p string) bool {
+	p = strings.ToLower(p)
+	for _, ext := range archiveExts {
+		if strings.HasSuffix(p, ext) {
+			return true
+		}
+	}
+	return false
 }
 
 // String renders the source as the user would type it again.

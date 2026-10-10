@@ -29,6 +29,7 @@ skilus agents --json
 skilus add anthropics/skills --skill pdf     # GitHub, rama por defecto
 skilus add github.com/o/r@v1.2.0            # un tag, rama o commit
 skilus add git@gitlab.com:g/r.git           # cualquier URL de Git (https, ssh, file)
+skilus add https://example.com/skills.zip   # un ZIP o tar.gz por https
 skilus add ./mis-skills                     # un directorio local: empieza por ./, ../ o /
 skilus add ./mis-skills --skill review -y   # sin preguntar
 skilus add ./mis-skills --agent claude-code --scope global
@@ -51,6 +52,8 @@ skilus update review --yes --allow-scripts
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
+
+Los archivos ZIP y tar.gz (también `.tgz`) se descargan solo por https y se descomprimen en memoria, sin escribir nada en disco: se rechazan rutas absolutas, con `..` o con `\`, y entradas que no son ficheros, directorios o symlinks, y hay límites de descarga (50 MB), de tamaño descomprimido y de número de entradas. Si todo cuelga de un único directorio, como en los archivos que genera GitHub, se quita. No llevan `@ref` ni commit: el lock fija su contenido por el hash, y una URL con `?` se rechaza porque suele llevar un token.
 
 `skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/` o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh`, texto invisible y secuencias de escape. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
 
