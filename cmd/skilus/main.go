@@ -13,6 +13,7 @@ import (
 	"github.com/colybri/skilus/internal/adapter/gitsrc"
 	"github.com/colybri/skilus/internal/adapter/osfs"
 	"github.com/colybri/skilus/internal/adapter/searchsrc"
+	"github.com/colybri/skilus/internal/adapter/skillsrc"
 	"github.com/colybri/skilus/internal/adapter/yamlrepo"
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/cli"
@@ -111,6 +112,15 @@ func run() int {
 		Sync:         sync,
 		ListProfiles: app.ListProfilesHandler{Manifest: repo, Locks: repo},
 		UseProfile:   app.UseProfileHandler{Add: add, Sync: sync, Manifest: repo},
+		Audit: app.AuditHandler{
+			Locks:      repo,
+			Trust:      repo,
+			Signatures: gitsrc.Signatures{Fetcher: git, GitHubAPI: os.Getenv("SKILUS_GITHUB_API"), Token: os.Getenv("GITHUB_TOKEN")},
+			Store:      store,
+			Trees:      osfs.TreeReader{},
+			Parser:     skillsrc.Parser{},
+			Limits:     policy.DefaultLimits,
+		},
 		Search: app.SearchHandler{
 			Registry: searchsrc.SkillsSH{BaseURL: os.Getenv("SKILUS_REGISTRY_URL")},
 			Indexes:  searchsrc.Indexes{},

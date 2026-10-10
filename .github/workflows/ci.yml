@@ -51,8 +51,8 @@ jobs:
           args: release --snapshot --clean --skip=sign,sbom,publish
 
   phase1-gate:
-    # Puerta de la fase 1: 10 skills reales fijadas a commits, el mismo lock
-    # en los tres sistemas. Necesita red hacia github.com.
+    # Puertas de las fases 1 a 4 (test/gate/run.sh). Necesita red hacia
+    # github.com y skills.sh.
     strategy:
       fail-fast: false
       matrix:
@@ -66,3 +66,7 @@ jobs:
       - run: go build -o bin/skilus${{ runner.os == 'Windows' && '.exe' || '' }} ./cmd/skilus
       - run: test/gate/run.sh bin/skilus${{ runner.os == 'Windows' && '.exe' || '' }}
         shell: bash
+        env:
+          # audit asks GitHub about commit signatures; the token only raises
+          # the API rate limit.
+          GITHUB_TOKEN: ${{ github.token }}

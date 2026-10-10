@@ -38,6 +38,9 @@ const (
 	CodeControlChars  Code = "control-characters"
 	CodeUntrusted     Code = "untrusted-source"
 	CodeCredentials   Code = "credential-access"
+	CodeUnsigned      Code = "unsigned-commit"
+	CodeUnchecked     Code = "signature-unchecked"
+	CodeInvalidSkill  Code = "invalid-skill"
 )
 
 // Finding is one result of the inspection.

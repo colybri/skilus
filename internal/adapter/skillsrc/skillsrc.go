@@ -108,3 +108,9 @@ func parseFrontmatter(data []byte) (frontmatter, error) {
 	}
 	return fm, nil
 }
+
+// Parser implements app.PackageParser with Build.
+type Parser struct{}
+
+// Package implements app.PackageParser.
+func (Parser) Package(files []skill.File) (skill.Package, error) { return Build(files) }

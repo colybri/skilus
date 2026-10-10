@@ -83,6 +83,40 @@ type TreeReader interface {
 	ExecutableBits() bool
 }
 
+// PackageParser turns files read back from the store into a package,
+// reading the name and description from SKILL.md.
+type PackageParser interface {
+	Package(files []skill.File) (skill.Package, error)
+}
+
+// SignatureChecker reads the signature of a Git commit, fetching only the
+// commit object.
+type SignatureChecker interface {
+	Signature(ctx context.Context, src source.Source, commit string) (Signature, error)
+}
+
+// SignatureState says how far a commit's signature could be checked.
+type SignatureState string
+
+// Signature states.
+const (
+	Unsigned SignatureState = "unsigned"
+	// Signed means there is a signature skilus could not verify: the key
+	// is not in the user's keyring and the host did not vouch for it.
+	Signed   SignatureState = "signed"
+	Verified SignatureState = "verified"
+)
+
+// Signature is what a SignatureChecker found.
+type Signature struct {
+	State  SignatureState
+	Format string // gpg, ssh or x509 (x509 includes Sigstore's gitsign)
+	// VerifiedBy names who verified it: "git" (the user's keys and
+	// allowed signers) or the host, e.g. "github".
+	VerifiedBy string
+	Signer     string // as reported by the verifier, when known
+}
+
 // Deployer places stored content into an agent's skills directory.
 type Deployer interface {
 	// Deploy creates dest from the stored directory. It fails with

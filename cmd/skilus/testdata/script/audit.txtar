@@ -1,0 +1,64 @@
+# skilus audit checks the installed skills against trust:, the commit
+# signatures and today's inspection; --strict makes warnings fail.
+[!exec:git] skip 'git is not installed'
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env SKILUS_GITHUB_API=-
+env GIT_AUTHOR_NAME=t
+env GIT_AUTHOR_EMAIL=t@example.com
+env GIT_COMMITTER_NAME=t
+env GIT_COMMITTER_EMAIL=t@example.com
+env GIT_CONFIG_NOSYSTEM=1
+env GIT_CONFIG_GLOBAL=$WORK/gitconfig
+mkdir home/.skilus
+
+cd remote
+exec git init --quiet --initial-branch=main
+exec git add .
+exec git commit --quiet --no-gpg-sign -m v1
+cd $WORK/project
+
+exec skilus add file://$WORK/remote --agent claude-code --yes
+exec skilus add ./mine --agent claude-code --yes
+
+# Without a trust: list only the missing signature is reported.
+exec skilus audit
+stdout '^review \(project\)  file://.*remote @ [0-9a-f]{12}$'
+stdout 'firma: sin firmar'
+stdout 'aviso \[unsigned-commit\] commit [0-9a-f]{12} is not signed'
+! stdout 'untrusted-source'
+stdout '^mine \(project\)'
+stdout 'Auditadas 2 skill\(s\): 0 bloqueo\(s\), 1 aviso\(s\)\.'
+
+# With one, the Git source is also untrusted; --strict fails with code 5.
+cp $WORK/trusted.yaml skilus.yaml.trust
+exec sh -c 'cat skilus.yaml.trust >> skilus.yaml'
+! exec skilus audit --strict
+stdout 'aviso \[untrusted-source\]'
+stderr 'review: 2 warnings under --strict'
+
+exec skilus audit --json
+stdout '"state": "unsigned"'
+stdout '"code": "untrusted-source"'
+stdout '"content_checked": true'
+
+# Content missing from the store is reported, not guessed.
+rm $HOME/.skilus/store
+exec skilus audit --scope project
+stdout 'contenido: no está en el almacén'
+
+-- gitconfig --
+-- trusted.yaml --
+trust:
+  - github.com/anthropics
+-- remote/SKILL.md --
+---
+name: review
+description: Revisa cambios
+---
+-- project/mine/SKILL.md --
+---
+name: mine
+description: Mía
+---
