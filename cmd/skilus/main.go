@@ -79,7 +79,8 @@ func run() int {
 			Manifests:   repo,
 			ProjectRoot: cwd,
 		},
-		Verify: app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
+		Inspect: app.InspectHandler{Fetchers: fetchers, Limits: policy.DefaultLimits},
+		Verify:  app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
 		Sync: app.SyncHandler{
 			Catalog:     agents,
 			Fetchers:    fetchers,
