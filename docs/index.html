@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="_ds/nocturne-b32abdc2-5706-4c8e-b544-c2a67305447b/styles.css">
+<script src="_ds/nocturne-b32abdc2-5706-4c8e-b544-c2a67305447b/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Inter:wght@400;500;600&amp;family=Noto+Sans+Arabic:wght@400;500;700&amp;family=Noto+Sans+Devanagari:wght@400;500;700&amp;family=Noto+Sans+JP:wght@400;500;700&amp;family=Noto+Sans+SC:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:var(--bg,#161826);}
+*{box-sizing:border-box}
+a{color:var(--acc,#9184d9);text-decoration:none}
+a:hover{text-decoration:underline}
+summary::-webkit-details-marker{display:none}
+</style>
+</helmet>
+<div dir="{{ dir }}" lang="{{ lang }}" style="display:flex; min-height:100vh; background:var(--bg,#161826); color:var(--ink,#e9e9ed); font-family:var(--font,'Inter',system-ui,sans-serif); font-size:16px; line-height:1.65; -webkit-font-smoothing:antialiased;">
+
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ openDrawer }}" aria-label="{{ ui.menu }}" style="position:fixed; top:12px; inset-inline-start:12px; z-index:30; width:44px; height:44px; border-radius:10px; border:1px solid var(--line,#2c2f3d); background:var(--side,#1b1d2b); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; cursor:pointer; box-shadow:0 2px 10px rgba(15,20,40,.08);">
+      <span style="width:18px; height:2px; border-radius:2px; background:var(--ink,#e9e9ed);"></span>
+      <span style="width:18px; height:2px; border-radius:2px; background:var(--ink,#e9e9ed);"></span>
+      <span style="width:18px; height:2px; border-radius:2px; background:var(--ink,#e9e9ed);"></span>
+    </button>
+    <sc-if value="{{ drawer }}">
+      <div onClick="{{ closeDrawer }}" style="position:fixed; inset:0; background:rgba(10,14,28,.45); z-index:39;"></div>
+    </sc-if>
+  </sc-if>
+
+  <aside style="width:288px; flex-shrink:0; height:100vh; position:{{ asidePos }}; top:0; inset-inline-start:0; z-index:40; transform:{{ asideTransform }}; transition:transform .25s ease; background:var(--side,#1b1d2b); border-inline-end:1px solid var(--line,#2c2f3d); display:flex; flex-direction:column;">
+    <div style="padding:20px 18px 14px; display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <a href="#" onClick="{{ goHome }}" style="display:flex; align-items:center; gap:10px; color:var(--ink,#e9e9ed); text-decoration:none; flex:1; min-width:0;">
+          <span style="width:32px; height:32px; border-radius:8px; border:1px solid var(--accLine,#5d5294); background:radial-gradient(circle at 30% 25%, var(--accSoft,#2b2741), transparent 70%); box-shadow:0 0 18px var(--accGlow,rgba(145,132,217,.28)); color:var(--acc,#9184d9); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M21 11 A5 5 0 1 0 16 16 A5 5 0 1 1 11 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path><circle cx="21" cy="11" r="2.3" fill="currentColor"></circle><circle cx="11" cy="21" r="2.3" fill="var(--bg,#161826)" stroke="currentColor" stroke-width="1.6"></circle></svg></span>
+          <span style="display:flex; align-items:baseline; gap:6px; min-width:0;">
+            <span style="font-weight:500; font-size:17px; letter-spacing:-0.015em;">skilus</span>
+            <span style="font-size:14px; color:var(--mute,#b2b6ca); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ ui.docs }}</span>
+          </span>
+        </a>
+        <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ closeDrawer }}" aria-label="Close" style="width:32px; height:32px; border:0; background:transparent; color:var(--mute,#b2b6ca); font-size:22px; line-height:1; cursor:pointer;">×</button>
+        </sc-if>
+      </div>
+
+    </div>
+
+    <nav style="flex:1; overflow:auto; padding:4px 12px 16px; display:flex; flex-direction:column; gap:2px;">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="4">
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="display:flex; align-items:center; gap:2px;">
+            <a href="{{ n.href }}" onClick="{{ n.onClick }}" style="flex:1; display:block; padding:7px 10px; border-radius:8px; font-size:14.5px; font-weight:{{ n.weight }}; color:{{ n.color }}; background:{{ n.bg }}; text-decoration:none;" style-hover="background:var(--hover,#2a2c3a); text-decoration:none;">{{ n.label }}</a>
+            <sc-if value="{{ n.hasChildren }}">
+              <button onClick="{{ n.toggle }}" aria-label="Toggle" style="width:30px; height:30px; border:0; border-radius:7px; background:transparent; color:var(--mute,#b2b6ca); cursor:pointer; font-size:10px; transform:{{ n.caret }}; transition:transform .15s;" style-hover="background:var(--hover,#2a2c3a);">▼</button>
+            </sc-if>
+          </div>
+          <sc-if value="{{ n.open }}">
+            <div style="margin-inline-start:16px; padding-inline-start:8px; border-inline-start:1px solid var(--line,#2c2f3d); display:flex; flex-direction:column; gap:1px; margin-bottom:4px;">
+              <sc-for list="{{ n.children }}" as="c">
+                <a href="{{ c.href }}" onClick="{{ c.onClick }}" style="display:block; padding:6px 10px; border-radius:7px; font-size:14px; font-weight:{{ c.weight }}; color:{{ c.color }}; background:{{ c.bg }}; text-decoration:none;" style-hover="background:var(--hover,#2a2c3a); text-decoration:none;">{{ c.label }}</a>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </nav>
+
+    <div style="padding:12px 14px 14px; background:linear-gradient(to right, transparent, var(--line,#2c2f3d) 48px, var(--line,#2c2f3d) calc(100% - 48px), transparent) no-repeat top / 100% 1px; display:flex; flex-direction:column; gap:8px;">
+      <div style="position:relative;">
+        <button onClick="{{ toggleLang }}" aria-label="Language" style="width:100%; height:36px; padding:0 12px; border-radius:8px; border:1px solid var(--line,#2c2f3d); background:transparent; color:var(--ink,#e9e9ed); font:inherit; font-size:13.5px; display:flex; align-items:center; gap:10px; cursor:pointer;" style-hover="border-color:var(--acc,#9184d9);">
+          <span style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:11px; color:var(--acc,#9184d9); text-transform:uppercase;">{{ langCode }}</span>
+          <span style="flex:1; text-align:start;">{{ langNative }}</span>
+          <span style="font-size:9px; color:var(--mute,#b2b6ca);">▲</span>
+        </button>
+        <sc-if value="{{ langOpen }}">
+          <div style="position:absolute; bottom:calc(100% + 6px); left:0; right:0; max-height:min(440px, 70vh); overflow:auto; background:var(--card,#232532); border-radius:12px; box-shadow:var(--shadowLg,0 0 0 1px #595d6c, 0 16px 40px rgba(0,0,0,.65)); padding:6px; z-index:60;">
+            <sc-for list="{{ langList }}" as="l" hint-placeholder-count="13">
+              <button onClick="{{ l.onClick }}" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border:0; border-radius:8px; background:{{ l.bg }}; color:{{ l.color }}; font:inherit; font-size:14px; text-align:start; cursor:pointer;" style-hover="background:var(--hover,#2a2c3a);">
+                <span style="font-weight:{{ l.weight }};">{{ l.native }}</span>
+                <span style="font-size:11px; color:var(--mute,#b2b6ca); font-family:var(--mono,'IBM Plex Mono',monospace); text-transform:uppercase;">{{ l.code }}</span>
+              </button>
+            </sc-for>
+          </div>
+        </sc-if>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <button onClick="{{ toggleTheme }}" style="display:flex; align-items:center; gap:8px; height:32px; padding:0 12px; border-radius:8px; border:1px solid var(--line,#2c2f3d); background:transparent; color:var(--ink,#e9e9ed); font:inherit; font-size:13px; cursor:pointer;" style-hover="border-color:var(--acc,#9184d9);">
+          <span style="width:12px; height:12px; border-radius:50%; border:1.5px solid currentColor; background:linear-gradient(90deg, currentColor 50%, transparent 50%);"></span>
+          <span>{{ themeLabel }}</span>
+        </button>
+        <a href="https://github.com/colybri/skilus" target="_blank" rel="noopener" style="color:var(--mute,#b2b6ca); font-size:13px; padding:6px 4px;">GitHub ↗</a>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex:1; min-width:0; display:flex; justify-content:center; gap:56px; padding:{{ mainPad }};">
+    <main style="flex:1; min-width:0; max-width:780px;">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13.5px; color:var(--mute,#b2b6ca); margin-bottom:18px;">
+        <sc-for list="{{ crumbs }}" as="cr" hint-placeholder-count="2">
+          <span style="display:flex; align-items:center; gap:6px;">
+            <a href="{{ cr.href }}" onClick="{{ cr.onClick }}" style="color:{{ cr.color }};">{{ cr.label }}</a>
+            <sc-if value="{{ cr.sep }}"><span style="opacity:.6;">{{ sepChar }}</span></sc-if>
+          </span>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ showNotice }}">
+        <div style="display:flex; gap:10px; align-items:flex-start; padding:12px 14px; margin-bottom:22px; border-radius:10px; background:var(--side,#1b1d2b); border:1px solid var(--line,#2c2f3d); font-size:14px; color:var(--mute,#b2b6ca);">
+          <span style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:11px; font-weight:500; padding:1px 6px; border-radius:4px; background:var(--accSoft,#2b2741); color:var(--accInk,#d2cefd); flex-shrink:0; margin-top:2px;">EN</span>
+          <span>{{ ui.notice }}</span>
+        </div>
+      </sc-if>
+
+      <h1 style="font-size:clamp(30px, 4.2vw, 40px); line-height:1.12; font-weight:500; letter-spacing:-0.022em; margin:0 0 12px; text-wrap:balance;">{{ pageTitle }}</h1>
+      <p style="font-size:18.5px; line-height:1.55; color:var(--mute,#b2b6ca); margin:0 0 32px; text-wrap:pretty; max-width:680px;">{{ pageLead }}</p>
+
+      <div dir="{{ bodyDir }}">
+      <sc-for list="{{ blocks }}" as="b" hint-placeholder-count="5">
+        <div>
+          <sc-if value="{{ b.isH2 }}">
+            <h2 id="{{ b.id }}" style="font-size:24px; line-height:1.3; font-weight:500; letter-spacing:-0.015em; margin:48px 0 14px; padding-top:22px; background:linear-gradient(to right, transparent, var(--line,#2c2f3d) 48px, var(--line,#2c2f3d) calc(100% - 48px), transparent) no-repeat top / 100% 1px;"><sc-for list="{{ b.segs }}" as="s"><sc-if value="{{ s.isText }}">{{ s.text }}</sc-if><sc-if value="{{ s.isCode }}"><code style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:.86em; font-weight:500; background:var(--code,#2a2c3a); padding:.08em .4em; border-radius:6px; direction:ltr; unicode-bidi:isolate;">{{ s.text }}</code></sc-if></sc-for></h2>
+          </sc-if>
+          <sc-if value="{{ b.isH3 }}">
+            <h3 style="font-size:17.5px; font-weight:500; margin:28px 0 10px;">{{ b.text }}</h3>
+          </sc-if>
+          <sc-if value="{{ b.isP }}">
+            <p style="margin:0 0 16px; text-wrap:pretty;"><sc-for list="{{ b.segs }}" as="s"><sc-if value="{{ s.isText }}">{{ s.text }}</sc-if><sc-if value="{{ s.isCode }}"><code style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:.86em; background:var(--code,#2a2c3a); padding:.1em .38em; border-radius:5px; direction:ltr; unicode-bidi:isolate;">{{ s.text }}</code></sc-if><sc-if value="{{ s.isBold }}"><strong style="font-weight:650;">{{ s.text }}</strong></sc-if><sc-if value="{{ s.isLink }}"><a href="{{ s.href }}" target="{{ s.target }}" onClick="{{ s.onClick }}" style="color:var(--acc,#9184d9); font-weight:500;">{{ s.text }}</a></sc-if></sc-for></p>
+          </sc-if>
+          <sc-if value="{{ b.isCode }}">
+            <div style="margin:0 0 20px; border-radius:10px; overflow:hidden; background:var(--pre,#10121c); border:1px solid var(--preLine,#10121c);" dir="ltr">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 8px 6px 14px; border-bottom:1px solid rgba(255,255,255,.07);">
+                <span style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:11.5px; color:var(--preMute,#9397ab); text-transform:lowercase;">{{ b.lang }}</span>
+                <button onClick="{{ b.onCopy }}" style="height:26px; padding:0 10px; border-radius:6px; border:1px solid rgba(255,255,255,.12); background:transparent; color:var(--preInk,#e9e9ed); font:inherit; font-size:12px; cursor:pointer;" style-hover="background:rgba(255,255,255,.08);">{{ b.copyLabel }}</button>
+              </div>
+              <pre style="margin:0; padding:14px 16px 16px; overflow:auto; font-family:var(--mono,'IBM Plex Mono',monospace); font-size:13.5px; line-height:1.65; color:var(--preInk,#e9e9ed); text-align:left; white-space:pre;">{{ b.code }}</pre>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.isUl }}">
+            <ul style="margin:0 0 18px; padding-inline-start:22px; display:flex; flex-direction:column; gap:6px;">
+              <sc-for list="{{ b.items }}" as="it">
+                <li style="padding-inline-start:4px; text-wrap:pretty;"><sc-for list="{{ it.segs }}" as="s"><sc-if value="{{ s.isText }}">{{ s.text }}</sc-if><sc-if value="{{ s.isCode }}"><code style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:.86em; background:var(--code,#2a2c3a); padding:.1em .38em; border-radius:5px; direction:ltr; unicode-bidi:isolate;">{{ s.text }}</code></sc-if><sc-if value="{{ s.isBold }}"><strong style="font-weight:650;">{{ s.text }}</strong></sc-if><sc-if value="{{ s.isLink }}"><a href="{{ s.href }}" target="{{ s.target }}" onClick="{{ s.onClick }}" style="color:var(--acc,#9184d9); font-weight:500;">{{ s.text }}</a></sc-if></sc-for></li>
+              </sc-for>
+            </ul>
+          </sc-if>
+          <sc-if value="{{ b.isOl }}">
+            <ol style="list-style:none; margin:0 0 18px; padding:0; display:flex; flex-direction:column; gap:12px;">
+              <sc-for list="{{ b.items }}" as="it">
+                <li style="display:grid; grid-template-columns:28px minmax(0,1fr); gap:12px; align-items:start;">
+                  <span style="width:28px; height:28px; border-radius:50%; background:var(--accSoft,#2b2741); color:var(--accInk,#d2cefd); font-size:13.5px; font-weight:700; display:flex; align-items:center; justify-content:center;">{{ it.n }}</span>
+                  <span style="padding-top:2px; text-wrap:pretty;"><sc-for list="{{ it.segs }}" as="s"><sc-if value="{{ s.isText }}">{{ s.text }}</sc-if><sc-if value="{{ s.isCode }}"><code style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:.86em; background:var(--code,#2a2c3a); padding:.1em .38em; border-radius:5px; direction:ltr; unicode-bidi:isolate;">{{ s.text }}</code></sc-if><sc-if value="{{ s.isLink }}"><a href="{{ s.href }}" target="{{ s.target }}" onClick="{{ s.onClick }}" style="color:var(--acc,#9184d9); font-weight:500;">{{ s.text }}</a></sc-if></sc-for></span>
+                </li>
+              </sc-for>
+            </ol>
+          </sc-if>
+          <sc-if value="{{ b.isNote }}">
+            <div style="margin:4px 0 22px; padding:14px 16px; border-radius:10px; background:{{ b.bg }}; border:1px solid {{ b.bd }};">
+              <div style="font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:{{ b.fg }}; margin-bottom:4px;">{{ b.label }}</div>
+              <div style="font-size:15px; text-wrap:pretty;"><sc-for list="{{ b.segs }}" as="s"><sc-if value="{{ s.isText }}">{{ s.text }}</sc-if><sc-if value="{{ s.isCode }}"><code style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:.86em; background:var(--codeOnNote,rgba(0,0,0,.06)); padding:.1em .38em; border-radius:5px; direction:ltr; unicode-bidi:isolate;">{{ s.text }}</code></sc-if><sc-if value="{{ s.isLink }}"><a href="{{ s.href }}" target="{{ s.target }}" onClick="{{ s.onClick }}" style="color:var(--acc,#9184d9); font-weight:500;">{{ s.text }}</a></sc-if></sc-for></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.isTable }}">
+            <div style="margin:0 0 22px; overflow-x:auto; border:1px solid var(--line,#2c2f3d); border-radius:10px;">
+              <table style="width:100%; border-collapse:collapse; font-size:14.5px;">
+                <thead>
+                  <tr>
+                    <sc-for list="{{ b.head }}" as="hd">
+                      <th style="text-align:start; padding:10px 14px; background:var(--side,#1b1d2b); font-weight:600; font-size:13px; color:var(--mute,#b2b6ca); border-bottom:1px solid var(--line,#2c2f3d); white-space:nowrap;">{{ hd }}</th>
+                    </sc-for>
+                  </tr>
+                </thead>
+                <tbody>
+                  <sc-for list="{{ b.rows }}" as="row">
+                    <tr>
+                      <sc-for list="{{ row.cells }}" as="cell">
+                        <td style="padding:10px 14px; border-top:1px solid var(--line,#2c2f3d); vertical-align:top; white-space:{{ cell.ws }};"><sc-for list="{{ cell.segs }}" as="s"><sc-if value="{{ s.isText }}">{{ s.text }}</sc-if><sc-if value="{{ s.isCode }}"><code style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:.88em; background:var(--code,#2a2c3a); padding:.1em .38em; border-radius:5px; direction:ltr; unicode-bidi:isolate;">{{ s.text }}</code></sc-if></sc-for></td>
+                      </sc-for>
+                    </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.isCards }}">
+            <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; margin:8px 0 28px;">
+              <sc-for list="{{ b.items }}" as="cd">
+                <a href="{{ cd.href }}" onClick="{{ cd.onClick }}" style="display:flex; flex-direction:column; gap:8px; padding:18px; border-radius:8px; border:1px solid transparent; background:var(--card,#232532); color:var(--ink,#e9e9ed); text-decoration:none; transition:border-color .15s, box-shadow .15s, transform .15s;" style-hover="border-color:var(--acc,#9184d9); box-shadow:0 0 22px var(--accGlow,rgba(145,132,217,.22)); text-decoration:none; transform:translateY(-1px);">
+                  <span style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:11.5px; color:var(--acc,#9184d9);">{{ cd.num }}</span>
+                  <span style="font-size:16px; font-weight:500; line-height:1.3;">{{ cd.title }}</span>
+                  <span style="font-size:14px; line-height:1.5; color:var(--mute,#b2b6ca); text-wrap:pretty;">{{ cd.lead }}</span>
+                  <span style="margin-top:auto; font-size:14px; color:var(--acc,#9184d9);">{{ arrow }}</span>
+                </a>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ b.isFaq }}">
+            <div style="border:1px solid var(--line,#2c2f3d); border-radius:12px; overflow:hidden; margin:0 0 24px;">
+              <sc-for list="{{ b.items }}" as="fq">
+                <details style="border-top:{{ fq.border }}; background:var(--card,#232532);">
+                  <summary style="list-style:none; cursor:pointer; padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:16px; font-weight:600; font-size:15.5px;">
+                    <span>{{ fq.q }}</span>
+                    <span style="flex-shrink:0; width:24px; height:24px; border-radius:50%; background:var(--accSoft,#2b2741); color:var(--accInk,#d2cefd); display:flex; align-items:center; justify-content:center; font-size:16px; line-height:1;">+</span>
+                  </summary>
+                  <div style="padding:0 18px 18px; color:var(--mute,#b2b6ca); font-size:15px; text-wrap:pretty;"><sc-for list="{{ fq.segs }}" as="s"><sc-if value="{{ s.isText }}">{{ s.text }}</sc-if><sc-if value="{{ s.isCode }}"><code style="font-family:var(--mono,'IBM Plex Mono',monospace); font-size:.86em; background:var(--code,#2a2c3a); color:var(--ink,#e9e9ed); padding:.1em .38em; border-radius:5px; direction:ltr; unicode-bidi:isolate;">{{ s.text }}</code></sc-if><sc-if value="{{ s.isLink }}"><a href="{{ s.href }}" target="{{ s.target }}" onClick="{{ s.onClick }}" style="color:var(--acc,#9184d9); font-weight:500;">{{ s.text }}</a></sc-if></sc-for></div>
+                </details>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      </div>
+
+      <sc-if value="{{ showFeedback }}">
+        <div style="margin-top:48px; padding:18px 0; background:linear-gradient(to right, transparent, var(--line,#2c2f3d) 48px, var(--line,#2c2f3d) calc(100% - 48px), transparent) no-repeat top / 100% 1px; display:flex; flex-wrap:wrap; align-items:center; gap:12px;">
+          <sc-if value="{{ fbPending }}">
+            <span style="font-size:15px; font-weight:500;">{{ ui.helpful }}</span>
+            <div style="display:flex; gap:8px;">
+              <button onClick="{{ fbYes }}" style="height:34px; padding:0 16px; border-radius:8px; border:1px solid var(--line,#2c2f3d); background:var(--card,#232532); color:var(--ink,#e9e9ed); font:inherit; font-size:14px; cursor:pointer;" style-hover="border-color:var(--acc,#9184d9); color:var(--acc,#9184d9);">{{ ui.yes }}</button>
+              <button onClick="{{ fbNo }}" style="height:34px; padding:0 16px; border-radius:8px; border:1px solid var(--line,#2c2f3d); background:var(--card,#232532); color:var(--ink,#e9e9ed); font:inherit; font-size:14px; cursor:pointer;" style-hover="border-color:var(--acc,#9184d9); color:var(--acc,#9184d9);">{{ ui.no }}</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ fbDone }}">
+            <span style="font-size:15px; color:var(--accInk,#d2cefd);">{{ ui.thanks }}</span>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:20px;">
+        <sc-if value="{{ hasPrev }}">
+          <a href="{{ prev.href }}" onClick="{{ prev.onClick }}" style="display:flex; flex-direction:column; gap:4px; padding:16px 18px; border-radius:12px; border:1px solid var(--line,#2c2f3d); color:var(--ink,#e9e9ed); text-decoration:none;" style-hover="border-color:var(--acc,#9184d9); text-decoration:none;">
+            <span style="font-size:13px; color:var(--mute,#b2b6ca);">{{ prevArrow }} {{ ui.prev }}</span>
+            <span style="font-weight:600; color:var(--acc,#9184d9);">{{ prev.label }}</span>
+          </a>
+        </sc-if>
+        <sc-if value="{{ hasNext }}">
+          <a href="{{ next.href }}" onClick="{{ next.onClick }}" style="grid-column:-2 / -1; display:flex; flex-direction:column; align-items:flex-end; gap:4px; padding:16px 18px; border-radius:12px; border:1px solid var(--line,#2c2f3d); color:var(--ink,#e9e9ed); text-decoration:none; text-align:end;" style-hover="border-color:var(--acc,#9184d9); text-decoration:none;">
+            <span style="font-size:13px; color:var(--mute,#b2b6ca);">{{ ui.next }} {{ nextArrow }}</span>
+            <span style="font-weight:600; color:var(--acc,#9184d9);">{{ next.label }}</span>
+          </a>
+        </sc-if>
+      </div>
+
+      <footer style="margin-top:56px; padding-top:20px; background:linear-gradient(to right, transparent, var(--line,#2c2f3d) 48px, var(--line,#2c2f3d) calc(100% - 48px), transparent) no-repeat top / 100% 1px; display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; font-size:13px; color:var(--mute,#b2b6ca);">
+        <span>skilus · PolyForm Noncommercial 1.0.0</span>
+        <a href="https://github.com/colybri/skilus" target="_blank" rel="noopener" style="color:var(--mute,#b2b6ca);">github.com/colybri/skilus</a>
+      </footer>
+    </main>
+
+    <sc-if value="{{ showToc }}" hint-placeholder-val="{{ false }}">
+      <nav style="width:220px; flex-shrink:0; position:sticky; top:40px; align-self:flex-start; max-height:calc(100vh - 80px); overflow:auto;">
+        <sc-if value="{{ hasToc }}">
+          <div style="font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--mute,#b2b6ca); margin-bottom:10px;">{{ ui.onThisPage }}</div>
+          <div style="display:flex; flex-direction:column; border-inline-start:1px solid var(--line,#2c2f3d);">
+            <sc-for list="{{ toc }}" as="tc">
+              <a href="{{ tc.href }}" onClick="{{ tc.onClick }}" style="display:block; padding:5px 12px; margin-inline-start:-1px; border-inline-start:2px solid {{ tc.bd }}; font-size:13.5px; line-height:1.45; color:{{ tc.color }}; font-weight:{{ tc.weight }}; text-decoration:none;" style-hover="color:var(--acc,#9184d9); text-decoration:none;">{{ tc.text }}</a>
+            </sc-for>
+          </div>
+        </sc-if>
+      </nav>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;],&quot;default&quot;:&quot;es&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { docs: null, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true };
+
+  componentDidMount() {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('skilus-docs') || '{}'); } catch (e) {}
+    const h = this.parseHash();
+    this.setState({
+      lang: h.lang || saved.lang || this.props.defaultLang || 'es',
+      page: h.page || 'overview',
+      dark: saved.dark ?? (this.props.defaultTheme !== 'light'),
+    });
+    import(new URL('./content.js', location.href).href).then(m => this.setState({ docs: m.default }));
+    this.onResize = () => this.setState({ w: window.innerWidth });
+    this.onScroll = () => this.updateActive();
+    this.onHash = () => { const h = this.parseHash(); if (h.page && (h.page !== this.state.page || h.lang !== this.state.lang)) this.setState({ page: h.page, lang: h.lang || this.state.lang }); };
+    this.onKey = e => {
+      if (e.key === 'Escape') this.setState({ langOpen: false, drawer: false });
+    };
+    this.onDocClick = e => {
+      if (!this.state.langOpen) return;
+      if (!e.target.closest('aside')) this.setState({ langOpen: false });
+    };
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('hashchange', this.onHash);
+    window.addEventListener('keydown', this.onKey);
+    document.addEventListener('mousedown', this.onDocClick);
+    this.applyTheme();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('hashchange', this.onHash);
+    window.removeEventListener('keydown', this.onKey);
+    document.removeEventListener('mousedown', this.onDocClick);
+  }
+  componentDidUpdate() { this.applyTheme(); }
+
+  parseHash() {
+    const parts = (location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
+    const known = ['es','en','fr','de','pt','zh','ja','id','ar','ru','pl','ur','hi'];
+    const out = {};
+    if (parts[0] && known.includes(parts[0])) { out.lang = parts[0]; out.page = parts[1]; } else if (parts[0]) out.page = parts[0];
+    return out;
+  }
+  persist(patch) {
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem('skilus-docs') || '{}'); } catch (e) {}
+    localStorage.setItem('skilus-docs', JSON.stringify({ ...saved, ...patch }));
+  }
+  isRtl(l) { return l === 'ar' || l === 'ur'; }
+
+  applyTheme() {
+    const d = this.state.dark, L = this.state.lang || 'es';
+    const v = d ? {
+      bg: '#161826', side: '#1b1d2b', card: '#232532', hover: '#2a2c3a', line: '#2c2f3d',
+      ink: '#e9e9ed', mute: '#b2b6ca', code: '#2a2c3a', codeOnNote: 'rgba(233,233,237,.08)',
+      acc: '#9184d9', accSoft: '#2b2741', accInk: '#d2cefd', accLine: '#5d5294', accGlow: 'rgba(145,132,217,.28)',
+      pre: '#10121c', preLine: '#2c2f3d', preInk: '#e9e9ed', preMute: '#9397ab', shadowLg: '0 0 0 1px #595d6c, 0 16px 40px rgba(0,0,0,.65)',
+      tipBg: '#1c2a2a', tipBd: '#2f4744', tipFg: '#a6dccb',
+      warnBg: '#2a2620', warnBd: '#4a4030', warnFg: '#e6c991',
+      infoBg: '#2b2741', infoBd: '#423a6a', infoFg: '#d2cefd',
+    } : {
+      bg: '#f3f5fe', side: '#e9ecf8', card: '#fafbff', hover: '#e4e7f5', line: '#cfd3e5',
+      ink: '#292b31', mute: '#595d6c', code: '#e4e7f5', codeOnNote: 'rgba(41,43,49,.07)',
+      acc: '#5d5294', accSoft: '#e7e5fe', accInk: '#423a6a', accLine: '#b5abfc', accGlow: 'rgba(121,108,191,.18)',
+      pre: '#232532', preLine: '#232532', preInk: '#e9e9ed', preMute: '#9397ab', shadowLg: '0 0 0 1px #cfd3e5, 0 16px 40px rgba(41,43,49,.16)',
+      tipBg: '#e6f4ef', tipBd: '#b9dccf', tipFg: '#2f6553',
+      warnBg: '#f8f0e1', warnBd: '#e6d2a8', warnFg: '#74561f',
+      infoBg: '#efedfe', infoBd: '#d2cefd', infoFg: '#423a6a',
+    };
+    const extra = { zh: "'Noto Sans SC',", ja: "'Noto Sans JP',", ar: "'Noto Sans Arabic',", ur: "'Noto Sans Arabic',", hi: "'Noto Sans Devanagari'," }[L] || '';
+    v.font = `'Inter', ${extra} system-ui, sans-serif`;
+    v.mono = `'IBM Plex Mono', ui-monospace, Menlo, monospace`;
+    const r = document.documentElement;
+    for (const k in v) r.style.setProperty('--' + k, v[k]);
+    r.style.colorScheme = d ? 'dark' : 'light';
+    r.lang = L; r.dir = this.isRtl(L) ? 'rtl' : 'ltr';
+  }
+
+  go(page, anchor) {
+    const lang = this.state.lang;
+    this.setState({ page, drawer: false, langOpen: false, activeH: null });
+    const hash = `#/${lang}/${page}`;
+    if (location.hash !== hash) history.pushState(null, '', hash);
+    setTimeout(() => {
+      const el = anchor && document.getElementById(anchor);
+      window.scrollTo({ top: el ? el.getBoundingClientRect().top + window.scrollY - 16 : 0, behavior: el ? 'smooth' : 'auto' });
+    }, 40);
+  }
+  setLang(code) {
+    this.persist({ lang: code });
+    this.setState({ lang: code, langOpen: false });
+    history.replaceState(null, '', `#/${code}/${this.state.page}`);
+  }
+  updateActive() {
+    const ids = this._h2 || [];
+    let a = ids[0] || null;
+    for (const id of ids) { const el = document.getElementById(id); if (el && el.getBoundingClientRect().top < 140) a = id; }
+    if (a !== this.state.activeH) this.setState({ activeH: a });
+  }
+
+  segs(text) {
+    const out = []; const re = /`([^`]+)`|\*\*([^*]+)\*\*|\[([^\]]+)\]\(([^)]+)\)/g; let last = 0, m;
+    text = text || '';
+    while ((m = re.exec(text))) {
+      if (m.index > last) out.push({ isText: true, text: text.slice(last, m.index) });
+      if (m[1] != null) out.push({ isCode: true, text: m[1] });
+      else if (m[2] != null) out.push({ isBold: true, text: m[2] });
+      else {
+        const href = m[4], ext = /^https?:/.test(href);
+        out.push({ isLink: true, text: m[3], href: ext ? href : `#/${this.state.lang}/${href}`, target: ext ? '_blank' : '_self', onClick: ext ? undefined : (e) => { e.preventDefault(); this.go(href); } });
+      }
+      last = re.lastIndex;
+    }
+    if (last < text.length) out.push({ isText: true, text: text.slice(last) });
+    return out;
+  }
+
+  renderVals() {
+    const D = this.state.docs, L = this.state.lang || this.props.defaultLang || 'es';
+    const rtl = this.isRtl(L), w = this.state.w, isMobile = w < 900;
+    const base = {
+      dir: rtl ? 'rtl' : 'ltr', lang: L, isMobile, drawer: this.state.drawer,
+      asidePos: isMobile ? 'fixed' : 'sticky',
+      asideTransform: isMobile && !this.state.drawer ? (rtl ? 'translateX(100%)' : 'translateX(-100%)') : 'none',
+      mainPad: isMobile ? '76px 20px 40px' : (w < 1200 ? '44px 40px 56px' : '48px 56px 64px'),
+      openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      langCode: L.toUpperCase(), sepChar: rtl ? '‹' : '›', arrow: rtl ? '←' : '→', prevArrow: rtl ? '→' : '←', nextArrow: rtl ? '←' : '→',
+      toggleLang: () => this.setState(s => ({ langOpen: !s.langOpen })),
+      toggleTheme: () => { const dark = !this.state.dark; this.persist({ dark }); this.setState({ dark }); },
+      goHome: (e) => { e.preventDefault(); this.go('overview'); },
+      langOpen: this.state.langOpen,
+    };
+    if (!D) return { ...base, ui: {}, showToc: false, blocks: [], navItems: [], langList: [], crumbs: [], toc: [] };
+
+    const ui = { ...D.ui.en, ...(D.ui[L] || {}) };
+    const full = !!D.pages[L];
+    const src = full ? D.pages[L] : D.pages.en;
+    const T = (id) => full ? D.pages[L][id].title : ((D.titles[L] && D.titles[L][id]) ? D.titles[L][id][0] : D.pages.en[id].title);
+    const Lead = (id) => full ? D.pages[L][id].lead : ((D.titles[L] && D.titles[L][id]) ? D.titles[L][id][1] : D.pages.en[id].lead);
+    const page = D.order.includes(this.state.page) ? this.state.page : 'overview';
+    const parent = D.nav.find(n => n.children && n.children.includes(page));
+    const href = (id) => `#/${L}/${id}`;
+    const link = (id) => (e) => { e.preventDefault(); this.go(id); };
+    const activeStyle = (on) => on ? { bg: 'var(--accSoft)', color: 'var(--accInk)', weight: 500 } : { bg: 'transparent', color: 'var(--ink)', weight: 400 };
+
+    const guideOpen = this.state.guideOpen || !!parent;
+    const navItems = D.nav.map(n => ({
+      label: T(n.id), href: href(n.id), onClick: link(n.id), ...activeStyle(page === n.id),
+      hasChildren: !!n.children, open: !!n.children && (n.id === 'user-guide' ? guideOpen : true),
+      caret: guideOpen ? 'rotate(0deg)' : (rtl ? 'rotate(90deg)' : 'rotate(-90deg)'),
+      toggle: () => this.setState(s => ({ guideOpen: !(s.guideOpen || !!parent) })),
+      children: (n.children || []).map(c => ({ label: T(c), href: href(c), onClick: link(c), ...activeStyle(page === c) })),
+    }));
+
+    const langList = D.langs.map(l => ({ ...l, onClick: () => this.setLang(l.code), bg: l.code === L ? 'var(--accSoft)' : 'transparent', color: l.code === L ? 'var(--accInk)' : 'var(--ink)', weight: l.code === L ? 600 : 400 }));
+
+    const crumbs = [];
+    if (page !== 'overview') crumbs.push({ label: T('overview'), href: href('overview'), onClick: link('overview') });
+    if (parent) crumbs.push({ label: T(parent.id), href: href(parent.id), onClick: link(parent.id) });
+    crumbs.push({ label: T(page), href: href(page), onClick: link(page) });
+    crumbs.forEach((c, i) => { c.sep = i < crumbs.length - 1; c.color = c.sep ? 'var(--mute)' : 'var(--ink)'; });
+
+    const noteLabel = { tip: ui.tip, warn: ui.warn, info: ui.info };
+    const raw = src[page].blocks;
+    const blocks = raw.map((b, i) => {
+      const o = { ['is' + { h2: 'H2', h3: 'H3', p: 'P', code: 'Code', ul: 'Ul', ol: 'Ol', note: 'Note', table: 'Table', cards: 'Cards', faq: 'Faq' }[b.t]]: true };
+      if (b.t === 'h2') { o.id = b.id; o.segs = this.segs(b.text); }
+      if (b.t === 'h3') o.text = b.text;
+      if (b.t === 'p') o.segs = this.segs(b.text);
+      if (b.t === 'code') { const key = page + i; o.code = b.code; o.lang = b.lang; o.copyLabel = this.state.copied === key ? ui.copied : ui.copy; o.onCopy = () => { navigator.clipboard && navigator.clipboard.writeText(b.code); this.setState({ copied: key }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: null }), 1600); }; }
+      if (b.t === 'ul' || b.t === 'ol') o.items = b.items.map((t, j) => ({ n: j + 1, segs: this.segs(t) }));
+      if (b.t === 'note') { o.segs = this.segs(b.text); o.label = noteLabel[b.kind]; o.bg = `var(--${b.kind}Bg)`; o.bd = `var(--${b.kind}Bd)`; o.fg = `var(--${b.kind}Fg)`; }
+      if (b.t === 'table') { o.head = b.head; o.rows = b.rows.map(r => ({ cells: r.map((c, j) => ({ segs: this.segs(c), ws: j === 0 ? 'nowrap' : 'normal' })) })); }
+      if (b.t === 'cards') o.items = b.items.map((id, j) => ({ title: T(id), lead: Lead(id), href: href(id), onClick: link(id), num: String(j + 1).padStart(2, '0') }));
+      if (b.t === 'faq') o.items = b.items.map(([q, a], j) => ({ q, segs: this.segs(a), border: j ? '1px solid var(--line)' : '0' }));
+      return o;
+    });
+
+    const h2s = raw.filter(b => b.t === 'h2');
+    this._h2 = h2s.map(b => b.id);
+    const activeH = this.state.activeH || this._h2[0];
+    const toc = h2s.map(b => ({ text: b.text.replace(/`/g, ''), href: '#' + b.id, onClick: (e) => { e.preventDefault(); this.go(page, b.id); }, bd: b.id === activeH ? 'var(--acc)' : 'transparent', color: b.id === activeH ? 'var(--acc)' : 'var(--mute)', weight: b.id === activeH ? 600 : 400 }));
+
+    const idx = D.order.indexOf(page);
+    const mk = (id) => id && ({ label: T(id), href: href(id), onClick: link(id) });
+
+    const fbKey = L + page;
+    return {
+      ...base, ui,
+      showToc: w >= 1200 && this.props.showToc !== false, hasToc: toc.length > 0, toc,
+      navItems, langList, crumbs, blocks,
+      bodyDir: full ? base.dir : 'ltr',
+      pageTitle: T(page), pageLead: Lead(page), showNotice: !full,
+      themeLabel: this.state.dark ? ui.light : ui.dark,
+      langNative: (D.langs.find(l => l.code === L) || {}).native,
+      hasPrev: idx > 0, prev: mk(D.order[idx - 1]) || {}, hasNext: idx < D.order.length - 1, next: mk(D.order[idx + 1]) || {},
+      showFeedback: this.props.showFeedback !== false, fbPending: !this.state.fb[fbKey], fbDone: !!this.state.fb[fbKey],
+      fbYes: () => this.setState(s => ({ fb: { ...s.fb, [fbKey]: 'yes' } })), fbNo: () => this.setState(s => ({ fb: { ...s.fb, [fbKey]: 'no' } })),
+    };
+  }
+}
+</script>
+</body>
+</html>
