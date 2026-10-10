@@ -66,6 +66,8 @@ internal/adapter/  implementaciones de los puertos
 internal/cli/      comandos Cobra
 ```
 
+`test/gate/run.sh` es la puerta de la fase 1: instala 10 skills reales de tres repositorios públicos, fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
+
 Las reglas completas están en el plan del proyecto, sección "Reglas de arquitectura", y `.golangci.yml` las hace cumplir.
 
 ## Licencia

@@ -1,0 +1,103 @@
+# Generado por skilus. No lo edites a mano.
+version: 1
+skills:
+  brainstorming:
+    source: github.com/obra/superpowers
+    requested: bb92a77741419a4ab5f06e711a283343f1ada0c3
+    commit: bb92a77741419a4ab5f06e711a283343f1ada0c3
+    path: skills/brainstorming
+    tree_sha256: c255e6d93d25037afe0e220cae55b4da90d1958ab88a98c1f3f4a70585592f99
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  deploy-to-vercel:
+    source: github.com/vercel-labs/agent-skills
+    requested: 063bee94c3f4df8453406c830b0a7df0f2860278
+    commit: 063bee94c3f4df8453406c830b0a7df0f2860278
+    path: skills/deploy-to-vercel
+    tree_sha256: 7044e4be47a3e967db71e1450c4483e7233f08b7c85c1dc9ad0785e7a89e0e63
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  docx:
+    source: github.com/anthropics/skills
+    requested: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    commit: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    path: skills/docx
+    tree_sha256: 1775d1578cf29b32a276a736db0bb12602ed997ca4a979ca0ba82ab9b3f188ec
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  mcp-builder:
+    source: github.com/anthropics/skills
+    requested: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    commit: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    path: skills/mcp-builder
+    tree_sha256: f2d43ccabdc91a4e34c27cfd90c3f67170bcafb10891cc97b96d45be9ee3be4a
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  pdf:
+    source: github.com/anthropics/skills
+    requested: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    commit: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    path: skills/pdf
+    tree_sha256: 32cdced3a21a38cd6b96f4b3fb97c64e05c1123c8efa6f747cfc6ecc4b446d05
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  skill-creator:
+    source: github.com/anthropics/skills
+    requested: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    commit: dbd4588f9e1033efb41dad4bef2f7947c8993d44
+    path: skills/skill-creator
+    tree_sha256: d41bb4505f13d942a683c664033649109bdaf15d369c562528c91c1b11935f5a
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  systematic-debugging:
+    source: github.com/obra/superpowers
+    requested: bb92a77741419a4ab5f06e711a283343f1ada0c3
+    commit: bb92a77741419a4ab5f06e711a283343f1ada0c3
+    path: skills/systematic-debugging
+    tree_sha256: 619eebdc4e4cbd7ba91a2837a84021a4d5f2fecf86ec1ca0d83c9cd4fa6e0785
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  test-driven-development:
+    source: github.com/obra/superpowers
+    requested: bb92a77741419a4ab5f06e711a283343f1ada0c3
+    commit: bb92a77741419a4ab5f06e711a283343f1ada0c3
+    path: skills/test-driven-development
+    tree_sha256: b9fc0a913c1e697b85574bf10fd7e5da3a50bdecacbb9402484599dcb53b00ba
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  vercel-react-best-practices:
+    source: github.com/vercel-labs/agent-skills
+    requested: 063bee94c3f4df8453406c830b0a7df0f2860278
+    commit: 063bee94c3f4df8453406c830b0a7df0f2860278
+    path: skills/react-best-practices
+    tree_sha256: 6387566ece6026b8c5a8d6b8bc61aea66df7797a67bd047ac75a8a32faccb4a2
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
+  web-design-guidelines:
+    source: github.com/vercel-labs/agent-skills
+    requested: 063bee94c3f4df8453406c830b0a7df0f2860278
+    commit: 063bee94c3f4df8453406c830b0a7df0f2860278
+    path: skills/web-design-guidelines
+    tree_sha256: 2ead7175d89cc25ea97f15bde8f6126951e028787e40eab092991007703858eb
+    targets:
+      - agent: universal
+        scope: project
+        mode: copy
