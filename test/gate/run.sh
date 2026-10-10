@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# Phase 1 gate: install 10 real skills from three public repositories,
-# pinned to commits, and check that the lock matches the one committed in
-# this directory. CI runs it on Linux, macOS and Windows, so passing means
-# every OS produces the same lock.
+# Phase gates, run by CI on Linux, macOS and Windows.
+#
+# Phase 1: install 10 real skills from three public repositories, pinned to
+# commits, and check that the lock matches the one committed in this
+# directory, so every OS produces the same lock.
+#
+# Phase 2: with only the lock left, sync rebuilds the agents' directories
+# and verify passes; a file changed by hand makes verify fail.
 #
 # Usage: test/gate/run.sh <path to the skilus binary>
 # GATE_UPDATE=1 rewrites the committed lock instead of comparing.
@@ -45,3 +49,26 @@ fi
 # the lock depends on the OS.
 diff --strip-trailing-cr "$here/skilus.lock" skilus.lock
 echo "Puerta de la fase 1 superada: 10 skills, mismo lock."
+
+"$bin" verify
+
+# Start from the lock alone: no agents' directories and an empty store.
+rm -rf .agents "$HOME/.skilus/store"
+cp skilus.lock "$work/before.lock"
+"$bin" sync
+"$bin" verify
+diff "$work/before.lock" skilus.lock
+
+# A file changed by hand is caught (exit code 6) and named.
+echo "# cambiado a mano" >> .agents/skills/pdf/SKILL.md
+set +e
+"$bin" verify > "$work/verify.out"
+code=$?
+set -e
+cat "$work/verify.out"
+test "$code" -eq 6 || { echo "verify exited $code, want 6" >&2; exit 1; }
+grep -q 'modificado: SKILL.md' "$work/verify.out"
+
+"$bin" sync --force
+"$bin" verify
+echo "Puerta de la fase 2 superada: sync reproduce el entorno y verify detecta el cambio."

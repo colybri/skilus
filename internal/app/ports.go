@@ -56,6 +56,23 @@ type FetchedSkill struct {
 // directory that holds it. Putting the same package twice is a no-op.
 type Store interface {
 	Put(ctx context.Context, p skill.Package) (dir string, err error)
+	// Lookup returns the directory holding h, if the store has it. The
+	// content is not checked; read it back to trust it.
+	Lookup(ctx context.Context, h skill.TreeHash) (dir string, ok bool, err error)
+	// Discard deletes the content stored under h, e.g. after finding it
+	// damaged. A missing entry is not an error.
+	Discard(ctx context.Context, h skill.TreeHash) error
+}
+
+// TreeReader reads back installed skill directories to check them.
+type TreeReader interface {
+	// ReadTree returns the files under dir, following dir itself when it
+	// is a symlink to the store. It fails with domain.ErrNotFound when dir
+	// does not exist.
+	ReadTree(ctx context.Context, dir string) ([]skill.File, error)
+	// ExecutableBits reports whether the file system keeps the executable
+	// bit. When it does not (Windows), the lock's list is trusted instead.
+	ExecutableBits() bool
 }
 
 // Deployer places stored content into an agent's skills directory.

@@ -32,6 +32,12 @@ func (f *fakeStore) Put(_ context.Context, p skill.Package) (string, error) {
 	return "/store/" + p.TreeHash().String(), nil
 }
 
+func (f *fakeStore) Lookup(context.Context, skill.TreeHash) (string, bool, error) {
+	return "", false, nil
+}
+
+func (f *fakeStore) Discard(context.Context, skill.TreeHash) error { return nil }
+
 type fakeDeployer struct {
 	existing map[string]bool
 	deployed map[string]agent.Mode

@@ -100,5 +100,8 @@ type Entry struct {
 	Commit    string // resolved commit SHA; empty for local sources
 	Path      string // directory of the skill inside the source
 	TreeHash  skill.TreeHash
-	Targets   []agent.Target
+	// Executables lists the executable files, so the tree hash can be
+	// checked on file systems that do not keep the executable bit.
+	Executables []string
+	Targets     []agent.Target
 }

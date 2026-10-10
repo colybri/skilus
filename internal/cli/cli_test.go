@@ -17,6 +17,7 @@ func TestExitCode(t *testing.T) {
 		domain.ErrConflict:      ExitConflict,
 		app.ErrRejected:         ExitRejected,
 		app.ErrCancelled:        ExitError,
+		app.ErrDrift:            ExitDrift,
 	}
 	for err, want := range tests {
 		if got := exitCode(fmt.Errorf("wrapped: %w", err)); got != want {

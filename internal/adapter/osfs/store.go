@@ -152,3 +152,23 @@ func copyFile(src, dst string, perm fs.FileMode) (err error) {
 	_, err = io.Copy(out, in)
 	return err
 }
+
+// Lookup implements app.Store.
+func (s Store) Lookup(_ context.Context, h skill.TreeHash) (string, bool, error) {
+	dir := filepath.Join(s.Root, h.String())
+	info, err := os.Lstat(dir)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		return "", false, nil
+	case err != nil:
+		return "", false, err
+	case !info.IsDir():
+		return "", false, fmt.Errorf("%s in the store is not a directory: %w", h.Short(), domain.ErrInvalid)
+	}
+	return dir, true, nil
+}
+
+// Discard implements app.Store.
+func (s Store) Discard(_ context.Context, h skill.TreeHash) error {
+	return os.RemoveAll(filepath.Join(s.Root, h.String()))
+}

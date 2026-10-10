@@ -2,7 +2,7 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 1 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local o un repositorio Git), `skilus list` y `skilus remove`.
+> Estado: fase 2 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local o un repositorio Git), `skilus list`, `skilus remove`, `skilus verify` y `skilus sync`.
 
 ## Instalación
 
@@ -36,6 +36,11 @@ skilus add ./mis-skills --agent claude-code --scope global
 skilus list                                 # skills instaladas con commit, hash y agentes
 skilus list --scope global --json
 skilus remove review                        # la quita de los agentes, del lock y de skilus.yaml
+
+skilus verify                               # comprueba que lo instalado coincide con el lock
+skilus verify --json
+skilus sync                                 # deja los agentes como dice el lock (como npm ci)
+skilus sync --force                         # sobrescribe también lo cambiado a mano
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
@@ -44,7 +49,9 @@ Las fuentes Git se descargan con el `git` del sistema, así que valen tus creden
 
 El contenido se guarda en `~/.skilus/store/<sha256>`. En el proyecto se instala como copia (para poder versionarla) y en global como symlink al almacén. El resultado queda en `skilus.lock` (qué contenido exacto hay instalado y dónde) y la intención en `skilus.yaml`; en global, ambos viven en `~/.skilus/`.
 
-Códigos de salida: 0 bien, 1 error o cancelado, 2 uso inválido, 3 no encontrado, 4 ya instalado o conflicto, 5 rechazado por la inspección.
+`skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
+
+Códigos de salida: 0 bien, 1 error o cancelado, 2 uso inválido, 3 no encontrado, 4 ya instalado o conflicto, 5 rechazado por la inspección, 6 lo instalado no coincide con el lock.
 
 ## Desarrollo
 
@@ -66,7 +73,7 @@ internal/adapter/  implementaciones de los puertos
 internal/cli/      comandos Cobra
 ```
 
-`test/gate/run.sh` es la puerta de la fase 1: instala 10 skills reales de tres repositorios públicos, fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
+`test/gate/run.sh` contiene las puertas de las fases 1 y 2: instala 10 skills reales de tres repositorios públicos, fijadas a commits, y comprueba que el lock coincide con `test/gate/skilus.lock`; después borra los agentes y el almacén, comprueba que `sync` lo reconstruye y que `verify` detecta un fichero cambiado a mano. La CI la ejecuta en Linux, macOS y Windows. Si cambia el formato del lock, regenera la referencia con `GATE_UPDATE=1 test/gate/run.sh bin/skilus`.
 
 Las reglas completas están en el plan del proyecto, sección "Reglas de arquitectura", y `.golangci.yml` las hace cumplir.
 

@@ -22,6 +22,7 @@ const (
 	ExitNotFound = 3
 	ExitConflict = 4
 	ExitRejected = 5
+	ExitDrift    = 6
 )
 
 // Deps are the use cases the commands call, wired in cmd/skilus.
@@ -32,6 +33,8 @@ type Deps struct {
 	AddSkill    app.AddSkillHandler
 	ListSkills  app.ListSkills
 	RemoveSkill app.RemoveSkillHandler
+	Verify      app.VerifyHandler
+	Sync        app.SyncHandler
 }
 
 // Run executes the CLI with args and returns the process exit code.
@@ -59,6 +62,8 @@ func exitCode(err error) int {
 		return ExitConflict
 	case errors.Is(err, app.ErrRejected):
 		return ExitRejected
+	case errors.Is(err, app.ErrDrift):
+		return ExitDrift
 	default:
 		return ExitError
 	}
@@ -77,6 +82,6 @@ func newRoot(deps Deps) *cobra.Command {
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
 		return fmt.Errorf("%w: %w", errUsage, err)
 	})
-	root.AddCommand(newAgentsCommand(deps.ListAgents), newAddCommand(deps.AddSkill), newListCommand(deps.ListSkills), newRemoveCommand(deps.RemoveSkill))
+	root.AddCommand(newAgentsCommand(deps.ListAgents), newAddCommand(deps.AddSkill), newListCommand(deps.ListSkills), newRemoveCommand(deps.RemoveSkill), newVerifyCommand(deps.Verify), newSyncCommand(deps.Sync))
 	return root
 }
