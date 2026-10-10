@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './shared.js';
 export default {
   overview: { title: 'Überblick', lead: 'Ein Skill-Manager für KI-Agenten: an einen Commit gebunden, mit Inhalts-Hash und vor der Installation geprüft.', blocks: [
     p('skilus verwaltet Skills (`SKILL.md`) für KI-Agenten und wird als einzelnes Go-Binary ausgeliefert. Es installiert Skills aus Git, aus einem ZIP- oder tar.gz-Archiv oder aus einem lokalen Verzeichnis und verteilt sie an die Agenten, die du installiert hast.'),
@@ -21,9 +21,23 @@ export default {
   'getting-started': { title: 'Erste Schritte', lead: 'Installiere skilus, prüfe den Download und füge in wenigen Minuten deine erste Skill hinzu.', blocks: [
     h2('requirements', 'Voraussetzungen'),
     ul('Linux, macOS oder Windows (amd64 oder arm64).', 'Installiertes `git` für Git-Quellen.'),
-    h2('install', 'Installation'),
-    ol('Lade das Archiv für dein System unter [Releases](https://github.com/colybri/skilus/releases) herunter.', 'Entpacke es und lege das Binary `skilus` in deinen `PATH`.', 'Prüfe, ob es läuft und welche Agenten es erkennt:'),
-    code('skilus agents'),
+    h2("download", "Download"),
+    p("Direkter Download des Binarys der neuesten Version. Jedes Archiv enthält `skilus` (oder `skilus.exe` unter Windows), die Lizenz und die README."),
+    dl(),
+    h2("install", "Installation Schritt für Schritt"),
+    p("Wähle dein Betriebssystem und folge den Schritten. Wenn du das Terminal bevorzugst, erledigt der Block für jedes System alles auf einmal."),
+    h3('Linux'),
+    ol("Lade das Linux-`.tar.gz` herunter: `amd64` für die meisten PCs und Server, `arm64` für Raspberry Pi oder ARM-Server. Im Zweifel zeigt `uname -m` `x86_64` (amd64) oder `aarch64` (arm64).", "Öffne ein Terminal im Download-Ordner und entpacke es mit `tar -xzf skilus_*_linux_*.tar.gz`.", "Kopiere das Binary in einen Ordner im `PATH`: `sudo install -m 0755 skilus /usr/local/bin/skilus`, oder ohne Administratorrechte nach `~/.local/bin`.", "Prüfe mit `skilus agents`, ob es funktioniert."),
+    p("Oder alles im Terminal:"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("Lade das macOS-`.tar.gz` herunter: `arm64`, wenn dein Mac einen Apple-Chip hat (M1 oder neuer), `amd64` bei Intel. Du siehst es unter Apple-Menü > Über diesen Mac.", "Entpacke es per Doppelklick im Finder oder mit `tar -xzf skilus_*_darwin_*.tar.gz` im Terminal.", "Wenn du es mit dem Browser geladen hast, entferne die Gatekeeper-Quarantäne: `xattr -d com.apple.quarantine skilus`. Sonst meldet macOS, dass der Entwickler nicht überprüft werden kann.", "Verschiebe es in einen Ordner im `PATH`: `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`.", "Prüfe mit `skilus agents`, ob es funktioniert."),
+    p("Oder alles im Terminal:"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("Lade das Windows-`.zip` herunter: `amd64` für die meisten PCs, `arm64` für ARM-Geräte (Snapdragon, Surface Pro X). Du siehst es unter Einstellungen > System > Info > Systemtyp.", "Rechtsklick auf die `.zip` > Alle extrahieren und einen festen Ordner wählen, zum Beispiel `%LOCALAPPDATA%\\Programs\\skilus`.", "Füge diesen Ordner zum `PATH` hinzu: Suche im Start nach „Umgebungsvariablen“ > Umgebungsvariablen für dieses Konto bearbeiten > `Path` > Bearbeiten > Neu.", "Öffne ein neues Terminal (PowerShell oder Terminal) und führe `skilus agents` aus. Wenn SmartScreen warnt, klicke auf Weitere Informationen > Trotzdem ausführen."),
+    p("Oder alles in PowerShell, ohne Administratorrechte:"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', 'Download prüfen'),
     p('Jede Release veröffentlicht eine mit schlüssellosem cosign signierte `checksums.txt` (OIDC-Identität des Workflows) und ein SBOM pro Archiv.'),
     code(COSIGN),

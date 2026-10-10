@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './shared.js';
 export default {
   overview: { title: 'نظرة عامة', lead: 'مدير مهارات لوكلاء الذكاء الاصطناعي: مثبّتة على commit، مع بصمة للمحتوى، ومفحوصة قبل التثبيت.', blocks: [
     p('skilus مدير لمهارات (`SKILL.md`) وكلاء الذكاء الاصطناعي، ويُوزَّع كملف تنفيذي واحد مكتوب بلغة Go. يثبّت المهارات من Git أو من أرشيف ZIP أو tar.gz أو من مجلد محلي، وينشرها في الوكلاء المثبّتين لديك.'),
@@ -21,9 +21,23 @@ export default {
   'getting-started': { title: 'البدء', lead: 'ثبّت skilus وتحقّق من التنزيل وأضف مهارتك الأولى في دقائق.', blocks: [
     h2('requirements', 'المتطلبات'),
     ul('Linux أو macOS أو Windows (amd64 أو arm64).', '`git` مثبّت، لمصادر Git.'),
-    h2('install', 'التثبيت'),
-    ol('نزّل أرشيف نظامك من صفحة [Releases](https://github.com/colybri/skilus/releases).', 'فكّ ضغطه وضع الملف التنفيذي `skilus` في `PATH`.', 'تحقّق من أنه يعمل ومن الوكلاء الذين يكتشفهم:'),
-    code('skilus agents'),
+    h2("download", "التنزيل"),
+    p("تنزيل مباشر للملف التنفيذي لأحدث إصدار. يحتوي كل أرشيف على `skilus` (أو `skilus.exe` على Windows) والترخيص وملف README."),
+    dl(),
+    h2("install", "التثبيت خطوة بخطوة"),
+    p("اختر نظام التشغيل واتبع الخطوات. إن كنت تفضّل الطرفية، فكتلة كل نظام تنفّذ كل شيء دفعة واحدة."),
+    h3('Linux'),
+    ol("نزّل ملف `.tar.gz` الخاص بـ Linux: `amd64` لمعظم الحواسيب والخوادم، و`arm64` لـ Raspberry Pi أو خوادم ARM. إن لم تكن متأكدًا، يعرض `uname -m` القيمة `x86_64` (amd64) أو `aarch64` (arm64).", "افتح طرفية في مجلد التنزيل وفكّ الضغط باستخدام `tar -xzf skilus_*_linux_*.tar.gz`.", "انسخ الملف التنفيذي إلى مجلد ضمن `PATH`: `sudo install -m 0755 skilus /usr/local/bin/skilus`، أو إلى `~/.local/bin` إن لم تكن لديك صلاحيات المدير.", "تحقّق من عمله باستخدام `skilus agents`."),
+    p("أو نفّذ كل شيء من الطرفية:"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("نزّل ملف `.tar.gz` الخاص بـ macOS: `arm64` إن كان جهاز Mac بشريحة Apple (M1 أو أحدث)، و`amd64` إن كان Intel. تجد ذلك في قائمة Apple > حول هذا الـMac.", "فكّ الضغط بنقرة مزدوجة في Finder، أو باستخدام `tar -xzf skilus_*_darwin_*.tar.gz` في Terminal.", "إن نزّلته عبر المتصفح، أزل حجر Gatekeeper: `xattr -d com.apple.quarantine skilus`. وإلا سيقول macOS إنه لا يستطيع التحقق من المطوّر.", "انقله إلى مجلد ضمن `PATH`: `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`.", "تحقّق من عمله باستخدام `skilus agents`."),
+    p("أو نفّذ كل شيء من الطرفية:"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("نزّل ملف `.zip` الخاص بـ Windows: `amd64` لمعظم الحواسيب، و`arm64` لأجهزة ARM (Snapdragon وSurface Pro X). تجد ذلك في الإعدادات > النظام > حول > نوع النظام.", "انقر بزر الفأرة الأيمن على ملف `.zip` > استخراج الكل، واختر مجلدًا دائمًا، مثل `%LOCALAPPDATA%\\Programs\\skilus`.", "أضف هذا المجلد إلى `PATH`: ابحث عن «متغيرات البيئة» في قائمة ابدأ > تحرير متغيرات البيئة لحسابك > `Path` > تحرير > جديد.", "افتح طرفية جديدة (PowerShell أو Terminal) وشغّل `skilus agents`. إن ظهر تحذير SmartScreen، انقر على مزيد من المعلومات > التشغيل على أي حال."),
+    p("أو نفّذ كل شيء من PowerShell، دون صلاحيات المدير:"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', 'التحقق من التنزيل'),
     p('ينشر كل إصدار ملف `checksums.txt` موقّعًا باستخدام cosign بلا مفاتيح (هوية OIDC الخاصة بسير العمل) وملف SBOM لكل أرشيف.'),
     code(COSIGN),

@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN } from './shared.js';
 export default {
   overview: { title: 'Przegląd', lead: 'Menedżer skilli dla agentów AI: przypiętych do commita, z hashem zawartości i sprawdzonych przed instalacją.', blocks: [
     p('skilus to menedżer skilli (`SKILL.md`) dla agentów AI, dostarczany jako pojedynczy plik binarny Go. Instaluje skille z Gita, z archiwum ZIP lub tar.gz albo z lokalnego katalogu i wdraża je w zainstalowanych agentach.'),
@@ -21,9 +21,23 @@ export default {
   'getting-started': { title: 'Pierwsze kroki', lead: 'Zainstaluj skilus, zweryfikuj pobrany plik i dodaj pierwszy skill w kilka minut.', blocks: [
     h2('requirements', 'Wymagania'),
     ul('Linux, macOS lub Windows (amd64 lub arm64).', 'Zainstalowany `git` dla źródeł Git.'),
-    h2('install', 'Instalacja'),
-    ol('Pobierz archiwum dla swojego systemu z [Releases](https://github.com/colybri/skilus/releases).', 'Rozpakuj je i umieść plik `skilus` w `PATH`.', 'Sprawdź, czy działa i jakich agentów wykrywa:'),
-    code('skilus agents'),
+    h2("download", "Pobieranie"),
+    p("Bezpośrednie pobieranie pliku binarnego najnowszej wersji. Każde archiwum zawiera `skilus` (lub `skilus.exe` w Windows), licencję i README."),
+    dl(),
+    h2("install", "Instalacja krok po kroku"),
+    p("Wybierz system operacyjny i wykonaj kroki. Jeśli wolisz terminal, blok dla każdego systemu robi wszystko naraz."),
+    h3('Linux'),
+    ol("Pobierz `.tar.gz` dla Linuksa: `amd64` dla większości komputerów i serwerów, `arm64` dla Raspberry Pi lub serwerów ARM. W razie wątpliwości `uname -m` pokaże `x86_64` (amd64) lub `aarch64` (arm64).", "Otwórz terminal w folderze pobierania i rozpakuj archiwum poleceniem `tar -xzf skilus_*_linux_*.tar.gz`.", "Skopiuj plik do folderu w `PATH`: `sudo install -m 0755 skilus /usr/local/bin/skilus` lub, bez uprawnień administratora, do `~/.local/bin`.", "Sprawdź działanie poleceniem `skilus agents`."),
+    p("Albo wszystko z terminala:"),
+    code(INSTALL_LINUX, 'bash'),
+    h3('macOS'),
+    ol("Pobierz `.tar.gz` dla macOS: `arm64`, jeśli twój Mac ma czip Apple (M1 lub nowszy), `amd64`, jeśli Intel. Sprawdzisz to w menu Apple > Ten Mac.", "Rozpakuj dwukrotnym kliknięciem w Finderze lub poleceniem `tar -xzf skilus_*_darwin_*.tar.gz` w Terminalu.", "Jeśli pobrałeś plik przeglądarką, usuń kwarantannę Gatekeepera: `xattr -d com.apple.quarantine skilus`. Inaczej macOS zgłosi, że nie może zweryfikować dewelopera.", "Przenieś go do folderu w `PATH`: `sudo mkdir -p /usr/local/bin && sudo install -m 0755 skilus /usr/local/bin/skilus`.", "Sprawdź działanie poleceniem `skilus agents`."),
+    p("Albo wszystko z terminala:"),
+    code(INSTALL_MAC, 'zsh'),
+    h3('Windows'),
+    ol("Pobierz `.zip` dla Windows: `amd64` dla większości komputerów, `arm64` dla urządzeń ARM (Snapdragon, Surface Pro X). Sprawdzisz to w Ustawienia > System > Informacje > Typ systemu.", "Kliknij `.zip` prawym przyciskiem > Wyodrębnij wszystkie i wybierz stały folder, na przykład `%LOCALAPPDATA%\\Programs\\skilus`.", "Dodaj ten folder do `PATH`: wyszukaj „zmienne środowiskowe” w menu Start > Edytuj zmienne środowiskowe dla konta > `Path` > Edytuj > Nowy.", "Otwórz nowy terminal (PowerShell lub Terminal) i uruchom `skilus agents`. Jeśli SmartScreen ostrzega, kliknij Więcej informacji > Uruchom mimo to."),
+    p("Albo wszystko z PowerShell, bez uprawnień administratora:"),
+    code(INSTALL_WIN, 'powershell'),
     h2('verify-download', 'Weryfikacja pobranego pliku'),
     p('Każde wydanie publikuje `checksums.txt` podpisany bezkluczowym cosign (tożsamość OIDC workflow) oraz SBOM dla każdego archiwum.'),
     code(COSIGN),
