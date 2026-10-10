@@ -21,7 +21,13 @@ set -euo pipefail
 bin=$(cd "$(dirname "$1")" && pwd)/$(basename "$1")
 here=$(cd "$(dirname "$0")" && pwd)
 work=$(mktemp -d)
-trap 'rm -rf "$work"' EXIT
+# git verify-commit (audit) may start gpg daemons in $HOME/.gnupg that keep
+# files open on Windows; stop them before cleaning up.
+cleanup() {
+  gpgconf --kill all > /dev/null 2>&1 || true
+  rm -rf "$work" || echo "could not remove $work" >&2
+}
+trap cleanup EXIT
 mkdir -p "$work/home" "$work/project"
 export HOME="$work/home" USERPROFILE="$work/home" XDG_CONFIG_HOME= CLAUDE_CONFIG_DIR= CODEX_HOME=
 cd "$work/project"
