@@ -1,0 +1,76 @@
+# skilus outdated sees that the requested branch moved; skilus update shows
+# what changes and moves the lock to the new commit.
+[!exec:git] skip 'git is not installed'
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+env GIT_AUTHOR_NAME=t
+env GIT_AUTHOR_EMAIL=t@example.com
+env GIT_COMMITTER_NAME=t
+env GIT_COMMITTER_EMAIL=t@example.com
+env GIT_CONFIG_NOSYSTEM=1
+mkdir home project
+
+cd remote
+exec git init --quiet --initial-branch=main
+exec git add .
+exec git commit --quiet -m v1
+exec git tag v1.0.0
+cd $WORK/project
+
+exec skilus add file://$WORK/remote --agent claude-code --yes
+exec skilus add file://$WORK/remote@v1.0.0 --scope global --agent claude-code --yes
+
+exec skilus outdated
+stdout '^review +project +\(rama por defecto\) +[0-9a-f]{12} +[0-9a-f]{12} +al día$'
+stdout '^review +global +v1.0.0 .* al día$'
+
+cd $WORK/remote
+cp $WORK/v2.md skills/review/SKILL.md
+cp $WORK/notes.md skills/review/notes.md
+exec git add .
+exec git commit --quiet -m v2
+cd $WORK/project
+
+exec skilus outdated --json
+stdout '"state": "outdated"'
+stdout '"state": "current"'
+
+# Answering no changes nothing.
+stdin $WORK/no.txt
+! exec skilus update
+stdout '~ SKILL.md'
+stdout '\+ notes.md'
+stdout '¿Actualizar\? \[s/N\]'
+! exists .claude/skills/review/notes.md
+
+exec skilus update review --yes
+stdout 'Actualizada review'
+exists .claude/skills/review/notes.md
+grep 'Review v2' .claude/skills/review/SKILL.md
+exec skilus verify --scope project
+exec skilus outdated --scope project
+stdout 'al día$'
+! grep 'notes' skilus.yaml
+
+exec skilus update
+stdout 'Todo al día\.'
+
+-- remote/skills/review/SKILL.md --
+---
+name: review
+description: Reviews code.
+---
+Review v1.
+-- v2.md --
+---
+name: review
+description: Reviews code.
+---
+Review v2.
+-- notes.md --
+More notes.
+-- no.txt --
+n

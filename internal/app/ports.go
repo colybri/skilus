@@ -29,6 +29,12 @@ type Fetcher interface {
 	Fetch(ctx context.Context, src source.Source) (Fetched, error)
 }
 
+// RefResolver finds the commit a ref of a Git source points to now,
+// without downloading content. An empty ref means the default branch.
+type RefResolver interface {
+	Resolve(ctx context.Context, src source.Source) (commit string, err error)
+}
+
 // Fetched is what a Fetcher found at a source.
 type Fetched struct {
 	Source    string // normalized source, recorded in the lock
@@ -107,4 +113,5 @@ type ManifestEntry struct {
 // Prompter shows the install plan to the user and asks for confirmation.
 type Prompter interface {
 	ConfirmInstall(ctx context.Context, plan InstallPlan) (bool, error)
+	ConfirmUpdate(ctx context.Context, plan UpdatePlan) (bool, error)
 }

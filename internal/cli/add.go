@@ -75,7 +75,16 @@ type prompter struct {
 
 func (p prompter) ConfirmInstall(_ context.Context, plan app.InstallPlan) (bool, error) {
 	renderPlan(p.out, plan)
-	fmt.Fprint(p.out, "¿Instalar? [s/N] ")
+	return p.ask("¿Instalar? [s/N] ")
+}
+
+func (p prompter) ConfirmUpdate(_ context.Context, plan app.UpdatePlan) (bool, error) {
+	renderUpdatePlan(p.out, plan)
+	return p.ask("¿Actualizar? [s/N] ")
+}
+
+func (p prompter) ask(question string) (bool, error) {
+	fmt.Fprint(p.out, question)
 	line, err := bufio.NewReader(p.in).ReadString('\n')
 	if err != nil && !errors.Is(err, io.EOF) {
 		return false, err
@@ -110,20 +119,24 @@ func renderPlan(w io.Writer, plan app.InstallPlan) {
 		p := s.Package
 		fmt.Fprintf(w, "  %s  %d ficheros, %d bytes, sha256 %s\n", p.Name(), len(p.Files()), p.Size(), p.TreeHash().Short())
 		fmt.Fprintf(w, "    %s\n", clean(p.Description()))
-		for _, e := range s.Report.Executables {
-			fmt.Fprintf(w, "    ejecutable: %s\n", clean(e))
+		renderReport(w, s.Report)
+	}
+}
+
+func renderReport(w io.Writer, r policy.Report) {
+	for _, e := range r.Executables {
+		fmt.Fprintf(w, "    ejecutable: %s\n", clean(e))
+	}
+	for _, f := range r.Findings {
+		label := "aviso"
+		if f.Severity == policy.Block {
+			label = "BLOQUEO"
 		}
-		for _, f := range s.Report.Findings {
-			label := "aviso"
-			if f.Severity == policy.Block {
-				label = "BLOQUEO"
-			}
-			where := ""
-			if f.Path != "" {
-				where = " " + clean(f.Path) + ":"
-			}
-			fmt.Fprintf(w, "    %s [%s]%s %s\n", label, f.Code, where, clean(f.Detail))
+		where := ""
+		if f.Path != "" {
+			where = " " + clean(f.Path) + ":"
 		}
+		fmt.Fprintf(w, "    %s [%s]%s %s\n", label, f.Code, where, clean(f.Detail))
 	}
 }
 

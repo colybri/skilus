@@ -241,3 +241,54 @@ func (f Fetcher) git(ctx context.Context, dir string, stdin io.Reader, args ...s
 	}
 	return stdout.Bytes(), nil
 }
+
+var _ app.RefResolver = Fetcher{}
+
+// Resolve implements app.RefResolver with git ls-remote, which reads the
+// remote's refs without downloading any content. Refs resolve as git fetch
+// resolves them: tags before branches, annotated tags to their commit.
+func (f Fetcher) Resolve(ctx context.Context, src source.Source) (string, error) {
+	if isCommit(src.Ref) {
+		return src.Ref, nil
+	}
+	want := []string{"HEAD"}
+	patterns := []string{"HEAD"}
+	if src.Ref != "" {
+		// The peeled line of an annotated tag only shows when asked for.
+		patterns = []string{src.Ref, src.Ref + "^{}"}
+		want = []string{"refs/tags/" + src.Ref + "^{}", "refs/tags/" + src.Ref, "refs/heads/" + src.Ref}
+	}
+	args := append([]string{"ls-remote", "--end-of-options", src.URL}, patterns...)
+	raw, err := f.git(ctx, os.TempDir(), nil, args...)
+	if err != nil {
+		if notFound(err) {
+			return "", fmt.Errorf("resolve %s: %w: %w", src, err, domain.ErrNotFound)
+		}
+		return "", fmt.Errorf("resolve %s: %w", src, err)
+	}
+	refs := map[string]string{}
+	for _, line := range strings.Split(string(raw), "\n") {
+		if sha, name, ok := strings.Cut(strings.TrimSpace(line), "\t"); ok {
+			refs[name] = sha
+		}
+	}
+	for _, name := range want {
+		if sha, ok := refs[name]; ok {
+			return sha, nil
+		}
+	}
+	return "", fmt.Errorf("%s has no ref %s: %w", src.URL, patterns[0], domain.ErrNotFound)
+}
+
+// isCommit reports whether ref is a full commit id, which never moves.
+func isCommit(ref string) bool {
+	if len(ref) != 40 && len(ref) != 64 {
+		return false
+	}
+	for _, c := range ref {
+		if (c < '0' || c > '9') && (c < 'a' || c > 'f') {
+			return false
+		}
+	}
+	return true
+}
