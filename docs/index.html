@@ -317,9 +317,10 @@ class Component extends DCLogic {
     });
     import(new URL('./content.js', location.href).href).then(m => this.setState({ docs: m.default }));
     this.detectPlatform();
-    fetch('https://api.github.com/repos/colybri/skilus/releases?per_page=1')
+    // The newest published release that carries binaries, prereleases included.
+    fetch('https://api.github.com/repos/colybri/skilus/releases?per_page=10')
       .then(r => r.ok ? r.json() : [])
-      .then(list => { const r = list[0]; if (r) this.setState({ rel: { ver: r.tag_name.replace(/^v/, ''), assets: Object.fromEntries(r.assets.map(a => [a.name, a.browser_download_url])) } }); })
+      .then(list => { const r = list.find(r => !r.draft && r.assets.some(a => a.name.startsWith('skilus_'))); if (r) this.setState({ rel: { ver: r.tag_name.replace(/^v/, ''), assets: Object.fromEntries(r.assets.map(a => [a.name, a.browser_download_url])) } }); })
       .catch(() => {});
     this.onResize = () => this.setState({ w: window.innerWidth });
     this.onScroll = () => this.updateActive();
@@ -370,7 +371,7 @@ class Component extends DCLogic {
   }
   osTab() { return this.state.osTab || this.state.platform.os || 'linux'; }
   downloads(ui) {
-    const ver = (this.state.rel && this.state.rel.ver) || '0.2.0';
+    const ver = (this.state.rel && this.state.rel.ver) || '0.3.0';
     const assets = (this.state.rel && this.state.rel.assets) || {};
     const base = `https://github.com/colybri/skilus/releases/download/v${ver}/`;
     const { os: myOs, arch: myArch } = this.state.platform;
