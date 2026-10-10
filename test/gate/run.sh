@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Phase gates, run by CI on Linux, macOS and Windows.
 #
-# Phase 1: install 10 real skills from three public repositories, pinned to
+# Phase 1: install 12 real skills from four public repositories, pinned to
 # commits, and check that the lock matches the one committed in this
 # directory, so every OS produces the same lock.
 #
@@ -30,12 +30,16 @@ add vercel-labs/agent-skills@063bee94c3f4df8453406c830b0a7df0f2860278 \
   --skill vercel-react-best-practices --skill deploy-to-vercel --skill web-design-guidelines
 add obra/superpowers@bb92a77741419a4ab5f06e711a283343f1ada0c3 \
   --skill brainstorming --skill systematic-debugging --skill test-driven-development
+# openai/skills keeps its skills in skills/.curated/.
+add openai/skills@49f948faa9258a0c61caceaf225e179651397431 \
+  --skill define-goal --skill playwright
 
 "$bin" list
-test "$("$bin" list --json | grep -c '"name"')" -eq 10
+test "$("$bin" list --json | grep -c '"name"')" -eq 12
 
 for s in pdf docx skill-creator mcp-builder vercel-react-best-practices deploy-to-vercel \
-  web-design-guidelines brainstorming systematic-debugging test-driven-development; do
+  web-design-guidelines brainstorming systematic-debugging test-driven-development \
+  define-goal playwright; do
   test -f ".agents/skills/$s/SKILL.md" || { echo "missing .agents/skills/$s/SKILL.md" >&2; exit 1; }
 done
 
@@ -48,7 +52,7 @@ fi
 # The committed lock was produced on Linux; any difference means the hash or
 # the lock depends on the OS.
 diff --strip-trailing-cr "$here/skilus.lock" skilus.lock
-echo "Puerta de la fase 1 superada: 10 skills, mismo lock."
+echo "Puerta de la fase 1 superada: 12 skills, mismo lock."
 
 "$bin" verify
 
