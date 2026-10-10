@@ -194,7 +194,7 @@ func TestSaveProfileOnCRLFFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "# Skills del equipo\nversion: 1\nskills:\n  - name: ui\n    source: ./src # local\nprofiles:\n  web:\n    skills: [ui]\n"
+	want := "# Skills del equipo\r\nversion: 1\r\nskills:\r\n  - name: ui\r\n    source: ./src # local\r\nprofiles:\r\n  web:\r\n    skills: [ui]\r\n"
 	if string(data) != want {
 		t.Errorf("got:\n%q\nwant:\n%q", data, want)
 	}

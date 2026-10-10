@@ -63,11 +63,7 @@ func (r Repo) AddSkill(_ context.Context, scope agent.Scope, e app.ManifestEntry
 	}
 	skills.Content = append(skills.Content, entry)
 
-	data, err := marshal(doc)
-	if err != nil {
-		return err
-	}
-	return writeAtomic(p, data)
+	return writeDoc(p, doc)
 }
 
 // RemoveSkill implements app.ManifestRepository.
@@ -95,11 +91,7 @@ func (r Repo) RemoveSkill(_ context.Context, scope agent.Scope, name skill.Name)
 		return nil
 	}
 	skills.Content = kept
-	data, err := marshal(doc)
-	if err != nil {
-		return err
-	}
-	return writeAtomic(p, data)
+	return writeDoc(p, doc)
 }
 
 // Trust implements app.TrustList: the trust: list of the scope's
@@ -213,7 +205,7 @@ func readNode(p string) (*yaml.Node, error) {
 		return nil, err
 	}
 	// yaml.v3 turns the "\r" of a CRLF file into blank lines after comments
-	// when the tree is written back; Windows editors save CRLF.
+	// when the tree is written back; writeDoc restores the line endings.
 	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
 	var doc yaml.Node
 	if err := yaml.Unmarshal(data, &doc); err != nil {
@@ -223,6 +215,19 @@ func readNode(p string) (*yaml.Node, error) {
 		return newDoc(), nil // empty file
 	}
 	return &doc, nil
+}
+
+// writeDoc writes the edited tree back to p, keeping CRLF line endings when
+// the file had them, as Windows editors save it.
+func writeDoc(p string, doc *yaml.Node) error {
+	data, err := marshal(doc)
+	if err != nil {
+		return err
+	}
+	if old, err := os.ReadFile(p); err == nil && bytes.Contains(old, []byte("\r\n")) {
+		data = bytes.ReplaceAll(data, []byte("\n"), []byte("\r\n"))
+	}
+	return writeAtomic(p, data)
 }
 
 func newDoc() *yaml.Node {

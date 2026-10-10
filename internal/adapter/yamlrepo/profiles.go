@@ -65,11 +65,7 @@ func (r Repo) SaveProfile(_ context.Context, scope agent.Scope, prof profile.Pro
 	setList(body, "skills", skills, true)
 	setList(body, "agents", agents, false)
 
-	data, err := marshal(doc)
-	if err != nil {
-		return err
-	}
-	return writeAtomic(p, data)
+	return writeDoc(p, doc)
 }
 
 // DeleteProfile implements app.ProfileRepository.
@@ -91,11 +87,7 @@ func (r Repo) DeleteProfile(_ context.Context, scope agent.Scope, name string) e
 			continue
 		}
 		profiles.Content = append(profiles.Content[:i], profiles.Content[i+2:]...)
-		data, err := marshal(doc)
-		if err != nil {
-			return err
-		}
-		return writeAtomic(p, data)
+		return writeDoc(p, doc)
 	}
 	return nil
 }
