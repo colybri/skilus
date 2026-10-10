@@ -70,6 +70,17 @@ func TestLocalFetcherDiscovery(t *testing.T) {
 	if files[1].Kind != wantKind {
 		t.Fatalf("run.sh kind = %s, want %s", files[1].Kind, wantKind)
 	}
+
+	// The openai/skills layout.
+	write(t, filepath.Join(work, "openai", "skills", ".curated", "gamma", "SKILL.md"), manifest("gamma"), 0o644)
+	write(t, filepath.Join(work, "openai", "skills", ".system", "hidden", "SKILL.md"), manifest("hidden"), 0o644)
+	got, err = osfs.LocalFetcher{Dir: work}.Fetch(ctx, local(filepath.Join(work, "openai")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Skills) != 1 || got.Skills[0].Path != "skills/.curated/gamma" {
+		t.Fatalf("curated = %+v", got.Skills)
+	}
 }
 
 func TestLocalFetcherErrors(t *testing.T) {

@@ -19,6 +19,9 @@ func TestDiscover(t *testing.T) {
 		{[]string{"skills/b/SKILL.md", "skills/a/SKILL.md", "c/SKILL.md"}, []string{"skills/a", "skills/b"}},
 		{[]string{"c/SKILL.md", ".hidden/SKILL.md", "deep/x/SKILL.md"}, []string{"c"}},
 		{[]string{"README.md"}, nil},
+		// openai/skills: curated skills, plus system ones that are not offered.
+		{[]string{"skills/.curated/b/SKILL.md", "skills/.curated/a/SKILL.md", "skills/.system/s/SKILL.md"}, []string{"skills/.curated/a", "skills/.curated/b"}},
+		{[]string{"skills/a/SKILL.md", "skills/.curated/b/SKILL.md"}, []string{"skills/a"}},
 	}
 	for _, tt := range tests {
 		if got := skillsrc.Discover(tt.in); !reflect.DeepEqual(got, tt.want) {
