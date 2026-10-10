@@ -209,6 +209,13 @@ summary::-webkit-details-marker{display:none}
               </sc-for>
             </div>
           </sc-if>
+          <sc-if value="{{ b.isTabs }}">
+            <div role="tablist" style="display:inline-flex; gap:4px; padding:4px; margin:0 0 16px; border-radius:10px; border:1px solid var(--line,#2c2f3d); background:var(--side,#1b1d2b);">
+              <sc-for list="{{ b.items }}" as="tb">
+                <button role="tab" aria-selected="{{ tb.on }}" onClick="{{ tb.onClick }}" style="height:34px; padding:0 16px; border-radius:7px; border:0; font:inherit; font-size:14.5px; font-weight:{{ tb.weight }}; background:{{ tb.bg }}; color:{{ tb.color }}; cursor:pointer;" style-hover="color:var(--accInk,#d2cefd);">{{ tb.label }}</button>
+              </sc-for>
+            </div>
+          </sc-if>
           <sc-if value="{{ b.isDl }}">
             <div style="margin:4px 0 28px;">
               <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:12px;">
@@ -297,7 +304,7 @@ summary::-webkit-details-marker{display:none}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;],&quot;default&quot;:&quot;es&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
-  state = { docs: null, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {} };
+  state = { docs: null, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {}, osTab: null };
 
   componentDidMount() {
     let saved = {};
@@ -361,6 +368,7 @@ class Component extends DCLogic {
     const uad = navigator.userAgentData;
     if (os && uad && uad.getHighEntropyValues) uad.getHighEntropyValues(['architecture']).then(v => { if (v.architecture) this.setState({ platform: { os, arch: v.architecture === 'arm' ? 'arm64' : 'amd64' } }); }).catch(() => {});
   }
+  osTab() { return this.state.osTab || this.state.platform.os || 'linux'; }
   downloads(ui) {
     const ver = (this.state.rel && this.state.rel.ver) || '0.2.0';
     const assets = (this.state.rel && this.state.rel.assets) || {};
@@ -368,13 +376,15 @@ class Component extends DCLogic {
     const { os: myOs, arch: myArch } = this.state.platform;
     const names = { windows: 'Windows', darwin: 'macOS', linux: 'Linux' };
     const archs = { darwin: { arm64: 'Apple Silicon (arm64)', amd64: 'Intel (amd64)' }, other: { amd64: 'x64 (amd64)', arm64: 'ARM64 (arm64)' } };
-    const targets = [['windows', 'amd64'], ['windows', 'arm64'], ['darwin', 'arm64'], ['darwin', 'amd64'], ['linux', 'amd64'], ['linux', 'arm64']];
+    const tab = this.osTab();
+    const targets = [['windows', 'amd64'], ['windows', 'arm64'], ['darwin', 'arm64'], ['darwin', 'amd64'], ['linux', 'amd64'], ['linux', 'arm64']].filter(([os]) => os === tab);
     const items = targets.map(([os, arch]) => {
       const file = `skilus_${ver}_${os}_${arch}.${os === 'windows' ? 'zip' : 'tar.gz'}`;
       const mine = os === myOs && arch === myArch;
       return { os: names[os], arch: (archs[os] || archs.other)[arch], file, href: assets[file] || base + file, mine, badge: ui.forYou, bd: mine ? 'var(--accLine)' : 'transparent', rank: os === myOs ? (mine ? 0 : 1) : 2 };
     }).sort((a, b) => a.rank - b.rank);
-    return { ver, items, tag: 'v' + ver, sums: assets['checksums.txt'] || base + 'checksums.txt', all: 'https://github.com/colybri/skilus/releases', allLabel: ui.allReleases };
+    const tabs = ['windows', 'darwin', 'linux'].map(os => ({ label: names[os], on: String(os === tab), onClick: () => this.setState({ osTab: os }), bg: os === tab ? 'var(--accSoft)' : 'transparent', color: os === tab ? 'var(--accInk)' : 'var(--mute)', weight: os === tab ? 600 : 400 }));
+    return { ver, items, tabs, tag: 'v' + ver, sums: assets['checksums.txt'] || base + 'checksums.txt', all: 'https://github.com/colybri/skilus/releases', allLabel: ui.allReleases };
   }
 
   applyTheme() {
@@ -490,10 +500,11 @@ class Component extends DCLogic {
     crumbs.forEach((c, i) => { c.sep = i < crumbs.length - 1; c.color = c.sep ? 'var(--mute)' : 'var(--ink)'; });
 
     const noteLabel = { tip: ui.tip, warn: ui.warn, info: ui.info };
-    const raw = src[page].blocks;
+    const tab = this.osTab();
+    const raw = src[page].blocks.filter(b => !b.os || b.os === tab);
     const dls = this.downloads(ui);
     const blocks = raw.map((b, i) => {
-      const o = { ['is' + { h2: 'H2', h3: 'H3', p: 'P', code: 'Code', ul: 'Ul', ol: 'Ol', note: 'Note', table: 'Table', cards: 'Cards', faq: 'Faq', dl: 'Dl' }[b.t]]: true };
+      const o = { ['is' + { h2: 'H2', h3: 'H3', p: 'P', code: 'Code', ul: 'Ul', ol: 'Ol', note: 'Note', table: 'Table', cards: 'Cards', faq: 'Faq', dl: 'Dl', tabs: 'Tabs' }[b.t]]: true };
       if (b.t === 'h2') { o.id = b.id; o.segs = this.segs(b.text); }
       if (b.t === 'h3') o.text = b.text;
       if (b.t === 'p') o.segs = this.segs(b.text);
@@ -503,6 +514,7 @@ class Component extends DCLogic {
       if (b.t === 'table') { o.head = b.head; o.rows = b.rows.map(r => ({ cells: r.map((c, j) => ({ segs: this.segs(c), ws: j === 0 ? 'nowrap' : 'normal' })) })); }
       if (b.t === 'cards') o.items = b.items.map((id, j) => ({ title: T(id), lead: Lead(id), href: href(id), onClick: link(id), num: String(j + 1).padStart(2, '0') }));
       if (b.t === 'dl') Object.assign(o, dls);
+      if (b.t === 'tabs') o.items = dls.tabs;
       if (b.t === 'faq') o.items = b.items.map(([q, a], j) => ({ q, segs: this.segs(a), border: j ? '1px solid var(--line)' : '0' }));
       return o;
     });
