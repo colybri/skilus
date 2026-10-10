@@ -2,7 +2,7 @@
 
 Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
-> Estado: fase 2 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local o un repositorio Git), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify` y `skilus sync`.
+> Estado: fase 2 en construcción. Hoy funcionan `skilus agents`, `skilus add` (desde un directorio local o un repositorio Git), `skilus list`, `skilus remove`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated` y `skilus update`.
 
 ## Instalación
 
@@ -44,6 +44,10 @@ skilus verify                               # comprueba que lo instalado coincid
 skilus verify --json
 skilus sync                                 # deja los agentes como dice el lock (como npm ci)
 skilus sync --force                         # sobrescribe también lo cambiado a mano
+
+skilus outdated                             # qué ramas o tags apuntan a un commit nuevo
+skilus update                               # muestra qué ficheros cambian, pregunta y actualiza
+skilus update review --yes --allow-scripts
 ```
 
 Las fuentes Git se descargan con el `git` del sistema, así que valen tus credenciales, claves SSH y helpers; skilus no guarda tokens y rechaza URLs con contraseña. El repositorio se lee sin hacer checkout (no se ejecutan filtros ni hooks) y la skill se fija al commit exacto en `skilus.lock`.
@@ -52,7 +56,9 @@ Las fuentes Git se descargan con el `git` del sistema, así que valen tus creden
 
 El contenido se guarda en `~/.skilus/store/<sha256>`. En el proyecto se instala como copia (para poder versionarla) y en global como symlink al almacén. El resultado queda en `skilus.lock` (qué contenido exacto hay instalado y dónde) y la intención en `skilus.yaml`; en global, ambos viven en `~/.skilus/`.
 
-`skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
+`skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. `skilus outdated` consulta con `git ls-remote`, sin descargar contenido, a qué commit apunta ahora la rama o el tag de cada skill; las fijadas a un commit no se comprueban. `skilus update` descarga esa versión, enseña los ficheros añadidos, borrados y modificados y la inspección de la versión nueva (los ejecutables que ya tenía no vuelven a preguntarse) y, tras confirmar, reemplaza las copias instaladas y actualiza el lock; `skilus.yaml` no cambia porque guarda la rama o el tag, no el commit.
+
+Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos; los dos aceptan `--scope project|global|all`.
 
 Códigos de salida: 0 bien, 1 error o cancelado, 2 uso inválido, 3 no encontrado, 4 ya instalado o conflicto, 5 rechazado por la inspección, 6 lo instalado no coincide con el lock.
 

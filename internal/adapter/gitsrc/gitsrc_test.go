@@ -172,3 +172,25 @@ func TestFetchErrors(t *testing.T) {
 		t.Errorf("missing binary err = %v", err)
 	}
 }
+
+func TestResolveFollowsRefsLikeFetch(t *testing.T) {
+	r := newRepo(t)
+	r.write("SKILL.md", manifest("demo", "v1"))
+	v1 := r.commit("v1")
+	r.git("tag", "-a", "-m", "annotated", "v1.0.0")
+	r.git("branch", "stable")
+	r.write("SKILL.md", manifest("demo", "v2"))
+	head := r.commit("v2")
+
+	ctx := context.Background()
+	f := gitsrc.Fetcher{}
+	for ref, want := range map[string]string{"": head, "main": head, "v1.0.0": v1, "stable": v1, v1: v1} {
+		got, err := f.Resolve(ctx, r.source(t, ref))
+		if err != nil || got != want {
+			t.Errorf("Resolve(%q) = %s, %v; want %s", ref, got, err, want)
+		}
+	}
+	if _, err := f.Resolve(ctx, r.source(t, "nope")); !errors.Is(err, domain.ErrNotFound) {
+		t.Errorf("missing ref err = %v, want ErrNotFound", err)
+	}
+}

@@ -103,6 +103,11 @@ func (f *fakePrompter) ConfirmInstall(context.Context, app.InstallPlan) (bool, e
 	return f.answer, nil
 }
 
+func (f *fakePrompter) ConfirmUpdate(context.Context, app.UpdatePlan) (bool, error) {
+	f.asked = true
+	return f.answer, nil
+}
+
 func pkg(t *testing.T, n string, extra ...skill.File) skill.Package {
 	t.Helper()
 	name, err := skill.NewName(n)

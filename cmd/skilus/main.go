@@ -50,9 +50,10 @@ func run() int {
 		globalMode = agent.ModeCopy
 	}
 
+	git := gitsrc.Fetcher{MaxSkillBytes: policy.DefaultLimits.MaxTotalBytes}
 	fetchers := map[source.Kind]app.Fetcher{
 		source.KindLocal: osfs.LocalFetcher{Dir: cwd},
-		source.KindGit:   gitsrc.Fetcher{MaxSkillBytes: policy.DefaultLimits.MaxTotalBytes},
+		source.KindGit:   git,
 	}
 	store := osfs.Store{Root: filepath.Join(skilusHome, "store")}
 
@@ -79,8 +80,19 @@ func run() int {
 			Manifests:   repo,
 			ProjectRoot: cwd,
 		},
-		Inspect: app.InspectHandler{Fetchers: fetchers, Limits: policy.DefaultLimits},
-		Verify:  app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
+		Inspect:  app.InspectHandler{Fetchers: fetchers, Limits: policy.DefaultLimits},
+		Outdated: app.OutdatedHandler{Resolver: git, Locks: repo},
+		Update: app.UpdateHandler{
+			Catalog:     agents,
+			Fetchers:    fetchers,
+			Store:       store,
+			Deployer:    osfs.Deployer{},
+			Trees:       osfs.TreeReader{},
+			Locks:       repo,
+			ProjectRoot: cwd,
+			Limits:      policy.DefaultLimits,
+		},
+		Verify: app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, ProjectRoot: cwd},
 		Sync: app.SyncHandler{
 			Catalog:     agents,
 			Fetchers:    fetchers,
