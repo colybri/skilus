@@ -34,17 +34,31 @@ type UpdatePlan struct {
 	Dependencies []InstallPlan
 }
 
-// PlannedUpdate is one skill moving to a new commit.
+// PlannedUpdate is one skill moving to a new commit, or to the source
+// skilus.yaml now declares for it.
 type PlannedUpdate struct {
 	Previous lock.Entry
-	Commit   string // new commit; empty for local sources
-	Package  skill.Package
+	// Source, Requested and Path say where the new version comes from, as
+	// the lock records them.
+	Source    string
+	Requested string
+	Path      string
+	Commit    string // new commit; empty for local sources
+	Package   skill.Package
 	// Changes lists the files that differ from the installed version. It
 	// is nil when the store no longer holds that version to compare with.
 	Changes []skill.Change
 	// Report inspects the new version. Executables the previous version
-	// already had are not reported again.
+	// already had are not reported again, unless the source changed.
 	Report policy.Report
+
+	fetchKey string // the key of the fetched source in Handle's sources
+}
+
+// Moved reports whether skilus.yaml now declares another source or ref
+// than the lock.
+func (u PlannedUpdate) Moved() bool {
+	return u.Source != u.Previous.Source || u.Requested != u.Previous.Requested
 }
 
 // ContentChanged reports whether the files change, not only the commit.
@@ -72,12 +86,16 @@ type UpdateHandler struct {
 	Trust       TrustList // nil skips the trust check
 	ProjectRoot string
 	Limits      policy.Limits
+	// Manifest gives the source and ref skilus.yaml declares for each
+	// skill; nil keeps the lock's.
+	Manifest ManifestReader
 }
 
-// Handle moves skills to what their requested ref points to now. It shows
-// the file changes and the inspection of the new version, asks, and only
-// then replaces the installed copies and updates the lock. skilus.yaml does
-// not change: it records the ref, not the commit.
+// Handle moves skills to what their requested ref points to now, taking
+// the source and ref from skilus.yaml when it declares others than the
+// lock. It shows the file changes and the inspection of the new version,
+// asks, and only then replaces the installed copies and updates the lock.
+// skilus.yaml does not change: it records the ref, not the commit.
 func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, error) {
 	lf, err := h.Locks.Load(ctx, cmd.Scope)
 	if err != nil {
@@ -87,11 +105,15 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 	if err != nil {
 		return UpdateResult{}, err
 	}
+	declared, err := declaredSources(ctx, h.Manifest, cmd.Scope)
+	if err != nil {
+		return UpdateResult{}, err
+	}
 
 	var plan UpdatePlan
 	sources := map[string]Fetched{}
 	for _, e := range entries {
-		u, err := h.plan(ctx, e, cmd, sources)
+		u, err := h.plan(ctx, e, cmd, declared, sources)
 		if err != nil {
 			return UpdateResult{Plan: plan}, domain.Errorf("skill %s: %w", e.Skill, err)
 		}
@@ -154,6 +176,7 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 			}
 		}
 		e := u.Previous
+		e.Source, e.Requested, e.Path = u.Source, u.Requested, u.Path
 		e.Commit, e.TreeHash, e.Executables = u.Commit, u.Package.TreeHash(), skill.Executables(u.Package.Files())
 		e.Requires = requiredNames(u.Package)
 		if err := lf.Update(e); err != nil {
@@ -177,23 +200,16 @@ func (h UpdateHandler) dependencies(ctx context.Context, cmd Update, plan Update
 	}
 	var groups []planGroup
 	for _, u := range plan.Skills {
-		src, err := source.Parse(u.Previous.Source)
-		if err != nil {
-			return nil, err
-		}
-		if src.Kind == source.KindGit {
-			src.Ref = u.Previous.Requested
-		}
 		var targets []PlannedTarget
 		for _, t := range u.Previous.Targets {
 			if a, ok := byID[t.Agent]; ok {
 				targets = append(targets, PlannedTarget{Target: t, Dir: skillsDir(a, t.Scope, h.ProjectRoot)})
 			}
 		}
-		fetched := sources[src.String()]
-		groups = append(groups, planGroup{raw: src.String(), fetched: fetched, plan: InstallPlan{
+		fetched := sources[u.fetchKey]
+		groups = append(groups, planGroup{raw: u.fetchKey, fetched: fetched, plan: InstallPlan{
 			Source: fetched.Source, Commit: fetched.Commit, Targets: targets,
-			Skills: []PlannedSkill{{Package: u.Package, Path: u.Previous.Path}},
+			Skills: []PlannedSkill{{Package: u.Package, Path: u.Path}},
 		}})
 	}
 	add := AddSkillHandler{Fetchers: h.Fetchers, Trust: h.Trust, Limits: h.Limits, ProjectRoot: h.ProjectRoot}
@@ -267,14 +283,22 @@ func pickEntries(lf *lock.Lockfile, names []string, scope agent.Scope) ([]lock.E
 	return out, nil
 }
 
-// plan fetches the entry's requested ref and returns nil when nothing moved.
-func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, sources map[string]Fetched) (*PlannedUpdate, error) {
+// plan fetches the entry's requested ref, or the source skilus.yaml
+// declares for it, and returns nil when nothing moved.
+func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, declared map[skill.Name]string, sources map[string]Fetched) (*PlannedUpdate, error) {
 	src, err := source.Parse(e.Source)
 	if err != nil {
 		return nil, err
 	}
 	if src.Kind == source.KindGit {
 		src.Ref = e.Requested
+	}
+	want, moved, err := changedSource(declared, e, h.ProjectRoot)
+	if err != nil {
+		return nil, err
+	}
+	if moved {
+		src = want
 	}
 	fetched, ok := sources[src.String()]
 	if !ok {
@@ -288,11 +312,16 @@ func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, sourc
 		sources[src.String()] = fetched
 	}
 
+	// The same source keeps the skill at its path; another one is searched
+	// by name, since the skill may live elsewhere in it.
 	var found *FetchedSkill
 	for i := range fetched.Skills {
-		if fetched.Skills[i].Path == e.Path {
+		if !moved && fetched.Skills[i].Path == e.Path || moved && fetched.Skills[i].Package.Name() == e.Skill {
 			found = &fetched.Skills[i]
 		}
+	}
+	if found == nil && moved {
+		return nil, domain.Errorf("%s no tiene ninguna skill llamada %s: %w", src, e.Skill, domain.ErrNotFound)
 	}
 	if found == nil {
 		for _, bad := range fetched.Invalid {
@@ -306,17 +335,20 @@ func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, sourc
 	if p.Name() != e.Skill {
 		return nil, domain.Errorf("%s/%s ahora se llama %s; quítala y añade el nuevo nombre: %w", e.Source, e.Path, p.Name(), domain.ErrConflict)
 	}
-	if p.TreeHash() == e.TreeHash && fetched.Commit == e.Commit {
+	u := &PlannedUpdate{
+		Previous: e, Source: fetched.Source, Requested: fetched.Requested, Path: found.Path,
+		Commit: fetched.Commit, Package: p, fetchKey: src.String(),
+	}
+	if !u.Moved() && p.TreeHash() == e.TreeHash && fetched.Commit == e.Commit {
 		return nil, nil
 	}
 
-	u := &PlannedUpdate{Previous: e, Commit: fetched.Commit, Package: p}
 	if u.ContentChanged() {
 		if old := h.stored(ctx, e); old != nil {
 			u.Changes = skill.Diff(old, p.Files())
 		}
 	}
-	untrusted, err := trustFindings(ctx, h.Trust, e.Source, trustScopes(cmd.Scope)...)
+	untrusted, err := trustFindings(ctx, h.Trust, u.Source, trustScopes(cmd.Scope)...)
 	if err != nil {
 		return nil, err
 	}
@@ -324,7 +356,7 @@ func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, sourc
 	u.Report.Findings = append(append([]policy.Finding(nil), untrusted...), u.Report.Findings...)
 	known := map[string]bool{}
 	for _, x := range e.Executables {
-		known[x] = true
+		known[x] = u.Source == e.Source // another source has to be accepted again
 	}
 	kept := u.Report.Findings[:0]
 	for _, f := range u.Report.Findings {

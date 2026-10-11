@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/rogpeppe/go-internal/testscript"
@@ -22,7 +23,8 @@ func TestMain(m *testing.M) {
 // fakeEdit stands in for the user's editor: fakeedit SRC... FILE. The n-th
 // time it runs it copies the n-th SRC (or the last one) over FILE, after
 // saving what FILE held to $WORK/shown-n. A SRC named KEEP leaves FILE as
-// it is and one named FAIL exits with 1.
+// it is and one named FAIL exits with 1. $WORK is expanded in SRC's
+// content too, so a test can write the paths of its work directory.
 func fakeEdit() {
 	args := os.Args[1:]
 	if len(args) < 2 {
@@ -57,6 +59,7 @@ func fakeEdit() {
 	}
 	data, err := os.ReadFile(src)
 	if err == nil {
+		data = []byte(strings.ReplaceAll(string(data), "$WORK", os.Getenv("WORK")))
 		err = os.WriteFile(file, data, 0o644)
 	}
 	if err != nil {

@@ -125,7 +125,7 @@ func newSyncFixture(t *testing.T) *syncFixture {
 	f.dest = filepath.Join("/repo", ".agents", "skills", "demo")
 	catalog := fakeCatalog{agents: []agent.Agent{newAgent(t, "codex")}}
 	fetcher := countingFetcher{fakeFetcher{app.Fetched{Skills: []app.FetchedSkill{{Path: "skills/demo", Package: p}}}}, f.fetches}
-	declared := &fakeManifest{app.Manifest{Skills: []app.ManifestEntry{{Name: p.Name(), Source: e.Source}}}}
+	declared := &fakeManifest{app.Manifest{Skills: []app.ManifestEntry{{Name: p.Name(), Source: e.Source + "@" + e.Requested}}}}
 	f.verify = app.VerifyHandler{Catalog: catalog, Store: f.disk, Trees: f.disk, Locks: f.locks, Manifest: declared, ProjectRoot: "/repo"}
 	f.sync = app.SyncHandler{
 		Catalog:     catalog,

@@ -133,7 +133,7 @@ export default {
     code('export EDITOR=nano            # Linux dan macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
     note('warn', 'Editor grafis harus menunggu sampai Anda menutup berkas: gunakan `code --wait` atau `subl -w`; jika tidak, skilus membaca berkas sebelum Anda menyimpannya.'),
     p('Saat editor ditutup, skilus memeriksa berkas dengan aturan `skilus verify`: YAML valid, kunci yang dikenal, skill dengan sumber, dan profil yang hanya memakai skill yang dideklarasikan. Jika ada yang salah, skilus mencantumkan kesalahannya dan bertanya apakah ingin mengedit lagi, mulai dari yang Anda tulis; jika Anda menjawab tidak, perubahan dibuang, `skilus.yaml` tetap seperti semula, dan keluar dengan kode 2.'),
-    note('tip', 'Mengedit `skilus.yaml` tidak memasang apa pun. Setelahnya, `skilus verify` memberi tahu apa yang tidak cocok dengan lock dan perintah untuk memperbaikinya: `skilus add` untuk skill baru, `skilus remove` untuk skill yang Anda hapus, dan `skilus profile use` untuk menerapkan profil.'),
+    note('tip', 'Mengedit `skilus.yaml` tidak memasang apa pun. Setelahnya, `skilus verify` memberi tahu apa yang tidak cocok dengan lock dan perintah untuk memperbaikinya: `skilus add` untuk skill baru, `skilus remove` untuk skill yang Anda hapus, dan `skilus profile use` untuk menerapkan profil. Jika Anda mengubah sumber atau ref sebuah skill, `skilus update` menerapkannya.'),
   ] },
   inspect: { title: 'Pemeriksaan dan kepercayaan', lead: 'Apa yang diperiksa skilus sebelum memasang, cara membatasi sumber, dan cara mengaudit yang sudah terpasang.', blocks: [
     h2('rules', 'Yang diperiksa'),
@@ -168,7 +168,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('Menghitung ulang hash setiap skill di setiap agen dan membandingkannya dengan lock. Jika ada yang hilang atau file berubah, ia menyebutkan yang mana dan keluar dengan kode 6.'),
     code('skilus verify\nskilus verify --json'),
-    p('Perintah ini juga memeriksa `skilus.yaml`: bahwa berkas bisa dibaca, setiap skill di `skills:` terpasang (kecuali yang tidak termasuk profil aktif), setiap skill terpasang, selain dependensi, ada di `skills:`, dan profil hanya memakai skill yang dideklarasikan. Jika berkas berisi galat, keluar dengan kode 2; jika tidak cocok dengan lock, dengan kode 6, dan menyarankan perintah untuk memperbaikinya.'),
+    p('Perintah ini juga memeriksa `skilus.yaml`: bahwa berkas bisa dibaca, setiap skill di `skills:` terpasang (kecuali yang tidak termasuk profil aktif), setiap skill terpasang, selain dependensi, ada di `skills:`, dan profil hanya memakai skill yang dideklarasikan. Jika berkas berisi galat, keluar dengan kode 2; jika tidak cocok dengan lock, dengan kode 6, dan menyarankan perintah untuk memperbaikinya. Jika sumber atau ref sebuah skill di `skilus.yaml` bukan yang ada di lock, ia memberitahukannya dan menyarankan `skilus update`.'),
     h2('sync', '`skilus sync`'),
     p('Memasang yang kurang dari penyimpanan atau, jika tidak ada, dengan mengunduh setiap skill pada commit-nya, dan gagal jika hash tidak cocok. Tidak pernah mengubah `skilus.lock` atau `skilus.yaml` dan tidak menyentuh skill yang diubah manual, kecuali dengan `--force`.'),
     code('skilus sync\nskilus sync --force'),
@@ -180,7 +180,7 @@ export default {
     h2('update', '`skilus update`'),
     p('Mengunduh versi baru, menampilkan file yang ditambah, dihapus, dan diubah beserta hasil pemeriksaan, lalu setelah Anda konfirmasi mengganti salinan terpasang dan memperbarui lock.'),
     code('skilus update\nskilus update review --yes --allow-scripts'),
-    ul('Executable yang sudah dimiliki skill tidak ditanyakan lagi; yang baru ditanyakan.', '`skilus.yaml` tidak berubah: ia menyimpan branch atau tag, bukan commit.', 'Dependensi baru yang diminta versi tersebut ikut dipasang.'),
+    ul('Executable yang sudah dimiliki skill tidak ditanyakan lagi; yang baru ditanyakan.', '`skilus.yaml` tidak berubah: ia menyimpan branch atau tag, bukan commit.', 'Dependensi baru yang diminta versi tersebut ikut dipasang.', 'Jika Anda mengubah sumber atau ref sebuah skill di `skilus.yaml` secara manual, ia mengunduhnya dari sana dan mencatatnya di lock. `skilus outdated` menampilkannya sebagai diubah.'),
   ] },
   profiles: { title: 'Profil', lead: 'Kelompokkan skill per konteks dan ganti set dengan satu perintah.', blocks: [
     p('Profil mengelompokkan skill yang sudah dideklarasikan di `skills:` dalam `skilus.yaml` dan, jika mau, agen tujuannya. Tanpa `agents:`, agen yang terdeteksi yang dipakai.'),

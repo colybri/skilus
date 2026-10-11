@@ -76,6 +76,23 @@ func TestVerifyManifestDrift(t *testing.T) {
 	}
 }
 
+func TestVerifyManifestSourceChanged(t *testing.T) {
+	m := declares(t, nil, "a", "b")
+	m.m.Skills[1].Source = "./other"
+	got, err := verifyManifest(t, m, map[string]bool{"a": false, "b": false})
+	if !errors.Is(err, app.ErrDrift) {
+		t.Errorf("err = %v, want ErrDrift", err)
+	}
+	if want := []string{"source-changed b "}; !slices.Equal(got, want) {
+		t.Errorf("got %q, want %q", got, want)
+	}
+	// The same directory written another way is no change.
+	m.m.Skills[1].Source = "./skills/"
+	if got, err := verifyManifest(t, m, map[string]bool{"a": false, "b": false}); err != nil || len(got) != 0 {
+		t.Errorf("same directory: %v %v", got, err)
+	}
+}
+
 func TestVerifyManifestActiveProfile(t *testing.T) {
 	// With web active the lock holds only a; b belongs to another profile.
 	web := mustProfile(t, "web", []string{"a"})

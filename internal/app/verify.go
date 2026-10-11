@@ -55,6 +55,9 @@ const (
 	NotDeclared ManifestProblem = "not-declared"
 	// ProfileUndeclared: a profile uses a skill skills: does not declare.
 	ProfileUndeclared ManifestProblem = "profile-undeclared"
+	// SourceChanged: skills: declares another source or ref than the lock
+	// holds; skilus update applies it.
+	SourceChanged ManifestProblem = "source-changed"
 )
 
 // ManifestCheck is one problem found in skilus.yaml.
@@ -62,7 +65,8 @@ type ManifestCheck struct {
 	Scope   agent.Scope
 	Problem ManifestProblem
 	Skill   skill.Name // empty for ManifestInvalid
-	Source  string     // for NotInstalled, where skills: says it comes from
+	Source  string     // for NotInstalled and SourceChanged, where skills: says it comes from
+	Locked  string     // for SourceChanged, where the lock says it comes from
 	Profile string     // for ProfileUndeclared
 	Err     error      // for ManifestInvalid
 }
@@ -164,6 +168,10 @@ func (h VerifyHandler) checkManifest(ctx context.Context, scope agent.Scope, lf 
 	if err != nil {
 		return []ManifestCheck{{Scope: scope, Problem: ManifestInvalid, Err: err}}
 	}
+	sources := map[skill.Name]string{}
+	for _, e := range m.Skills {
+		sources[e.Name] = e.Source
+	}
 	var out []ManifestCheck
 	for _, p := range m.Profiles {
 		for _, n := range undeclared(m, p) {
@@ -188,6 +196,13 @@ func (h VerifyHandler) checkManifest(ctx context.Context, scope agent.Scope, lf 
 	for _, e := range lf.Entries() {
 		if !e.Dependency && !declared[e.Skill] {
 			out = append(out, ManifestCheck{Scope: scope, Problem: NotDeclared, Skill: e.Skill})
+		}
+		_, changed, err := changedSource(sources, e, h.ProjectRoot)
+		if err != nil {
+			return append(out, ManifestCheck{Scope: scope, Problem: ManifestInvalid, Err: err})
+		}
+		if changed {
+			out = append(out, ManifestCheck{Scope: scope, Problem: SourceChanged, Skill: e.Skill, Source: sources[e.Skill], Locked: lockedSource(e)})
 		}
 	}
 	return out
