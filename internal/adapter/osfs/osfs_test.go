@@ -242,3 +242,103 @@ func TestTreeReaderAndStoreLookup(t *testing.T) {
 		t.Fatal("Discard left the content")
 	}
 }
+
+func TestDetector(t *testing.T) {
+	ctx := context.Background()
+	base := t.TempDir()
+	id, _ := agent.NewID("cursor")
+	build := func(detect string) agent.Agent {
+		a, err := agent.New(id, "Cursor", ".cursor/skills", filepath.Join(base, "global"), detect)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return a
+	}
+	write(t, filepath.Join(base, ".cursor", "settings.json"), "{}", 0o644)
+	for detect, want := range map[string]bool{
+		"":                              true,
+		filepath.Join(base, ".cursor"):  true,
+		filepath.Join(base, ".missing"): false,
+	} {
+		if got, err := (osfs.Detector{}).Installed(ctx, build(detect)); err != nil || got != want {
+			t.Errorf("Installed(detect=%q) = %v, %v; want %v", detect, got, err, want)
+		}
+	}
+	if runtime.GOOS != "windows" {
+		// A path under a regular file can't be checked: ENOTDIR is not "missing".
+		under := filepath.Join(base, ".cursor", "settings.json", "x")
+		if _, err := (osfs.Detector{}).Installed(ctx, build(under)); err == nil {
+			t.Error("Installed under a regular file should fail")
+		}
+	}
+}
+
+func TestStoreKeepsSymlinksAndCopiesThem(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("symlinks need extra privileges on Windows")
+	}
+	ctx := context.Background()
+	base := t.TempDir()
+	n, _ := skill.NewName("demo")
+	p, err := skill.NewPackage(n, "Demo", []skill.File{
+		{Path: "SKILL.md", Kind: skill.KindRegular, Data: []byte(manifest("demo"))},
+		{Path: "docs/README.md", Kind: skill.KindSymlink, LinkTarget: "../SKILL.md"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir, err := (osfs.Store{Root: filepath.Join(base, "store")}).Put(ctx, p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	dest := filepath.Join(base, "agent", "demo")
+	if err := (osfs.Deployer{}).Deploy(ctx, dir, dest, agent.ModeCopy); err != nil {
+		t.Fatal(err)
+	}
+	if target, err := os.Readlink(filepath.Join(dest, "docs", "README.md")); err != nil || target != "../SKILL.md" {
+		t.Fatalf("copied symlink -> %q, %v", target, err)
+	}
+	files, err := (osfs.TreeReader{}).ReadTree(ctx, dest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h, err := skill.HashFiles(files); err != nil || h != p.TreeHash() {
+		t.Fatalf("hash of the copy = %v, %v; want %v", h, err, p.TreeHash())
+	}
+}
+
+func TestStoreAndDeployErrors(t *testing.T) {
+	ctx := context.Background()
+	base := t.TempDir()
+	file := filepath.Join(base, "file")
+	write(t, file, "x", 0o644)
+	n, _ := skill.NewName("demo")
+	p, err := skill.NewPackage(n, "Demo", []skill.File{
+		{Path: "SKILL.md", Kind: skill.KindRegular, Data: []byte(manifest("demo"))},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := (osfs.Store{Root: filepath.Join(file, "store")}).Put(ctx, p); err == nil {
+		t.Error("Put under a regular file should fail")
+	}
+	if err := (osfs.Deployer{}).Deploy(ctx, base, filepath.Join(file, "skills", "demo"), agent.ModeCopy); err == nil {
+		t.Error("Deploy under a regular file should fail")
+	}
+	if err := (osfs.Deployer{}).Deploy(ctx, filepath.Join(base, "nope"), filepath.Join(base, "dest"), agent.ModeCopy); err == nil {
+		t.Error("Deploy from a missing store dir should fail")
+	}
+	if _, err := os.Lstat(filepath.Join(base, "dest")); !errors.Is(err, os.ErrNotExist) {
+		t.Errorf("a failed copy left %s behind: %v", "dest", err)
+	}
+
+	store := osfs.Store{Root: filepath.Join(base, "store")}
+	write(t, filepath.Join(store.Root, p.TreeHash().String()), "not a dir", 0o644)
+	if _, _, err := store.Lookup(ctx, p.TreeHash()); !errors.Is(err, domain.ErrInvalid) {
+		t.Errorf("Lookup of a file = %v, want ErrInvalid", err)
+	}
+	if _, err := (osfs.TreeReader{}).ReadTree(ctx, file); !errors.Is(err, domain.ErrInvalid) {
+		t.Errorf("ReadTree of a file = %v, want ErrInvalid", err)
+	}
+}

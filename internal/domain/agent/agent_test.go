@@ -72,3 +72,46 @@ func TestParseScopeAndMode(t *testing.T) {
 		t.Errorf("ParseScope(global) = %v, %v", s, err)
 	}
 }
+
+func TestNewIDRejectsBadIdentifiers(t *testing.T) {
+	for _, s := range []string{"", "Claude", "-codex", "codex-", "co dex", "co_dex"} {
+		if _, err := agent.NewID(s); !errors.Is(err, domain.ErrInvalid) {
+			t.Errorf("NewID(%q) error = %v, want ErrInvalid", s, err)
+		}
+	}
+	if id := mustID(t, "copilot2"); id.String() != "copilot2" {
+		t.Errorf("String() = %q", id)
+	}
+}
+
+func TestNewRejectsMissingFields(t *testing.T) {
+	id := mustID(t, "codex")
+	for name, build := range map[string]func() (agent.Agent, error){
+		"empty id":   func() (agent.Agent, error) { return agent.New(agent.ID{}, "Codex", ".codex", "/h/.codex", "") },
+		"blank name": func() (agent.Agent, error) { return agent.New(id, "  ", ".codex", "/h/.codex", "") },
+		"no global":  func() (agent.Agent, error) { return agent.New(id, "Codex", ".codex", "", "") },
+	} {
+		if _, err := build(); !errors.Is(err, domain.ErrInvalid) {
+			t.Errorf("%s: error = %v, want ErrInvalid", name, err)
+		}
+	}
+}
+
+func TestAgentAccessors(t *testing.T) {
+	a, err := agent.New(mustID(t, "cursor"), "Cursor", ".cursor/skills", "/h/.cursor/skills", "/h/.cursor")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.ID().String() != "cursor" || a.Name() != "Cursor" || a.ProjectDir() != ".cursor/skills" ||
+		a.GlobalDir() != "/h/.cursor/skills" || a.DetectPath() != "/h/.cursor" {
+		t.Fatalf("accessors = %q %q %q %q %q", a.ID(), a.Name(), a.ProjectDir(), a.GlobalDir(), a.DetectPath())
+	}
+}
+
+func TestParseModeAccepts(t *testing.T) {
+	for _, s := range []string{"symlink", "copy"} {
+		if m, err := agent.ParseMode(s); err != nil || string(m) != s {
+			t.Errorf("ParseMode(%q) = %v, %v", s, m, err)
+		}
+	}
+}
