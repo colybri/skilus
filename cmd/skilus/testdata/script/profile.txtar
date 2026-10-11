@@ -16,10 +16,10 @@ stdout '^ +web +debug,ui +codex$'
 stderr 'El perfil broken usa skills que no están en skills: nope'
 
 ! exec skilus profile use mobile
-stderr 'profile "mobile" is not in skilus.yaml; profiles: backend, web, ops, broken'
+stderr 'el perfil "mobile" no está en skilus.yaml; perfiles: backend, web, ops, broken'
 
 ! exec skilus profile use broken
-stderr 'does not declare: nope'
+stderr 'no declara: nope'
 
 exec skilus profile use backend --dry-run
 stdout 'Perfil: backend'
@@ -61,7 +61,7 @@ stdout 'El perfil web ya está desplegado\.'
 
 # Executables need --allow-scripts or allow: [scripts] in skills:.
 ! exec skilus profile use ops --yes
-stderr 'deploy: executable files need --allow-scripts'
+stderr 'deploy: los ficheros ejecutables necesitan --allow-scripts'
 exec skilus profile use ops --yes --allow-scripts
 exists .agents/skills/deploy/run.sh
 

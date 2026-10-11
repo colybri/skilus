@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
@@ -73,15 +72,15 @@ func (r depResolver) resolve(ctx context.Context, groups []planGroup, targets []
 			if req.Source != "" {
 				var err error
 				if groups, gi, err = r.group(ctx, groups, req.Source, targets); err != nil {
-					return groups, fmt.Errorf("skill %s requires %s: %w", it.skill, req, err)
+					return groups, domain.Errorf("la skill %s necesita %s: %w", it.skill, req, err)
 				}
 			}
 			found, ok := findSkill(groups[gi].fetched, req.Name)
 			if !ok {
-				return groups, fmt.Errorf("skill %s requires %s, which is not in %s: %w", it.skill, req.Name, groups[gi].plan.Source, domain.ErrNotFound)
+				return groups, domain.Errorf("la skill %s necesita %s, que no está en %s: %w", it.skill, req.Name, groups[gi].plan.Source, domain.ErrNotFound)
 			}
 			if len(planned) >= maxPlanned {
-				return groups, fmt.Errorf("more than %d skills to install; check the requirements for a loop: %w", maxPlanned, domain.ErrInvalid)
+				return groups, domain.Errorf("más de %d skills por instalar; revisa si los requisitos forman un ciclo: %w", maxPlanned, domain.ErrInvalid)
 			}
 			untrusted, err := trustFindings(ctx, r.trust, groups[gi].raw, trustScopes(r.scope)...)
 			if err != nil {
@@ -111,7 +110,7 @@ func (r depResolver) group(ctx context.Context, groups []planGroup, raw string, 
 	}
 	if src.Kind == source.KindLocal {
 		// A path in someone else's skill would point into this disk.
-		return groups, 0, fmt.Errorf("a requirement cannot name a local directory (%s): %w", raw, domain.ErrInvalid)
+		return groups, 0, domain.Errorf("un requisito no puede apuntar a un directorio local (%s): %w", raw, domain.ErrInvalid)
 	}
 	fetched, err := fetchSource(ctx, r.fetchers, raw)
 	if err != nil {

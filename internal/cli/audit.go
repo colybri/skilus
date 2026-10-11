@@ -65,7 +65,7 @@ Sale con código 5 si hay bloqueos, o avisos con --strict, para usarlo en CI.`),
 						row.Signature = &signatureJSON{State: string(s.State), Format: s.Format, VerifiedBy: s.VerifiedBy, Signer: s.Signer}
 					}
 					for _, f := range a.Findings {
-						row.Findings = append(row.Findings, findingJSON{Code: string(f.Code), Severity: string(f.Severity), Path: f.Path, Detail: f.Detail})
+						row.Findings = append(row.Findings, findingJSON{Code: string(f.Code), Severity: string(f.Severity), Path: f.Path, Detail: text(f.Detail, t)})
 					}
 					rows = append(rows, row)
 				}

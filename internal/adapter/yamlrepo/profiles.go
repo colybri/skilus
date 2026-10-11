@@ -3,7 +3,6 @@ package yamlrepo
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 
@@ -28,7 +27,7 @@ func (r Repo) SaveProfile(_ context.Context, scope agent.Scope, prof profile.Pro
 	}
 	root := doc.Content[0]
 	if root.Kind != yaml.MappingNode {
-		return fmt.Errorf("%s: the document must be a mapping: %w", p, domain.ErrInvalid)
+		return domain.Errorf("%s: el documento debe ser un mapa: %w", p, domain.ErrInvalid)
 	}
 
 	profiles := mappingValue(root, "profiles")
@@ -39,7 +38,7 @@ func (r Repo) SaveProfile(_ context.Context, scope agent.Scope, prof profile.Pro
 	if profiles.Kind != yaml.MappingNode {
 		// "profiles: " with no value parses as null; treat it as empty.
 		if profiles.Tag != "!!null" {
-			return fmt.Errorf("%s: profiles must map names to skills and agents: %w", p, domain.ErrInvalid)
+			return domain.Errorf("%s: profiles debe asociar nombres a skills y agentes: %w", p, domain.ErrInvalid)
 		}
 		*profiles = yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
 	}

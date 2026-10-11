@@ -3,7 +3,6 @@ package osfs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -35,11 +34,11 @@ func (f LocalFetcher) Fetch(_ context.Context, src source.Source) (app.Fetched, 
 	info, err := os.Stat(root)
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
-		return app.Fetched{}, fmt.Errorf("directory %s does not exist: %w", src.Raw, domain.ErrNotFound)
+		return app.Fetched{}, domain.Errorf("el directorio %s no existe: %w", src.Raw, domain.ErrNotFound)
 	case err != nil:
 		return app.Fetched{}, err
 	case !info.IsDir():
-		return app.Fetched{}, fmt.Errorf("%s is not a directory: %w", src.Raw, domain.ErrInvalid)
+		return app.Fetched{}, domain.Errorf("%s no es un directorio: %w", src.Raw, domain.ErrInvalid)
 	}
 
 	candidates, err := manifests(root)
@@ -50,7 +49,7 @@ func (f LocalFetcher) Fetch(_ context.Context, src source.Source) (app.Fetched, 
 	for _, rel := range skillsrc.Discover(candidates) {
 		files, err := readTree(filepath.Join(root, filepath.FromSlash(rel)), true)
 		if err != nil {
-			return app.Fetched{}, fmt.Errorf("skill in %s: %w", rel, err)
+			return app.Fetched{}, domain.Errorf("skill en %s: %w", rel, err)
 		}
 		p, err := skillsrc.Build(files)
 		if err != nil {
@@ -138,7 +137,7 @@ func readTree(dir string, skipGit bool) ([]skill.File, error) {
 			}
 			files = append(files, skill.File{Path: rel, Kind: kind, Data: data})
 		default:
-			return fmt.Errorf("%s is not a regular file, directory or symlink: %w", rel, domain.ErrInvalid)
+			return domain.Errorf("%s no es un fichero normal, un directorio ni un enlace simbólico: %w", rel, domain.ErrInvalid)
 		}
 		return nil
 	})

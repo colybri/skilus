@@ -13,6 +13,7 @@ import (
 
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/cli/i18n"
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/profile"
 )
@@ -247,7 +248,7 @@ despliega en los agentes detectados.`),
 
 func changeProfile(cmd *cobra.Command, h app.EditProfileHandler, c app.ChangeProfile, scope string, t *i18n.Catalog) error {
 	if len(c.AddSkills)+len(c.RemoveSkills)+len(c.AddAgents)+len(c.RemoveAgents) == 0 {
-		return fmt.Errorf("%w: %s", errUsage, t.T("indica al menos una skill o un --agent"))
+		return domain.Errorf("%w: %s", errUsage, t.T("indica al menos una skill o un --agent"))
 	}
 	s, err := agent.ParseScope(scope)
 	if err != nil {

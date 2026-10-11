@@ -10,11 +10,11 @@ exec skilus profile create web --skill debug
 stdout '^  agentes: detectados$'
 
 ! exec skilus profile create web
-stderr 'already in skilus.yaml'
+stderr 'ya está en skilus.yaml'
 ! exec skilus profile create mobile --skill nope
-stderr 'skill nope is not in skills: of skilus.yaml; add it first with skilus add'
+stderr 'la skill nope no está en skills: de skilus.yaml; añádela antes con skilus add'
 ! exec skilus profile create mobile --agent emacs
-stderr 'unknown agent emacs'
+stderr 'agente emacs desconocido'
 
 exec skilus profile add web ui --agent codex
 stdout 'Perfil web actualizado\.'
@@ -23,17 +23,22 @@ stdout '^  agentes: codex$'
 exec skilus profile remove backend api
 stdout '^  skills: debug$'
 ! exec skilus profile remove backend ui
-stderr 'profile backend does not include skill ui'
+stderr 'el perfil backend no incluye la skill ui'
 ! exec skilus profile add backend
 stderr 'indica al menos una skill o un --agent'
 ! exec skilus profile add mobile ui
-stderr 'profile "mobile" is not in skilus.yaml'
+stderr 'el perfil "mobile" no está en skilus.yaml'
 
 exec skilus profile create old
 exec skilus profile delete old
 stdout 'Perfil old borrado\.'
 ! exec skilus profile delete old
-stderr 'profile "old" is not in skilus.yaml'
+stderr 'el perfil "old" no está en skilus.yaml'
+# Errors come out in the user's language, down to the error kind.
+env SKILUS_LANG=en
+! exec skilus profile delete old
+stderr '^skilus: profile "old" is not in skilus.yaml; profiles: backend, web: not found$'
+env SKILUS_LANG=es
 
 cmp skilus.yaml $WORK/want.yaml
 exec skilus profile list

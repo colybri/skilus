@@ -14,7 +14,7 @@ stdout 'Origen: \.\./src|Origen: .*src'
 stdout 'review  2 ficheros'
 stdout 'Revisa cambios'
 stdout '¿Instalar\? \[s/N\]'
-stderr 'cancelled'
+stderr 'cancelado'
 ! exists .claude/skills/review
 ! exists skilus.lock
 
@@ -32,19 +32,19 @@ grep 'source: .*src' skilus.yaml
 
 # Installing it again is a conflict (exit code 4).
 ! exec skilus add ../src --agent claude-code --yes
-stderr 'already installed'
+stderr 'ya está instalada'
 
 # Blocking findings stop the install without asking (exit code 5).
 symlink ../evil/leak -> ../secret
 ! exec skilus add ../evil --agent claude-code
-stderr 'BLOQUEO \[symlink-escape\] leak: points to \.\./secret'
-stderr 'rejected by inspection'
+stderr 'BLOQUEO \[symlink-escape\] leak: apunta a \.\./secret'
+stderr 'rechazado por la inspección'
 ! exists .claude/skills/evil
 
 # Scripts need --allow-scripts under --yes.
 chmod 755 ../tools/lint.sh
 ! exec skilus add ../tools --agent claude-code --yes
-stderr 'executable files need --allow-scripts'
+stderr 'los ficheros ejecutables necesitan --allow-scripts'
 exec skilus add ../tools --agent claude-code --yes --allow-scripts
 grep 'allow: \[scripts\]' skilus.yaml
 
@@ -55,7 +55,7 @@ grep 'mode: symlink' $HOME/.skilus/skilus.lock
 
 # Missing sources are not found (exit code 3).
 ! exec skilus add ../nope --agent claude-code --yes
-stderr 'does not exist'
+stderr 'no existe'
 
 -- project/no.txt --
 n

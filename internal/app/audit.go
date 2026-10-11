@@ -2,9 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"strings"
 
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/policy"
@@ -60,29 +59,29 @@ func (h AuditHandler) Handle(ctx context.Context, q Audit) (AuditResult, error) 
 	for _, scope := range q.Scopes {
 		lf, err := h.Locks.Load(ctx, scope)
 		if err != nil {
-			return AuditResult{}, fmt.Errorf("load %s lock: %w", scope, err)
+			return AuditResult{}, domain.Errorf("cargar el lock del ámbito %s: %w", scope, err)
 		}
 		for _, e := range lf.Entries() {
 			a, err := h.audit(ctx, scope, e, signatures)
 			if err != nil {
-				return res, fmt.Errorf("skill %s: %w", e.Skill, err)
+				return res, domain.Errorf("skill %s: %w", e.Skill, err)
 			}
 			res.Skills = append(res.Skills, a)
 		}
 	}
 
-	var reasons []string
+	var reasons domain.Errors
 	for _, a := range res.Skills {
 		r := a.Report()
 		switch {
 		case r.Blocking():
-			reasons = append(reasons, fmt.Sprintf("%s: blocking findings", a.Entry.Skill))
+			reasons = append(reasons, domain.Errorf("%s: hallazgos que bloquean", a.Entry.Skill))
 		case q.Strict && r.Warnings() > 0:
-			reasons = append(reasons, fmt.Sprintf("%s: %d warnings under --strict", a.Entry.Skill, r.Warnings()))
+			reasons = append(reasons, domain.Errorf("%s: %d avisos con --strict", a.Entry.Skill, r.Warnings()))
 		}
 	}
 	if len(reasons) > 0 {
-		return res, fmt.Errorf("%s: %w", strings.Join(reasons, "; "), ErrRejected)
+		return res, domain.Errorf("%w: %w", reasons, ErrRejected)
 	}
 	return res, nil
 }
@@ -108,7 +107,7 @@ func (h AuditHandler) audit(ctx context.Context, scope agent.Scope, e lock.Entry
 	case src.Kind == source.KindLocal:
 		// The user's own directory: nothing to sign.
 	case e.Commit == "":
-		a.Findings = append(a.Findings, policy.Finding{Code: policy.CodeUnsigned, Severity: policy.Warn, Detail: "archives carry no signature; the lock pins their content by hash"})
+		a.Findings = append(a.Findings, policy.Finding{Code: policy.CodeUnsigned, Severity: policy.Warn, Detail: domain.Msg("los archivos comprimidos no llevan firma; el lock fija su contenido por hash")})
 	case h.Signatures != nil:
 		key := src.ID + "@" + e.Commit
 		s, ok := signatures[key]
@@ -123,9 +122,9 @@ func (h AuditHandler) audit(ctx context.Context, scope agent.Scope, e lock.Entry
 		a.Signature = s.sig
 		switch {
 		case s.err != nil:
-			a.Findings = append(a.Findings, policy.Finding{Code: policy.CodeUnchecked, Severity: policy.Warn, Detail: "could not read the commit signature: " + s.err.Error()})
+			a.Findings = append(a.Findings, policy.Finding{Code: policy.CodeUnchecked, Severity: policy.Warn, Detail: domain.Msg("no se pudo leer la firma del commit: %v", s.err)})
 		case s.sig.State == Unsigned:
-			a.Findings = append(a.Findings, policy.Finding{Code: policy.CodeUnsigned, Severity: policy.Warn, Detail: "commit " + shortCommit(e.Commit) + " is not signed"})
+			a.Findings = append(a.Findings, policy.Finding{Code: policy.CodeUnsigned, Severity: policy.Warn, Detail: domain.Msg("el commit %s no está firmado", shortCommit(e.Commit))})
 		}
 	}
 
@@ -150,7 +149,7 @@ func (h AuditHandler) inspect(ctx context.Context, e lock.Entry) ([]policy.Findi
 	}
 	p, err := h.Parser.Package(files)
 	if err != nil {
-		return []policy.Finding{{Code: policy.CodeInvalidSkill, Severity: policy.Block, Detail: "SKILL.md no longer passes validation: " + err.Error()}}, true
+		return []policy.Finding{{Code: policy.CodeInvalidSkill, Severity: policy.Block, Detail: domain.Msg("SKILL.md ya no pasa la validación: %v", err)}}, true
 	}
 	r := policy.Inspect(p, h.Limits, policy.Allow{})
 	accepted := map[string]bool{}

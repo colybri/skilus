@@ -3,7 +3,6 @@
 package profile
 
 import (
-	"fmt"
 	"regexp"
 	"slices"
 
@@ -25,19 +24,19 @@ type Profile struct {
 // every skill. agents empty means the detected agents.
 func New(name string, skills []skill.Name, agents []agent.ID) (Profile, error) {
 	if !nameRe.MatchString(name) {
-		return Profile{}, fmt.Errorf("profile name %q must use lowercase letters, digits, hyphens and underscores: %w", name, domain.ErrInvalid)
+		return Profile{}, domain.Errorf("el nombre de perfil %q solo puede usar minúsculas, dígitos, guiones y guiones bajos: %w", name, domain.ErrInvalid)
 	}
 	seen := map[string]bool{}
 	for _, s := range skills {
 		if seen[s.String()] {
-			return Profile{}, fmt.Errorf("profile %s lists skill %s twice: %w", name, s, domain.ErrInvalid)
+			return Profile{}, domain.Errorf("el perfil %s incluye la skill %s dos veces: %w", name, s, domain.ErrInvalid)
 		}
 		seen[s.String()] = true
 	}
 	seenAgents := map[string]bool{}
 	for _, a := range agents {
 		if seenAgents[a.String()] {
-			return Profile{}, fmt.Errorf("profile %s lists agent %s twice: %w", name, a, domain.ErrInvalid)
+			return Profile{}, domain.Errorf("el perfil %s incluye el agente %s dos veces: %w", name, a, domain.ErrInvalid)
 		}
 		seenAgents[a.String()] = true
 	}

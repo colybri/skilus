@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"sort"
 	"strings"
 
@@ -59,7 +58,7 @@ type SearchHandler struct {
 func (h SearchHandler) Handle(ctx context.Context, q Search) (SearchResult, error) {
 	terms := strings.Fields(strings.ToLower(q.Query))
 	if len(terms) == 0 {
-		return SearchResult{}, fmt.Errorf("search needs at least one word: %w", domain.ErrInvalid)
+		return SearchResult{}, domain.Errorf("la búsqueda necesita al menos una palabra: %w", domain.ErrInvalid)
 	}
 	limit := q.Limit
 	if limit <= 0 {
@@ -72,7 +71,7 @@ func (h SearchHandler) Handle(ctx context.Context, q Search) (SearchResult, erro
 	for _, s := range trustScopes(q.Scope) {
 		m, err := h.Manifest.Manifest(ctx, s)
 		if err != nil {
-			return SearchResult{}, fmt.Errorf("read skilus.yaml of the %s scope: %w", s, err)
+			return SearchResult{}, domain.Errorf("leer skilus.yaml del ámbito %s: %w", s, err)
 		}
 		for _, u := range m.Indexes {
 			if !seen[u] {
@@ -83,7 +82,7 @@ func (h SearchHandler) Handle(ctx context.Context, q Search) (SearchResult, erro
 		if h.Trust != nil {
 			t, err := h.Trust.Trust(ctx, s)
 			if err != nil {
-				return SearchResult{}, fmt.Errorf("read trust: of the %s scope: %w", s, err)
+				return SearchResult{}, domain.Errorf("leer trust: del ámbito %s: %w", s, err)
 			}
 			trust = append(trust, t...)
 		}
@@ -120,10 +119,10 @@ func (h SearchHandler) Handle(ctx context.Context, q Search) (SearchResult, erro
 		res.Found = append(res.Found, matched...)
 	}
 	if origins == 0 {
-		return res, fmt.Errorf("nothing to search: the registry is off and skilus.yaml declares no indexes: %w", domain.ErrInvalid)
+		return res, domain.Errorf("no hay dónde buscar: el registro está desactivado y skilus.yaml no declara índices: %w", domain.ErrInvalid)
 	}
 	if len(res.Failed) == origins {
-		return res, fmt.Errorf("no origin could be searched: %s: %w", res.Failed[0].Origin, res.Failed[0].Err)
+		return res, domain.Errorf("no se pudo buscar en ningún origen: %s: %w", res.Failed[0].Origin, res.Failed[0].Err)
 	}
 
 	for i := range res.Found {

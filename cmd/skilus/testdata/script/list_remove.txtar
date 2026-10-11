@@ -26,7 +26,7 @@ stdout '"scope": "global"'
 
 # Removing checks every name first.
 ! exec skilus remove review nope
-stderr 'nope is not installed'
+stderr 'la skill nope no está instalada'
 exists .claude/skills/review/SKILL.md
 
 exec skilus remove review

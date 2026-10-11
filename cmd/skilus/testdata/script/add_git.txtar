@@ -29,15 +29,15 @@ grep 'source: file://.*/remote@v1.0.0' skilus.yaml
 
 # A ref that does not exist is not found (exit code 3).
 ! exec skilus add file://$WORK/remote@nope --agent claude-code --yes
-stderr 'not found|couldn.t find remote ref'
+stderr 'no encontrado|couldn.t find remote ref'
 
 # Credentials never go in the source.
 ! exec skilus add https://me:token@github.com/o/r --agent claude-code --yes
-stderr 'never stores tokens'
+stderr 'nunca guarda tokens'
 
 # A bare word is neither a folder nor a repository.
 ! exec skilus add skills --agent claude-code --yes
-stderr 'start it with \./'
+stderr 'empiézalo con \./'
 
 -- remote/skills/review/SKILL.md --
 ---

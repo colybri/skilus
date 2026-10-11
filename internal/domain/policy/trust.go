@@ -1,6 +1,10 @@
 package policy
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/colybri/skilus/internal/domain"
+)
 
 // Trust is the list of sources the user trusts, from trust: in
 // skilus.yaml. An entry covers the source with that normalized name and
@@ -33,5 +37,5 @@ func CheckSource(id string, t Trust) []Finding {
 	if t.Covers(id) {
 		return nil
 	}
-	return []Finding{{Code: CodeUntrusted, Severity: Warn, Detail: id + " is not in trust: of skilus.yaml"}}
+	return []Finding{{Code: CodeUntrusted, Severity: Warn, Detail: domain.Msg("%s no está en trust: de skilus.yaml", id)}}
 }

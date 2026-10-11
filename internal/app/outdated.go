@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/source"
@@ -50,7 +50,7 @@ func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshne
 	for _, scope := range q.Scopes {
 		lf, err := h.Locks.Load(ctx, scope)
 		if err != nil {
-			return nil, fmt.Errorf("load %s lock: %w", scope, err)
+			return nil, domain.Errorf("cargar el lock del ámbito %s: %w", scope, err)
 		}
 		for _, e := range lf.Entries() {
 			f := SkillFreshness{Scope: scope, Entry: e}

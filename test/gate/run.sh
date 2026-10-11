@@ -175,7 +175,7 @@ code=$?
 set -e
 cat "$work/audit.out"
 test "$code" -eq 5 || { echo "audit --strict exited $code, want 5" >&2; exit 1; }
-grep -q 'rogue: 2 warnings under --strict' "$work/audit.out"
+grep -q 'rogue: 2 avisos con --strict' "$work/audit.out"
 grep -q 'aviso \[unsigned-commit\]' "$work/audit.out"
 grep -q 'aviso \[untrusted-source\]' "$work/audit.out"
 echo "Puerta de la fase 4 superada: search encuentra una skill real y audit detecta la que no tiene firma ni confianza."

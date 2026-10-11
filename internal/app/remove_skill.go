@@ -2,9 +2,7 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
@@ -34,11 +32,11 @@ type RemoveSkillHandler struct {
 // store is kept: other projects may use it.
 func (h RemoveSkillHandler) Handle(ctx context.Context, cmd RemoveSkill) ([]lock.Entry, error) {
 	if len(cmd.Names) == 0 {
-		return nil, fmt.Errorf("name at least one skill: %w", domain.ErrInvalid)
+		return nil, domain.Errorf("indica al menos una skill: %w", domain.ErrInvalid)
 	}
 	lf, err := h.Locks.Load(ctx, cmd.Scope)
 	if err != nil {
-		return nil, fmt.Errorf("load lock: %w", err)
+		return nil, domain.Errorf("cargar el lock: %w", err)
 	}
 	var entries []lock.Entry
 	seen := map[string]bool{}
@@ -53,7 +51,7 @@ func (h RemoveSkillHandler) Handle(ctx context.Context, cmd RemoveSkill) ([]lock
 		}
 		e, ok := lf.Entry(n)
 		if !ok {
-			return nil, fmt.Errorf("skill %s is not installed in the %s scope: %w", n, cmd.Scope, domain.ErrNotFound)
+			return nil, domain.Errorf("la skill %s no está instalada en el ámbito %s: %w", n, cmd.Scope, domain.ErrNotFound)
 		}
 		entries = append(entries, e)
 	}
@@ -61,20 +59,20 @@ func (h RemoveSkillHandler) Handle(ctx context.Context, cmd RemoveSkill) ([]lock
 	for _, e := range entries {
 		gone[e.Skill] = true
 	}
-	var blocked []string
+	var blocked domain.Errors
 	for _, e := range entries {
 		if deps := lf.Dependents(e.Skill, gone); len(deps) > 0 {
-			blocked = append(blocked, fmt.Sprintf("%s is required by %s", e.Skill, joinNames(deps)))
+			blocked = append(blocked, domain.Errorf("%s es necesaria para %s", e.Skill, joinNames(deps)))
 		}
 	}
 	if len(blocked) > 0 {
-		return nil, fmt.Errorf("%s; remove those too: %w", strings.Join(blocked, "; "), domain.ErrConflict)
+		return nil, domain.Errorf("%w; quítalas también: %w", blocked, domain.ErrConflict)
 	}
 	entries = append(entries, lf.Unneeded(gone)...)
 
 	agents, err := h.Catalog.Agents(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("load agent catalog: %w", err)
+		return nil, domain.Errorf("cargar el catálogo de agentes: %w", err)
 	}
 	byID := make(map[agent.ID]agent.Agent, len(agents))
 	for _, a := range agents {
@@ -85,11 +83,11 @@ func (h RemoveSkillHandler) Handle(ctx context.Context, cmd RemoveSkill) ([]lock
 		for _, t := range e.Targets {
 			a, ok := byID[t.Agent]
 			if !ok {
-				return nil, fmt.Errorf("skill %s targets agent %s, which is no longer in the catalog: %w", e.Skill, t.Agent, domain.ErrConflict)
+				return nil, domain.Errorf("la skill %s apunta al agente %s, que ya no está en el catálogo: %w", e.Skill, t.Agent, domain.ErrConflict)
 			}
 			dest := filepath.Join(skillsDir(a, t.Scope, h.ProjectRoot), e.Skill.String())
 			if err := h.Deployer.Remove(ctx, dest); err != nil {
-				return nil, fmt.Errorf("remove %s: %w", dest, err)
+				return nil, domain.Errorf("borrar %s: %w", dest, err)
 			}
 		}
 		if err := lf.Remove(e.Skill); err != nil {
@@ -97,12 +95,12 @@ func (h RemoveSkillHandler) Handle(ctx context.Context, cmd RemoveSkill) ([]lock
 		}
 	}
 	if err := h.Locks.Save(ctx, cmd.Scope, lf); err != nil {
-		return nil, fmt.Errorf("save lock: %w", err)
+		return nil, domain.Errorf("guardar el lock: %w", err)
 	}
 	lf.PullEvents()
 	for _, e := range entries {
 		if err := h.Manifests.RemoveSkill(ctx, cmd.Scope, e.Skill); err != nil {
-			return entries, fmt.Errorf("removed, but could not update skilus.yaml: %w", err)
+			return entries, domain.Errorf("quitado, pero no se pudo actualizar skilus.yaml: %w", err)
 		}
 	}
 	return entries, nil

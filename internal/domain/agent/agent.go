@@ -3,7 +3,6 @@
 package agent
 
 import (
-	"fmt"
 	"path"
 	"regexp"
 	"strings"
@@ -21,7 +20,7 @@ type ID struct {
 // NewID validates s as an agent identifier.
 func NewID(s string) (ID, error) {
 	if !idRe.MatchString(s) {
-		return ID{}, fmt.Errorf("agent id %q must use lowercase letters, digits and hyphens: %w", s, domain.ErrInvalid)
+		return ID{}, domain.Errorf("el id de agente %q solo puede usar minúsculas, dígitos y guiones: %w", s, domain.ErrInvalid)
 	}
 	return ID{value: s}, nil
 }
@@ -43,17 +42,17 @@ type Agent struct {
 // meaning the agent is always considered present.
 func New(id ID, name, projectDir, globalDir, detectPath string) (Agent, error) {
 	if id.value == "" {
-		return Agent{}, fmt.Errorf("agent id is empty: %w", domain.ErrInvalid)
+		return Agent{}, domain.Errorf("el id de agente está vacío: %w", domain.ErrInvalid)
 	}
 	if strings.TrimSpace(name) == "" {
-		return Agent{}, fmt.Errorf("agent %s has no display name: %w", id, domain.ErrInvalid)
+		return Agent{}, domain.Errorf("el agente %s no tiene nombre visible: %w", id, domain.ErrInvalid)
 	}
 	clean := path.Clean(strings.ReplaceAll(projectDir, `\`, "/"))
 	if projectDir == "" || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") {
-		return Agent{}, fmt.Errorf("agent %s project dir %q must be a relative path inside the project: %w", id, projectDir, domain.ErrInvalid)
+		return Agent{}, domain.Errorf("el directorio de proyecto del agente %s, %q, debe ser una ruta relativa dentro del proyecto: %w", id, projectDir, domain.ErrInvalid)
 	}
 	if globalDir == "" {
-		return Agent{}, fmt.Errorf("agent %s has no global dir: %w", id, domain.ErrInvalid)
+		return Agent{}, domain.Errorf("el agente %s no tiene directorio global: %w", id, domain.ErrInvalid)
 	}
 	return Agent{id: id, name: name, projectDir: clean, globalDir: globalDir, detectPath: detectPath}, nil
 }

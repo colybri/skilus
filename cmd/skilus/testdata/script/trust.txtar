@@ -22,7 +22,7 @@ cd $WORK/project
 exec skilus inspect file://$WORK/remote
 stdout 'aviso \[untrusted-source\]'
 ! exec skilus add file://$WORK/remote --agent claude-code --yes --strict
-stderr 'warnings under --strict'
+stderr 'avisos con --strict'
 ! exists skilus.lock
 
 # A local folder is never checked.

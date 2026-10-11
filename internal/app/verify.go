@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path/filepath"
 
 	"github.com/colybri/skilus/internal/domain"
@@ -13,7 +12,7 @@ import (
 )
 
 // ErrDrift means installed content no longer matches the lock.
-var ErrDrift = errors.New("installed skills differ from the lock")
+var ErrDrift = domain.NewError("las skills instaladas no coinciden con el lock")
 
 // Verify is the query behind `skilus verify`.
 type Verify struct {
@@ -37,7 +36,7 @@ type TargetCheck struct {
 	Target  agent.Target
 	Dir     string // the skill's directory in the agent
 	Problem Problem
-	Detail  string // why it could not be read
+	Err     error // why it could not be read
 	// Changes lists the files that differ, when the store still holds the
 	// expected content to compare with.
 	Changes []skill.Change
@@ -48,7 +47,7 @@ type ManifestProblem string
 
 // Problems Verify finds in skilus.yaml.
 const (
-	// ManifestInvalid: the file cannot be read; Detail says why.
+	// ManifestInvalid: the file cannot be read; Err says why.
 	ManifestInvalid ManifestProblem = "manifest-invalid"
 	// NotInstalled: skills: declares a skill the lock does not hold.
 	NotInstalled ManifestProblem = "not-installed"
@@ -65,7 +64,7 @@ type ManifestCheck struct {
 	Skill   skill.Name // empty for ManifestInvalid
 	Source  string     // for NotInstalled, where skills: says it comes from
 	Profile string     // for ProfileUndeclared
-	Detail  string
+	Err     error      // for ManifestInvalid
 }
 
 // VerifyResult lists every checked target, in lock order, and the problems
@@ -77,7 +76,7 @@ type VerifyResult struct {
 
 // ErrInvalidManifest means a skilus.yaml that Verify read is broken: it
 // cannot be read, or a profile uses a skill skills: does not declare.
-var ErrInvalidManifest = fmt.Errorf("skilus.yaml has errors: %w", domain.ErrInvalid)
+var ErrInvalidManifest = domain.Errorf("skilus.yaml tiene errores: %w", domain.ErrInvalid)
 
 // Problems returns the checks that failed.
 func (r VerifyResult) Problems() []TargetCheck {
@@ -113,7 +112,7 @@ func (h VerifyHandler) Handle(ctx context.Context, q Verify) (VerifyResult, erro
 	for _, scope := range q.Scopes {
 		lf, err := h.Locks.Load(ctx, scope)
 		if err != nil {
-			return VerifyResult{}, fmt.Errorf("load %s lock: %w", scope, err)
+			return VerifyResult{}, domain.Errorf("cargar el lock del ámbito %s: %w", scope, err)
 		}
 		for _, e := range lf.Entries() {
 			var expected []skill.File // read from the store on first need
@@ -121,7 +120,7 @@ func (h VerifyHandler) Handle(ctx context.Context, q Verify) (VerifyResult, erro
 				c := TargetCheck{Scope: scope, Skill: e.Skill, Target: t}
 				a, ok := byID[t.Agent]
 				if !ok {
-					c.Problem, c.Detail = ProblemUnreadable, fmt.Sprintf("agent %s is no longer in the catalog", t.Agent)
+					c.Problem, c.Err = ProblemUnreadable, domain.Errorf("el agente %s ya no está en el catálogo", t.Agent)
 					res.Checks = append(res.Checks, c)
 					continue
 				}
@@ -131,7 +130,7 @@ func (h VerifyHandler) Handle(ctx context.Context, q Verify) (VerifyResult, erro
 				case errors.Is(err, domain.ErrNotFound):
 					c.Problem = ProblemMissing
 				case err != nil:
-					c.Problem, c.Detail = ProblemUnreadable, err.Error()
+					c.Problem, c.Err = ProblemUnreadable, err
 				case got != e.TreeHash:
 					c.Problem = ProblemModified
 					if expected == nil {
@@ -163,7 +162,7 @@ func (h VerifyHandler) Handle(ctx context.Context, q Verify) (VerifyResult, erro
 func (h VerifyHandler) checkManifest(ctx context.Context, scope agent.Scope, lf *lock.Lockfile) []ManifestCheck {
 	m, err := h.Manifest.Manifest(ctx, scope)
 	if err != nil {
-		return []ManifestCheck{{Scope: scope, Problem: ManifestInvalid, Detail: err.Error()}}
+		return []ManifestCheck{{Scope: scope, Problem: ManifestInvalid, Err: err}}
 	}
 	var out []ManifestCheck
 	for _, p := range m.Profiles {
@@ -228,7 +227,7 @@ func readInstalled(ctx context.Context, r TreeReader, dir string, e lock.Entry) 
 func agentsByID(ctx context.Context, c AgentCatalog) (map[agent.ID]agent.Agent, error) {
 	agents, err := c.Agents(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("load agent catalog: %w", err)
+		return nil, domain.Errorf("cargar el catálogo de agentes: %w", err)
 	}
 	byID := make(map[agent.ID]agent.Agent, len(agents))
 	for _, a := range agents {

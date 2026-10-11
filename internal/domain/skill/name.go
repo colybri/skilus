@@ -3,7 +3,6 @@
 package skill
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/colybri/skilus/internal/domain"
@@ -23,11 +22,11 @@ type Name struct {
 func NewName(s string) (Name, error) {
 	switch {
 	case s == "":
-		return Name{}, fmt.Errorf("skill name is empty: %w", domain.ErrInvalid)
+		return Name{}, domain.Errorf("el nombre de la skill está vacío: %w", domain.ErrInvalid)
 	case len(s) > maxNameLen:
-		return Name{}, fmt.Errorf("skill name %q is longer than %d characters: %w", s, maxNameLen, domain.ErrInvalid)
+		return Name{}, domain.Errorf("el nombre de skill %q supera los %d caracteres: %w", s, maxNameLen, domain.ErrInvalid)
 	case !nameRe.MatchString(s) || containsDoubleHyphen(s):
-		return Name{}, fmt.Errorf("skill name %q must use lowercase letters, digits and single hyphens: %w", s, domain.ErrInvalid)
+		return Name{}, domain.Errorf("el nombre de skill %q solo puede usar minúsculas, dígitos y guiones sueltos: %w", s, domain.ErrInvalid)
 	}
 	return Name{value: s}, nil
 }
