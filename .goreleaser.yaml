@@ -29,7 +29,6 @@ archives:
       - LICENSE
       - COMMERCIAL.md
       - README.md
-      - README.es.md
 
 checksum:
   name_template: checksums.txt
