@@ -172,8 +172,10 @@ export default {
     code('skilus verify\nskilus verify --json'),
     p('它还会检查 `skilus.yaml`：文件能否读取；`skills:` 中的每个 skill 是否已安装（不属于当前配置档的除外）；每个已安装的 skill（依赖除外）是否都在 `skills:` 中；配置档是否只使用已声明的 skill。文件有错误时以代码 2 退出；与 lock 不一致时以代码 6 退出，并给出修复用的命令。如果 `skilus.yaml` 中某个 skill 的来源或 ref 与锁文件中的不同，它会指出并建议运行 `skilus update`。'),
     h2('sync', '`skilus sync`'),
-    p('从存储中安装缺失的内容；如果存储中没有，则按提交下载每个技能；哈希不匹配时失败。它从不修改 `skilus.lock` 或 `skilus.yaml`，也不会改动手动编辑过的技能，除非使用 `--force`。'),
-    code('skilus sync\nskilus sync --force'),
+    p('让各智能体与 `skilus.lock` 完全一致，就像 `npm ci` 对待它的锁文件：它不选择版本，只安装锁文件已经固定的版本。在克隆一个已经带有 `skilus.yaml` 和 `skilus.lock` 的项目后、在 CI 中运行测试前，或要恢复被删除或损坏的技能时使用。'),
+    code('skilus sync\nskilus sync --scope all\nskilus sync --force\nskilus sync --json'),
+    ol('读取项目的锁文件；使用 `--scope global` 时读取全局的，使用 `--scope all` 时两者都读取。', '按哈希在存储 `~/.skilus/store` 中查找每个技能。如果不存在或已损坏，就按锁文件中的确切提交（而不是分支）下载，哈希不匹配时失败。', '在每个智能体中，创建缺失的文件夹，保持一致的文件夹不变，并对你手动修改过的文件夹发出警告。使用 `--force` 时会覆盖它。', '只有以上步骤全部成功才会写入智能体：如果某个技能无法获取，或有被修改的技能而没有 `--force`，则不做任何更改。'),
+    note('info', '它不会更改 `skilus.lock` 或 `skilus.yaml`，也不会查找新版本：那是 `skilus update` 的工作。它也不会安装你手动添加到 `skilus.yaml` 但尚未进入锁文件的内容（请使用 `skilus add`），也不会删除不在锁文件中的技能文件夹。`--json` 会给出每个智能体中每个技能的结果。'),
   ] },
   update: { title: '更新', lead: '找出哪些技能有新版本，并在审阅每处更改后更新。', blocks: [
     h2('check', '`skilus update --check`'),

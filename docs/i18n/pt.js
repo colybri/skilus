@@ -56,7 +56,7 @@ export default {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Comandos'),
     table(['Comando', 'O que faz'], [
-      ['`skilus agents`', 'Agentes detetados no teu computador e os seus caminhos; com `--all`, todos os compatíveis.'],
+      ['`skilus agents`', 'Agentes detectados no seu computador e seus caminhos; com `--all`, todos os compatíveis.'],
       ['`skilus add`', 'Instala skills do Git, ZIP/tar.gz ou de uma pasta local.'],
       ['`skilus list`', 'Skills instaladas com commit, hash e agentes.'],
       ['`skilus remove`', 'Remove uma skill dos agentes, do lock e de `skilus.yaml`.'],
@@ -135,7 +135,7 @@ export default {
     code('export EDITOR=nano            # Linux e macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
     note('warn', 'Um editor gráfico precisa esperar você fechar o arquivo: use `code --wait` ou `subl -w`; senão o skilus lê o arquivo antes de você salvar.'),
     p('Ao fechar o editor, o skilus verifica o arquivo com as regras do `skilus verify`: YAML válido, chaves conhecidas, skills com origem e perfis que só usam skills declaradas. Se algo estiver errado, lista os erros e pergunta se você quer editar de novo, a partir do que escreveu; se disser que não, descarta as alterações, o `skilus.yaml` fica como estava e sai com código 2.'),
-    note('tip', 'Editar o `skilus.yaml` não instala nada. Depois, o `skilus verify` diz o que não bate com o lock e o comando que corrige: `skilus add` para uma skill nova, `skilus remove` para uma que você apagou e `skilus profile use` para implantar um perfil. Se alteraste a origem ou a ref de uma skill, o `skilus update` aplica-o.'),
+    note('tip', 'Editar o `skilus.yaml` não instala nada. Depois, o `skilus verify` diz o que não bate com o lock e o comando que corrige: `skilus add` para uma skill nova, `skilus remove` para uma que você apagou e `skilus profile use` para implantar um perfil. Se você alterou a origem ou a ref de uma skill, o `skilus update` aplica a alteração.'),
   ] },
   inspect: { title: 'Inspeção e confiança', lead: 'O que o skilus verifica antes de instalar, como restringir as origens e como auditar o que está instalado.', blocks: [
     h2('rules', 'O que é inspecionado'),
@@ -170,10 +170,12 @@ export default {
     h2('verify', '`skilus verify`'),
     p('Recalcula o hash de cada skill em cada agente e compara com o lock. Se faltar alguma ou um arquivo mudou, diz qual e sai com código 6.'),
     code('skilus verify\nskilus verify --json'),
-    p('Também verifica o `skilus.yaml`: que pode ser lido, que cada skill de `skills:` está instalada (exceto as que não pertencem ao perfil ativo), que cada skill instalada, exceto as dependências, está em `skills:` e que os perfis só usam skills declaradas. Se o ficheiro tiver erros, sai com o código 2; se não coincidir com o lock, com o código 6, e sugere o comando que o corrige. Se a origem ou a ref de uma skill no `skilus.yaml` não forem as do lock, indica-o e propõe `skilus update`.'),
+    p('Também verifica o `skilus.yaml`: que pode ser lido, que cada skill de `skills:` está instalada (exceto as que não pertencem ao perfil ativo), que cada skill instalada, exceto as dependências, está em `skills:` e que os perfis só usam skills declaradas. Se o arquivo tiver erros, sai com o código 2; se não coincidir com o lock, com o código 6, e sugere o comando que o corrige. Se a origem ou a ref de uma skill no `skilus.yaml` não forem as do lock, ele avisa e sugere `skilus update`.'),
     h2('sync', '`skilus sync`'),
-    p('Instala o que falta a partir do armazenamento ou, se não estiver lá, baixando cada skill pelo seu commit, e falha se o hash não coincidir. Nunca altera `skilus.lock` nem `skilus.yaml` e não mexe em skills editadas à mão, salvo com `--force`.'),
-    code('skilus sync\nskilus sync --force'),
+    p('Deixa os agentes exatamente como diz o `skilus.lock`, como o `npm ci` faz com seu lock: não escolhe versões, instala as que o lock já fixou. Use-o ao clonar um projeto que já traz `skilus.yaml` e `skilus.lock`, na CI antes dos testes ou para recuperar uma skill que você apagou ou estragou.'),
+    code('skilus sync\nskilus sync --scope all\nskilus sync --force\nskilus sync --json'),
+    ol('Lê o lock do projeto; com `--scope global`, o global, e com `--scope all`, os dois.', 'Procura cada skill no armazenamento `~/.skilus/store` pelo seu hash. Se ela não estiver lá ou estiver danificada, baixa-a pelo commit exato do lock, não pela branch, e falha se o hash não bater.', 'Em cada agente, cria a pasta que falta, deixa como está a que bate e avisa sobre a que você modificou manualmente. Com `--force`, ele a sobrescreve.', 'Só escreve nos agentes se tudo isso deu certo: se uma skill não puder ser obtida ou houver uma modificada sem `--force`, nada muda.'),
+    note('info', 'Não altera o `skilus.lock` nem o `skilus.yaml` e não procura versões novas: isso é o `skilus update`. Também não instala o que você adicionou manualmente ao `skilus.yaml` e ainda não está no lock (use `skilus add`), nem apaga pastas de skills que não estão no lock. `--json` dá o resultado de cada skill em cada agente.'),
   ] },
   update: { title: 'Atualizações', lead: 'Descubra quais skills têm versões novas e atualize-as revisando cada mudança.', blocks: [
     h2('check', '`skilus update --check`'),
@@ -182,7 +184,7 @@ export default {
     h2('update', '`skilus update`'),
     p('Baixa a versão nova, mostra os arquivos adicionados, removidos e modificados e a inspeção e, após a confirmação, substitui as cópias instaladas e atualiza o lock.'),
     code('skilus update\nskilus update review --yes --allow-scripts'),
-    ul('Executáveis que a skill já tinha não são perguntados de novo; os novos, sim.', '`skilus.yaml` não muda: guarda a branch ou a tag, não o commit.', 'As novas dependências exigidas pela versão são instaladas.', 'Se alteraste à mão a origem ou a ref de uma skill no `skilus.yaml`, descarrega-a daí e regista-o no lock. O `skilus update --check` mostra-a como alterada.'),
+    ul('Executáveis que a skill já tinha não são perguntados de novo; os novos, sim.', '`skilus.yaml` não muda: guarda a branch ou a tag, não o commit.', 'As novas dependências exigidas pela versão são instaladas.', 'Se você alterou manualmente a origem ou a ref de uma skill no `skilus.yaml`, ele a baixa de lá e registra isso no lock. O `skilus update --check` a mostra como alterada.'),
   ] },
   profiles: { title: 'Perfis', lead: 'Agrupe skills por contexto e troque de conjunto com um único comando.', blocks: [
     p('Um perfil agrupa skills já declaradas em `skills:` no `skilus.yaml` e, se quiser, os agentes de destino. Sem `agents:`, usam-se os detectados.'),
@@ -206,7 +208,7 @@ export default {
   ] },
   agents: { title: 'Agentes e dependências', lead: 'Adicione agentes que o skilus não inclui e declare skills que dependem de outras.', blocks: [
     h2('command', '`skilus agents`'),
-    p('Lista os agentes que o skilus deteta no teu computador, com a pasta de skills de cada um num projeto e no âmbito global. Com `-a` ou `--all` lista todos os que suporta e a última coluna diz quais estão instalados.'),
+    p('Lista os agentes que o skilus detecta no seu computador, com a pasta de skills de cada um em um projeto e no escopo global. Com `-a` ou `--all` lista todos os que suporta e a última coluna diz quais estão instalados.'),
     code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', 'Agentes compatíveis'),
     p('O skilus instala nestes 74 agentes. Use o id com `--agent` ou nos `agents:` de um perfil. Num projeto, os agentes que compartilham pasta recebem uma só cópia da skill e o lock registra o primeiro. Alguns caminhos globais seguem variáveis de ambiente como `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR` ou `CODEX_HOME`; `skilus agents` mostra os da sua máquina.'),

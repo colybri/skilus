@@ -172,8 +172,10 @@ export default {
     code('skilus verify\nskilus verify --json'),
     p('`skilus.yaml` も確認します。ファイルを読めること、`skills:` の各 skill がインストールされていること（有効なプロファイルに含まれないものを除く）、インストール済みの各 skill（依存関係を除く）が `skills:` にあること、プロファイルが宣言済みの skill だけを使うことです。ファイルにエラーがあればコード 2 で、lock と一致しなければコード 6 で終了し、修正するコマンドを示します。`skilus.yaml` の skill のソースや ref が lock と異なる場合は、それを示して `skilus update` を提案します。'),
     h2('sync', '`skilus sync`'),
-    p('不足分をストアから、なければ各スキルをそのコミットでダウンロードしてインストールし、ハッシュが一致しなければ失敗します。`skilus.lock` や `skilus.yaml` は変更せず、手動で編集されたスキルは `--force` を付けない限り触りません。'),
-    code('skilus sync\nskilus sync --force'),
+    p('エージェントを `skilus.lock` のとおりに正確にそろえます。`npm ci` がロックファイルに対して行うのと同じで、バージョンは選ばず、lock に固定済みのものをインストールします。`skilus.yaml` と `skilus.lock` を含むプロジェクトをクローンした後、CI でテストの前に、または削除・破損したスキルを復元するときに使います。'),
+    code('skilus sync\nskilus sync --scope all\nskilus sync --force\nskilus sync --json'),
+    ol('プロジェクトの lock を読み込みます。`--scope global` ならグローバルの lock、`--scope all` なら両方です。', '各スキルをハッシュでストア `~/.skilus/store` から探します。見つからないか破損している場合は、ブランチではなく lock にある正確なコミットでダウンロードし、ハッシュが一致しなければ失敗します。', '各エージェントで、足りないフォルダーを作成し、一致するフォルダーはそのままにし、手で変更したフォルダーについては警告します。`--force` を付けると上書きします。', 'ここまでがすべて成功した場合にだけエージェントに書き込みます。取得できないスキルや、`--force` なしで変更されたスキルがあれば、何も変更しません。'),
+    note('info', '`skilus.lock` も `skilus.yaml` も変更せず、新しいバージョンも探しません。それは `skilus update` の役割です。また、`skilus.yaml` に手で追加してまだ lock にないもの（`skilus add` を使います）はインストールせず、lock にないスキルのフォルダーも削除しません。`--json` は各エージェントの各スキルの結果を出力します。'),
   ] },
   update: { title: 'アップデート', lead: '新しいバージョンがあるスキルを見つけ、変更を確認しながら更新します。', blocks: [
     h2('check', '`skilus update --check`'),
