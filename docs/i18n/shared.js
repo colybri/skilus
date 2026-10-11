@@ -26,7 +26,8 @@ export const PROFILES = `profiles:
     skills: [systematic-debugging, mcp-builder]
     agents: [claude-code]
   web:
-    skills: [systematic-debugging, web-design-guidelines]`;
+    skills: [systematic-debugging, web-design-guidelines]
+    agents: [claude-code, cursor]`;
 export const AGENTS = `version: 1
 agents:
   - id: acme

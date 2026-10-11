@@ -100,7 +100,7 @@ El `skilus.yaml` del proyecto está en el directorio donde ejecutas skilus y el 
 
 `skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. También comprueba `skilus.yaml`: que se puede leer, que cada skill de `skills:` está instalada (salvo las que no pertenecen al perfil activo), que cada skill instalada, salvo las dependencias, está en `skills:` y que los perfiles solo usan skills declaradas; si el fichero tiene errores sale con código 2 y, si no coincide con el lock, con código 6, proponiendo el comando que lo arregla. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. `skilus update --check` consulta con `git ls-remote`, sin descargar contenido, a qué commit apunta ahora la rama o el tag de cada skill; las fijadas a un commit no se comprueban. `skilus update` descarga esa versión, enseña los ficheros añadidos, borrados y modificados y la inspección de la versión nueva (los ejecutables que ya tenía no vuelven a preguntarse) y, tras confirmar, reemplaza las copias instaladas y actualiza el lock; `skilus.yaml` no cambia porque guarda la rama o el tag, no el commit. `skilus update` también aplica lo que hayas editado a mano en `skilus.yaml`: instala en los agentes detectados las skills que añadas a `skills:`, retira las que quites (con las dependencias que ya nadie necesite) y descarga del nuevo origen o ref las que cambies; con un perfil activo no instala las que el perfil deja fuera. Hasta entonces, `skilus verify` avisa de la diferencia y `skilus update --check` la muestra.
 
-Un perfil agrupa skills ya declaradas en `skills:` de `skilus.yaml` y, si quieres, los agentes donde van:
+Un perfil agrupa skills ya declaradas en `skills:` de `skilus.yaml` y los agentes donde van:
 
 ```yaml
 profiles:
@@ -108,10 +108,11 @@ profiles:
     skills: [systematic-debugging, mcp-builder]
     agents: [claude-code]
   web:
-    skills: [systematic-debugging, web-design-guidelines]   # sin agents: los detectados
+    skills: [systematic-debugging, web-design-guidelines]
+    agents: [claude-code, cursor]
 ```
 
-No hace falta editar el YAML a mano: `skilus profile create web --skill systematic-debugging,web-design-guidelines` declara el perfil (`--agent` fija sus agentes), `skilus profile add` y `skilus profile remove` añaden o quitan skills y, con `--agent`, agentes, y `skilus profile delete` lo borra. Estos comandos solo editan `profiles:`, conservan los comentarios y el orden del fichero y no instalan ni retiran nada; las skills tienen que estar ya en `skills:` (añádelas antes con `skilus add`) y los agentes, en el catálogo.
+No hace falta editar el YAML a mano: `skilus profile create web --skill systematic-debugging,web-design-guidelines` declara el perfil (`--agent` fija sus agentes), `skilus profile add` y `skilus profile remove` añaden o quitan skills y, con `--agent`, agentes, y `skilus profile delete` lo borra. Estos comandos solo editan `profiles:`, conservan los comentarios y el orden del fichero y no instalan ni retiran nada; las skills tienen que estar ya en `skills:` (añádelas antes con `skilus add`) y los agentes, en el catálogo. En una terminal, `skilus profile create` sin `--skill` te deja marcar cuáles de `skills:` incluye y, sin `--agent`, en qué agentes de los detectados se despliega, con el mismo selector que `skilus add`; con `-y` o fuera de una terminal toma todas las skills y todos los agentes detectados. Los agentes elegidos quedan escritos en el perfil: un perfil sin agentes no se puede desplegar. Al borrar el último perfil desaparece también `profiles:`.
 
 `skilus profile use web` instala las skills del perfil que faltan, desde el origen que registra `skills:` y con la misma inspección que `add` (`allow: [scripts]` en esa entrada cuenta como `--allow-scripts`); mueve a los agentes del perfil las que ya estaban, reutilizando el contenido fijado en el lock; y retira de los agentes y del lock las que el perfil no incluye. Primero instala y solo después retira, y `skilus.yaml` no cambia, así que volver a `backend` reinstala exactamente lo mismo. El perfil activo no se guarda: es aquel cuyas skills coinciden con las del lock.
 

@@ -186,11 +186,12 @@ export default {
     code('skilus update --check\nskilus update --check --json'),
   ] },
   profiles: { title: 'Profile', lead: 'Gruppiere Skills nach Kontext und wechsle das Set mit einem einzigen Befehl.', blocks: [
-    p('Ein Profil gruppiert Skills, die bereits unter `skills:` in `skilus.yaml` deklariert sind, und optional die Agenten, für die sie bestimmt sind. Ohne `agents:` werden die erkannten Agenten verwendet.'),
+    p('Ein Profil gruppiert Skills, die bereits unter `skills:` in `skilus.yaml` deklariert sind, und die Agenten, für die sie bestimmt sind. Ein Profil ohne `agents:` lässt sich nicht ausrollen.'),
     code(PROFILES, 'yaml'),
     h2('edit', 'Profile anlegen und bearbeiten'),
     code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
     p('`profile create` legt ein Profil an; seine Skills müssen bereits unter `skills:` stehen (füge sie vorher mit `skilus add` hinzu), und `--agent` legt seine Agenten fest. `profile add` und `profile remove` fügen Skills und mit `--agent` Agenten hinzu oder entfernen sie; `profile delete` löscht das Profil. Sie ändern nur `profiles:`, erhalten Kommentare und Reihenfolge von `skilus.yaml` und installieren oder entfernen nichts: Das übernimmt `profile use`.'),
+    p('Im Terminal lässt dich `profile create` ohne `--skill` ankreuzen, welche Skills aus `skills:` es enthält, und ohne `--agent`, auf welche erkannten Agenten es ausgerollt wird, mit derselben Auswahl wie `skilus add`. Mit `-y` oder außerhalb eines Terminals nimmt es alle Skills und alle erkannten Agenten. Die gewählten Agenten werden ins Profil geschrieben. Wird das letzte Profil gelöscht, verschwindet auch `profiles:`.'),
     h2('use', 'Ein Profil verwenden'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` markiert das aktive Profil mit `*`. `profile use` installiert fehlende Skills des Profils mit derselben Prüfung wie `add`, verschiebt bereits installierte zu den Agenten des Profils und entfernt jene, die das Profil nicht enthält.'),

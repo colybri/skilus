@@ -122,8 +122,9 @@ type UseProfileHandler struct {
 
 // Handle makes the scope hold exactly the profile's skills: it installs
 // the missing ones from the sources skilus.yaml declares, moves installed
-// ones to the profile's agents when it names any, and removes the rest
-// from the agents and the lock. skilus.yaml is not edited, so switching
+// ones to the profile's agents, and removes the rest from the agents and
+// the lock. A profile with skills and no agents is refused: there is
+// nowhere to deploy it. skilus.yaml is not edited, so switching
 // back reinstalls the same sources. Nothing is removed unless every
 // install succeeded.
 func (h UseProfileHandler) Handle(ctx context.Context, cmd UseProfile) (UseProfileResult, error) {
@@ -137,6 +138,9 @@ func (h UseProfileHandler) Handle(ctx context.Context, cmd UseProfile) (UseProfi
 	}
 	if missing := undeclared(m, p); len(missing) > 0 {
 		return UseProfileResult{}, domain.Errorf("el perfil %s usa skills que skills: de skilus.yaml no declara: %s: %w", p.Name(), joinNames(missing), domain.ErrInvalid)
+	}
+	if len(p.Agents()) == 0 && len(p.Skills()) > 0 {
+		return UseProfileResult{}, domain.Errorf("el perfil %s no tiene agentes; añádelos con skilus profile add %s --agent <id>: %w", p.Name(), p.Name(), domain.ErrInvalid)
 	}
 	mode := cmd.Mode
 	if mode == "" {
@@ -175,8 +179,7 @@ func (h UseProfileHandler) Handle(ctx context.Context, cmd UseProfile) (UseProfi
 func (h UseProfileHandler) plan(ctx context.Context, cmd UseProfile, m Manifest, p profile.Profile, mode agent.Mode, lf *lock.Lockfile) (ProfilePlan, []Fetched, error) {
 	plan := ProfilePlan{Profile: p.Name()}
 
-	// The profile's agents, or the detected ones; only resolved when needed
-	// so a profile that only removes skills works without agents.
+	// The profile's agents, only resolved when needed.
 	var targets []PlannedTarget
 	resolve := func() error {
 		if targets != nil {
@@ -226,7 +229,7 @@ func (h UseProfileHandler) plan(ctx context.Context, cmd UseProfile, m Manifest,
 		}
 	}
 
-	if len(p.Agents()) > 0 && len(plan.Keep) > 0 {
+	if len(plan.Keep) > 0 {
 		if err := resolve(); err != nil {
 			return plan, nil, err
 		}

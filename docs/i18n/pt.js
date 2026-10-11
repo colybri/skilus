@@ -186,11 +186,12 @@ export default {
     code('skilus update --check\nskilus update --check --json'),
   ] },
   profiles: { title: 'Perfis', lead: 'Agrupe skills por contexto e troque de conjunto com um único comando.', blocks: [
-    p('Um perfil agrupa skills já declaradas em `skills:` no `skilus.yaml` e, se quiser, os agentes de destino. Sem `agents:`, usam-se os detectados.'),
+    p('Um perfil agrupa skills já declaradas em `skills:` no `skilus.yaml` e os agentes de destino. Um perfil sem `agents:` não pode ser implantado.'),
     code(PROFILES, 'yaml'),
     h2('edit', 'Criar e editar perfis'),
     code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
     p('`profile create` declara um perfil; as suas skills têm de estar já em `skills:` (adicione-as antes com `skilus add`) e `--agent` define os seus agentes. `profile add` e `profile remove` adicionam ou removem skills e, com `--agent`, agentes; `profile delete` apaga o perfil. Só editam `profiles:`, mantêm os comentários e a ordem do `skilus.yaml` e não instalam nem retiram nada: isso é feito por `profile use`.'),
+    p('Em um terminal, `profile create` sem `--skill` deixa você marcar quais skills de `skills:` ele inclui e, sem `--agent`, em quais agentes detectados ele é implantado, com o mesmo seletor do `skilus add`. Com `-y` ou fora de um terminal, pega todas as skills e todos os agentes detectados. Os agentes escolhidos ficam registrados no perfil. Ao apagar o último perfil, `profiles:` também desaparece.'),
     h2('use', 'Usar um perfil'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` marca o perfil ativo com `*`. `profile use` instala as skills do perfil que faltam com a mesma inspeção de `add`, move para os agentes do perfil as que já estavam e retira as que o perfil não inclui.'),

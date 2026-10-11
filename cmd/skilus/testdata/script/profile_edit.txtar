@@ -1,13 +1,20 @@
 # skilus profile create, add, remove and delete edit profiles: in
 # skilus.yaml without touching the rest of the file.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home/.claude
 cd project
 
 exec skilus profile create backend --skill debug,api --agent claude-code
 stdout 'Perfil backend creado\.'
 stdout '^  skills: debug, api$'
 stdout '^  agentes: claude-code$'
+# Without --agent and outside a terminal, the detected agents are written.
 exec skilus profile create web --skill debug
-stdout '^  agentes: detectados$'
+stdout '^  agentes: claude-code$'
 
 ! exec skilus profile create web
 stderr 'ya está en skilus.yaml'
@@ -19,7 +26,7 @@ stderr 'agente emacs desconocido'
 exec skilus profile add web ui --agent codex
 stdout 'Perfil web actualizado\.'
 stdout '^  skills: debug, ui$'
-stdout '^  agentes: codex$'
+stdout '^  agentes: claude-code, codex$'
 exec skilus profile remove backend api
 stdout '^  skills: debug$'
 ! exec skilus profile remove backend ui
@@ -29,7 +36,9 @@ stderr 'indica al menos una skill o un --agent'
 ! exec skilus profile add mobile ui
 stderr 'el perfil "mobile" no está en skilus.yaml'
 
+# Without --skill, every declared skill.
 exec skilus profile create old
+stdout '^  skills: debug, api, ui$'
 exec skilus profile delete old
 stdout 'Perfil old borrado\.'
 ! exec skilus profile delete old
@@ -43,7 +52,18 @@ env SKILUS_LANG=es
 cmp skilus.yaml $WORK/want.yaml
 exec skilus profile list
 stdout '^ +backend +debug +claude-code$'
-stdout '^ +web +debug,ui +codex$'
+stdout '^ +web +debug,ui +claude-code,codex$'
+
+# A profile whose skills have no agents cannot be deployed.
+exec skilus profile remove web --agent claude-code,codex
+stdout '^  agentes: -$'
+! exec skilus profile use web
+stderr 'el perfil web no tiene agentes; añádelos con skilus profile add web --agent <id>'
+
+# Deleting the last profile drops profiles: altogether.
+exec skilus profile delete backend
+exec skilus profile delete web
+cmp skilus.yaml $WORK/noprofiles.yaml
 
 -- project/skilus.yaml --
 # Skills del equipo
@@ -71,4 +91,14 @@ profiles:
     agents: [claude-code]
   web:
     skills: [debug, ui]
-    agents: [codex]
+    agents: [claude-code, codex]
+-- noprofiles.yaml --
+# Skills del equipo
+version: 1
+skills:
+  - name: debug
+    source: ./src # depuración
+  - name: api
+    source: ./src
+  - name: ui
+    source: ./src

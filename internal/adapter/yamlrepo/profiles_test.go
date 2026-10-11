@@ -163,7 +163,7 @@ func TestSaveProfileCreatesTheSection(t *testing.T) {
 	if err := repo.SaveProfile(ctx, agent.ScopeProject, mustProfile(t, "web", []string{"ui"}, "codex")); err != nil {
 		t.Fatal(err)
 	}
-	// Dropping the agents removes the key: the profile goes to the detected agents.
+	// Dropping the agents removes the key.
 	if err := repo.SaveProfile(ctx, agent.ScopeProject, mustProfile(t, "web", []string{"ui"})); err != nil {
 		t.Fatal(err)
 	}
@@ -176,6 +176,14 @@ func TestSaveProfileCreatesTheSection(t *testing.T) {
 	}
 	if err := repo.DeleteProfile(ctx, agent.ScopeGlobal, "web"); err != nil {
 		t.Errorf("delete in a scope without skilus.yaml: %v", err)
+	}
+
+	// Deleting the last profile drops profiles: too.
+	if err := repo.DeleteProfile(ctx, agent.ScopeProject, "web"); err != nil {
+		t.Fatal(err)
+	}
+	if data, err = os.ReadFile(path); err != nil || string(data) != "version: 1\n" {
+		t.Errorf("after deleting the last profile: %q, %v", data, err)
 	}
 }
 
