@@ -119,6 +119,9 @@ func parseTrust(p string, doc *yaml.Node) (policy.Trust, error) {
 // Manifest implements app.ManifestReader. Profiles keep their file order.
 func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, error) {
 	p := r.path(scope, ManifestFile)
+	if _, err := os.Stat(p); errors.Is(err, fs.ErrNotExist) {
+		return app.Manifest{Missing: true}, nil
+	}
 	doc, err := readNode(p)
 	if err != nil {
 		return app.Manifest{}, err

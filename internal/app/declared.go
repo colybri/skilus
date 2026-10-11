@@ -1,31 +1,37 @@
 package app
 
 import (
-	"context"
 	"path/filepath"
 
 	"github.com/colybri/skilus/internal/domain"
-	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/skill"
 	"github.com/colybri/skilus/internal/domain/source"
 )
 
-// declaredSources returns the source skills: of the scope's skilus.yaml
-// gives each skill. A nil reader declares nothing.
-func declaredSources(ctx context.Context, r ManifestReader, scope agent.Scope) (map[skill.Name]string, error) {
-	if r == nil {
-		return nil, nil
-	}
-	m, err := r.Manifest(ctx, scope)
-	if err != nil {
-		return nil, domain.Errorf("leer skilus.yaml: %w", err)
+// sourcesOf returns the source skills: of skilus.yaml gives each skill.
+// A nil manifest declares nothing.
+func sourcesOf(m *Manifest) map[skill.Name]string {
+	if m == nil {
+		return nil
 	}
 	out := make(map[skill.Name]string, len(m.Skills))
 	for _, s := range m.Skills {
 		out[s.Name] = s.Source
 	}
-	return out, nil
+	return out
+}
+
+// profileActive reports whether the lock holds exactly the skills of one
+// of the manifest's profiles. Then the other declared skills are not
+// missing: the profile left them out.
+func profileActive(m Manifest, lf *lock.Lockfile) bool {
+	for _, p := range m.Profiles {
+		if isActive(p, lf) {
+			return true
+		}
+	}
+	return false
 }
 
 // changedSource returns the source skilus.yaml declares for e when it is

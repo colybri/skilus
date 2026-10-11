@@ -54,17 +54,22 @@ func renderCheck(out io.Writer, res []app.SkillFreshness, asJSON bool, t *i18n.C
 		app.FreshLocal:    t.T("local o archivo, sin ref"),
 		app.FreshUnknown:  t.T("no se pudo consultar"),
 		app.FreshChanged:  t.T("cambiada en skilus.yaml"),
+		app.FreshAdded:    t.T("nueva en skilus.yaml"),
+		app.FreshRemoved:  t.T("quitada de skilus.yaml"),
 	}
 	tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(tw, t.T("SKILL\tÁMBITO\tREF\tINSTALADO\tÚLTIMO\tESTADO"))
 	for _, f := range res {
 		e := f.Entry
 		ref := e.Requested
-		if ref == "" {
+		switch {
+		case f.State == app.FreshAdded:
+			ref = "-"
+		case ref == "":
 			ref = t.T("(rama por defecto)")
 		}
 		state := states[f.State]
-		if f.State == app.FreshChanged {
+		if f.State == app.FreshChanged || f.State == app.FreshAdded {
 			state += ": " + f.Declared
 		}
 		if f.Err != nil {
@@ -90,14 +95,16 @@ func newUpdateCommand(h app.UpdateHandler, q app.OutdatedHandler, t *i18n.Catalo
 	)
 	cmd := &cobra.Command{
 		Use:   "update [skill]...",
-		Short: t.T("Actualiza skills al commit al que apunta ahora su rama o tag"),
+		Short: t.T("Aplica skilus.yaml y actualiza skills al commit al que apunta su rama o tag"),
 		Long: t.T(`Descarga la versión a la que apunta ahora la rama o el tag de cada skill
 (o de las indicadas), muestra qué ficheros cambian y la inspección de la
 versión nueva y, tras tu confirmación, reemplaza las copias instaladas y
 actualiza skilus.lock. skilus.yaml no cambia.
 
-Si has editado a mano el origen o la ref de una skill en skilus.yaml,
-update la descarga de ahí y registra el cambio en skilus.lock.
+También aplica lo que hayas editado a mano en skilus.yaml: instala en los
+agentes detectados las skills que añadas a skills:, retira las que quites
+y descarga del nuevo origen o ref las que cambies. Con un perfil activo
+no instala las skills que el perfil deja fuera.
 
 Con --check solo consulta, sin descargar contenido ni cambiar nada, a qué
 commit apunta cada rama o tag y lo compara con el lock, en el proyecto y
@@ -135,15 +142,25 @@ commit y las locales no se comprueban.`),
 			if err != nil {
 				return err
 			}
-			if len(res.Plan.Skills) == 0 {
+			if res.Plan.Empty() {
 				fmt.Fprintln(out, t.T("Todo al día."))
 				return nil
+			}
+			for _, e := range res.Added {
+				fmt.Fprint(out, t.T("Instalada %s (%s), nueva en skilus.yaml.\n", e.Skill, e.TreeHash.Short()))
 			}
 			for _, e := range res.Installed {
 				fmt.Fprint(out, t.T("Instalada %s (%s), que ahora se necesita.\n", e.Skill, e.TreeHash.Short()))
 			}
 			for _, e := range res.Updated {
 				fmt.Fprint(out, t.T("Actualizada %s a %s (%s).\n", e.Skill, short(e.Commit), e.TreeHash.Short()))
+			}
+			for _, e := range res.Removed {
+				if e.Dependency {
+					fmt.Fprint(out, t.T("Retirada %s, que ya no se necesita.\n", e.Skill))
+				} else {
+					fmt.Fprint(out, t.T("Retirada %s, que ya no está en skilus.yaml.\n", e.Skill))
+				}
 			}
 			return nil
 		},
@@ -172,6 +189,12 @@ func sourceLabel(source, requested string) string {
 func renderUpdatePlan(w io.Writer, plan app.UpdatePlan, st style, t *i18n.Catalog) {
 	changes := map[string]string{"added": st.green("+"), "removed": st.red("-"), "modified": st.yellow("~")}
 	var n tally
+	if len(plan.Install) > 0 {
+		fmt.Fprintln(w, st.bold(t.T("Nuevas en skilus.yaml:")))
+		for _, ip := range plan.Install {
+			renderSources(w, ip, st, t, &n)
+		}
+	}
 	for _, u := range plan.Skills {
 		e := u.Previous
 		info := short(e.Commit) + " → " + short(u.Commit) + sep + "sha256 " + e.TreeHash.Short() + " → " + u.Package.TreeHash().Short()
@@ -198,6 +221,19 @@ func renderUpdatePlan(w io.Writer, plan app.UpdatePlan, st style, t *i18n.Catalo
 		fmt.Fprintln(w, t.T("Requeridas por las skills actualizadas:"))
 		renderSources(w, ip, st, t, &n)
 	}
-	renderTargets(w, st, t, plan.Dependencies...)
-	n.render(w, st, t)
+	if len(plan.Remove) > 0 {
+		fmt.Fprintln(w, st.bold(t.T("Retirar:")))
+		for _, e := range plan.Remove {
+			why := t.T("quitada de skilus.yaml")
+			if e.Dependency {
+				why = t.T("ya no la necesita ninguna skill")
+			}
+			st.item(w, 0, st.red("-"), e.Skill.String()+"   "+st.dim(why))
+		}
+		fmt.Fprintln(w)
+	}
+	renderTargets(w, st, t, append(append([]app.InstallPlan(nil), plan.Install...), plan.Dependencies...)...)
+	if n.skills > 0 {
+		n.render(w, st, t)
+	}
 }

@@ -162,6 +162,9 @@ type Manifest struct {
 	Profiles []profile.Profile
 	// Indexes are the URLs of curated skill indexes skilus search reads.
 	Indexes []string
+	// Missing says there is no skilus.yaml, as opposed to one that
+	// declares no skills.
+	Missing bool
 }
 
 // Registry searches a public skill directory such as skills.sh.
