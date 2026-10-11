@@ -76,7 +76,7 @@ Sale con código 5 si hay bloqueos, o avisos con --strict, para usarlo en CI.`),
 				}
 				return err
 			}
-			renderAudit(out, res, t)
+			renderAudit(out, res, styleFor(cmd, out), t)
 			return err
 		},
 	}
@@ -87,31 +87,34 @@ Sale con código 5 si hay bloqueos, o avisos con --strict, para usarlo en CI.`),
 	return cmd
 }
 
-func renderAudit(w io.Writer, res app.AuditResult, t *i18n.Catalog) {
+func renderAudit(w io.Writer, res app.AuditResult, st style, t *i18n.Catalog) {
 	if len(res.Skills) == 0 {
 		fmt.Fprintln(w, t.T("No hay skills instaladas."))
 		return
 	}
-	blocks, warns := 0, 0
+	var n tally
 	for _, a := range res.Skills {
 		e := a.Entry
 		where := clean(e.Source)
 		if e.Commit != "" {
-			where += " @ " + short(e.Commit)
+			where += sep + "commit " + short(e.Commit)
 		}
-		fmt.Fprintf(w, "%s (%s)  %s\n", e.Skill, a.Scope, where)
+		fmt.Fprintln(w, markSkill+" "+st.bold(e.Skill.String())+" ("+string(a.Scope)+")   "+st.dim(where))
 		if line := signatureLine(a, t); line != "" {
-			fmt.Fprint(w, t.T("    firma: %s\n", line))
+			st.line(w, 2, t.T("firma: %s", line), 0)
 		}
 		if !a.ContentChecked {
-			fmt.Fprintln(w, t.T("    contenido: no está en el almacén, no se ha revisado; ejecuta skilus sync"))
+			st.item(w, 2, st.yellow(markWarn), t.T("contenido: no está en el almacén, no se ha revisado; ejecuta skilus sync"))
 		}
-		renderReport(w, a.Report(), t)
-		r := a.Report()
-		blocks += len(r.Findings) - r.Warnings()
-		warns += r.Warnings()
+		if a.ContentChecked {
+			renderReport(w, a.Report(), st, t)
+		} else {
+			renderFindings(w, a.Report(), st, t)
+		}
+		n.add(a.Report())
+		fmt.Fprintln(w)
 	}
-	fmt.Fprint(w, t.T("Auditadas %d skill(s): %d bloqueo(s), %d aviso(s).\n", len(res.Skills), blocks, warns))
+	n.render(w, st, t)
 }
 
 func signatureLine(a app.AuditedSkill, t *i18n.Catalog) string {

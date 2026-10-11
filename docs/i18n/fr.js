@@ -145,6 +145,7 @@ export default {
     h2('inspect', '`skilus inspect`'),
     p('Affiche la même chose que `add` avant de demander —fichiers, taille, hash, commit résolu, exécutables et constats— sans rien installer ni écrire.'),
     code('skilus inspect anthropics/skills --skill pdf\nskilus inspect ./my-skills --strict --json'),
+    p('Dans un terminal, la sortie s’adapte à sa largeur, réduit chaque description à deux lignes (`--full` les affiche en entier) et marque chaque skill en couleur : ✓ vert sans constat, ! jaune pour les avertissements et ✗ rouge pour les constats bloquants. Elle se termine par le nombre de skills, de constats bloquants et d’avertissements. `--no-color` ou la variable `NO_COLOR` désactivent les couleurs, qui ne sont jamais utilisées dans un tube ni avec `--json`.'),
     note('tip', 'En CI, `--strict` sort avec le code 5 si `add` refuserait l’installation, et `--json` fournit une sortie lisible par une machine.'),
     h2('trust', 'Origines de confiance'),
     p('Ajoutez `trust:` à `skilus.yaml` (projet ou global) pour limiter la provenance des skills : une organisation entière ou un seul dépôt.'),

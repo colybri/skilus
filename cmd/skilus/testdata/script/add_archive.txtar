@@ -23,7 +23,7 @@ exec git archive --format=zip --prefix=src-main/ -o $WORK/skills.zip HEAD
 cd $WORK/project
 
 exec skilus inspect file://$WORK/skills.zip
-stdout 'review  1 ficheros'
+stdout '● review   1 fichero · '
 
 exec skilus add file://$WORK/skills.tar.gz --agent claude-code --yes
 stdout 'Instalada review'

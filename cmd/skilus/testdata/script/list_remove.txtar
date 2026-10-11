@@ -30,7 +30,7 @@ stderr 'la skill nope no está instalada'
 exists .claude/skills/review/SKILL.md
 
 exec skilus remove review
-stdout 'Eliminada review de 2 destino\(s\)\.'
+stdout 'Eliminada review de 2 destinos\.'
 ! exists .claude/skills/review
 ! exists .agents/skills/review
 exists .claude/skills/lint

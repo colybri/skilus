@@ -24,18 +24,18 @@ exec skilus add ./mine --agent claude-code --yes
 
 # Without a trust: list only the missing signature is reported.
 exec skilus audit
-stdout '^review \(project\)  file://.*remote @ [0-9a-f]{12}$'
+stdout '^● review \(project\)   file://.*remote · commit [0-9a-f]{12}$'
 stdout 'firma: sin firmar'
-stdout 'aviso \[unsigned-commit\] el commit [0-9a-f]{12} no está firmado'
+stdout '! el commit [0-9a-f]{12} no está firmado.* \[unsigned-commit\]'
 ! stdout 'untrusted-source'
-stdout '^mine \(project\)'
-stdout 'Auditadas 2 skill\(s\): 0 bloqueo\(s\), 1 aviso\(s\)\.'
+stdout '^● mine \(project\)'
+stdout '^2 skills · 0 bloqueos · 1 aviso$'
 
 # With one, the Git source is also untrusted; --strict fails with code 5.
 cp $WORK/trusted.yaml skilus.yaml.trust
 exec sh -c 'cat skilus.yaml.trust >> skilus.yaml'
 ! exec skilus audit --strict
-stdout 'aviso \[untrusted-source\]'
+stdout '! .*\[untrusted-source\]'
 stderr 'review: 2 avisos con --strict'
 
 exec skilus audit --json
@@ -46,7 +46,8 @@ stdout '"content_checked": true'
 # Content missing from the store is reported, not guessed.
 rm $HOME/.skilus/store
 exec skilus audit --scope project
-stdout 'contenido: no está en el almacén'
+stdout '! contenido: no está en el almacén'
+! stdout 'sin hallazgos'
 
 -- gitconfig --
 -- trusted.yaml --

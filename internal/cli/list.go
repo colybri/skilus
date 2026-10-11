@@ -131,7 +131,11 @@ func newRemoveCommand(h app.RemoveSkillHandler, t *i18n.Catalog) *cobra.Command 
 				if e.Dependency {
 					note = t.T(" (era una dependencia)")
 				}
-				fmt.Fprint(cmd.OutOrStdout(), t.T("Eliminada %s%s de %d destino(s).\n", e.Skill, note, len(e.Targets)))
+				if len(e.Targets) == 1 {
+					fmt.Fprint(cmd.OutOrStdout(), t.T("Eliminada %s%s de 1 destino.\n", e.Skill, note))
+				} else {
+					fmt.Fprint(cmd.OutOrStdout(), t.T("Eliminada %s%s de %d destinos.\n", e.Skill, note, len(e.Targets)))
+				}
 			}
 			return err
 		},

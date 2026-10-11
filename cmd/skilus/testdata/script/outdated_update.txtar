@@ -41,8 +41,10 @@ stdout '"state": "current"'
 # Answering no changes nothing.
 stdin $WORK/no.txt
 ! exec skilus update
-stdout '~ SKILL.md'
-stdout '\+ notes.md'
+stdout '^● review   [0-9a-f]{12} → [0-9a-f]{12} · sha256 [0-9a-f]{12} → [0-9a-f]{12}$'
+stdout '^  ~ SKILL.md$'
+stdout '^  \+ notes.md$'
+stdout '^1 skill · 0 bloqueos · 0 avisos$'
 stdout '¿Actualizar\? \[s/N\]'
 ! exists .claude/skills/review/notes.md
 

@@ -44,6 +44,7 @@ skilus edit --path                          # solo imprime dónde está
 
 skilus inspect anthropics/skills --skill pdf # lo que add revisaría, sin instalar nada
 skilus inspect ./mis-skills --strict --json # para CI: código 5 si add lo rechazaría
+skilus inspect ./mis-skills --full          # con las descripciones completas
 
 skilus verify                               # comprueba que lo instalado y skilus.yaml coinciden con el lock
 skilus verify --json
@@ -78,6 +79,8 @@ Las fuentes Git se descargan con el `git` del sistema, así que valen tus creden
 Los archivos ZIP y tar.gz (también `.tgz`) se descargan solo por https y se descomprimen en memoria, sin escribir nada en disco: se rechazan rutas absolutas, con `..` o con `\`, y entradas que no son ficheros, directorios o symlinks, y hay límites de descarga (50 MB), de tamaño descomprimido y de número de entradas. Si todo cuelga de un único directorio, como en los archivos que genera GitHub, se quita. No llevan `@ref` ni commit: el lock fija su contenido por el hash, y una URL con `?` se rechaza porque suele llevar un token.
 
 `skilus add` lee una skill (con `SKILL.md` en la raíz) o un directorio con skills en `skills/<nombre>/`, `skills/.curated/<nombre>/` (como openai/skills) o `<nombre>/`. Antes de instalar inspecciona cada skill: bloquea symlinks que salen de la skill, ficheros o paquetes demasiado grandes y caracteres de control en la descripción; avisa de ficheros ejecutables, `curl … | sh` y accesos a credenciales (`~/.ssh`, `.aws/credentials`…) en cualquier fichero de texto, y de texto invisible y secuencias de escape en el Markdown. Con `--strict` los avisos bloquean, y con `--yes` los ejecutables necesitan `--allow-scripts`.
+
+En una terminal, el plan se ajusta a su ancho, recorta cada descripción a dos líneas (`--full` las muestra enteras) y usa colores: ✓ en verde si no hay hallazgos, ! en amarillo para los avisos y ✗ en rojo para los bloqueos, con un resumen final antes de preguntar. `--no-color` o la variable `NO_COLOR` quitan los colores, y en una tubería o con `--json` nunca se usan.
 
 Para limitar de dónde se instala, añade `trust:` a `skilus.yaml` (del proyecto o el global en `~/.skilus/`):
 
