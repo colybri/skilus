@@ -58,6 +58,6 @@ Página estática con 13 idiomas: es, en, fr, de, pt, zh, ja, id, ar, ru, pl, ur
 
 ## Estilo
 
-- Comentarios y nombres en inglés; textos para el usuario, README y web en español (y traducidos).
+- Comentarios y nombres en inglés; textos para el usuario y web en español (y traducidos). El README está en inglés.
 - Sin compatibilidad hacia atrás que mantener: el formato de los ficheros puede cambiar si hace falta.
 - La licencia es PolyForm Noncommercial 1.0.0; no se añaden dependencias con licencias incompatibles.
