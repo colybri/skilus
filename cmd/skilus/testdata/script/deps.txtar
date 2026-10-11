@@ -39,7 +39,7 @@ exec skilus verify
 
 # A requirement cannot be removed while something needs it.
 ! exec skilus remove pdf
-stderr 'pdf is required by report; remove those too'
+stderr 'pdf es necesaria para report; quítalas también'
 exists .claude/skills/pdf
 
 # Removing what needed them removes the dependencies.
@@ -63,7 +63,7 @@ stdout 'Retirada pdf'
 
 # A missing requirement stops the install before anything changes.
 ! exec skilus add ./src --skill broken --agent claude-code --yes
-stderr 'skill broken requires nope, which is not in'
+stderr 'la skill broken necesita nope, que no está en'
 ! exists .claude/skills/broken
 
 -- profiles.yaml --

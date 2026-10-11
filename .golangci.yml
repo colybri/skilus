@@ -4,10 +4,20 @@ linters:
   enable:
     - depguard
     - errorlint
+    - forbidigo
     - gocritic
     - misspell
     - revive
   settings:
+    forbidigo:
+      # Errors the user may read go through the domain so the CLI can
+      # print them in the user's language.
+      forbid:
+        - pattern: ^fmt\.Errorf$
+          msg: usa domain.Errorf para que la CLI traduzca el mensaje
+        - pattern: ^errors\.New$
+          msg: usa domain.NewError para que la CLI traduzca el mensaje
+      analyze-types: true
     misspell:
       # The CLI's message ids are Spanish.
       ignore-rules:
@@ -64,6 +74,14 @@ linters:
           deny:
             - pkg: github.com/colybri/skilus/internal/adapter
               desc: "cli solo habla con app; los adaptadores se conectan en cmd/skilus (regla 1)"
+
+  exclusions:
+    rules:
+      # The CLI translates with its own catalog; message.go is where the
+      # domain builds errors; tests may build plain errors.
+      - path: (internal/cli/|cmd/|internal/domain/message\.go|_test\.go)
+        linters:
+          - forbidigo
 
 formatters:
   enable:

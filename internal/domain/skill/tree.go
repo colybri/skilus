@@ -2,7 +2,6 @@ package skill
 
 import (
 	"bytes"
-	"fmt"
 	"sort"
 
 	"github.com/colybri/skilus/internal/domain"
@@ -18,12 +17,12 @@ func sortedFiles(files []File) ([]File, error) {
 			return nil, err
 		}
 		if i > 0 && sorted[i-1].Path == f.Path {
-			return nil, fmt.Errorf("%s is listed twice: %w", f.Path, domain.ErrInvalid)
+			return nil, domain.Errorf("%s aparece dos veces: %w", f.Path, domain.ErrInvalid)
 		}
 		switch f.Kind {
 		case KindRegular, KindExecutable, KindSymlink:
 		default:
-			return nil, fmt.Errorf("file %s has unknown kind %q: %w", f.Path, f.Kind, domain.ErrInvalid)
+			return nil, domain.Errorf("el fichero %s tiene un tipo desconocido %q: %w", f.Path, f.Kind, domain.ErrInvalid)
 		}
 	}
 	return sorted, nil

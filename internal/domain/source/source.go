@@ -4,7 +4,6 @@
 package source
 
 import (
-	"fmt"
 	"net/url"
 	"regexp"
 	"strings"
@@ -62,7 +61,7 @@ func Parse(raw string) (Source, error) {
 	raw = strings.TrimSpace(raw)
 	switch {
 	case raw == "":
-		return Source{}, fmt.Errorf("empty source: %w", domain.ErrInvalid)
+		return Source{}, domain.Errorf("origen vacío: %w", domain.ErrInvalid)
 	case isLocal(raw):
 		return Source{Kind: KindLocal, Raw: raw, ID: raw}, nil
 	}
@@ -75,7 +74,7 @@ func Parse(raw string) (Source, error) {
 	prefix, rest := splitPrefix(raw)
 	path, ref, hasRef := strings.Cut(rest, "@")
 	if hasRef && (ref == "" || !refRe.MatchString(ref) || strings.Contains(ref, "..")) {
-		return Source{}, fmt.Errorf("invalid ref %q in %s: %w", ref, raw, domain.ErrInvalid)
+		return Source{}, domain.Errorf("ref %q no válida en %s: %w", ref, raw, domain.ErrInvalid)
 	}
 	base := prefix + path
 	src := Source{Kind: KindGit, Raw: base, Ref: ref}
@@ -84,10 +83,10 @@ func Parse(raw string) (Source, error) {
 	case strings.Contains(base, "://"):
 		u, err := url.Parse(base)
 		if err != nil {
-			return Source{}, fmt.Errorf("invalid URL %s: %w", base, domain.ErrInvalid)
+			return Source{}, domain.Errorf("URL no válida %s: %w", base, domain.ErrInvalid)
 		}
 		if _, hasPassword := u.User.Password(); hasPassword {
-			return Source{}, fmt.Errorf("the URL contains a password; skilus uses Git's own credentials and never stores tokens: %w", domain.ErrInvalid)
+			return Source{}, domain.Errorf("la URL contiene una contraseña; skilus usa las credenciales de Git y nunca guarda tokens: %w", domain.ErrInvalid)
 		}
 		switch u.Scheme {
 		case "https":
@@ -95,7 +94,7 @@ func Parse(raw string) (Source, error) {
 		case "ssh", "file":
 			src.URL, src.ID = base, base
 		default:
-			return Source{}, fmt.Errorf("scheme %s is not supported; use https, ssh or file: %w", u.Scheme, domain.ErrInvalid)
+			return Source{}, domain.Errorf("el esquema %s no está soportado; usa https, ssh o file: %w", u.Scheme, domain.ErrInvalid)
 		}
 	case scpRe.MatchString(base):
 		src.URL, src.ID = base, base
@@ -106,7 +105,7 @@ func Parse(raw string) (Source, error) {
 		src.URL = "https://" + base
 		src.ID = strings.ToLower(host) + "/" + strings.TrimSuffix(p, ".git")
 	default:
-		return Source{}, fmt.Errorf("source %q is neither a directory (start it with ./) nor a Git repository: %w", raw, domain.ErrInvalid)
+		return Source{}, domain.Errorf("el origen %q no es un directorio (empiézalo con ./) ni un repositorio Git: %w", raw, domain.ErrInvalid)
 	}
 	return src, nil
 }
@@ -124,9 +123,9 @@ func parseArchive(raw string) (Source, bool, error) {
 	}
 	switch {
 	case u.User != nil:
-		return Source{}, true, fmt.Errorf("the URL contains credentials; skilus never stores tokens: %w", domain.ErrInvalid)
+		return Source{}, true, domain.Errorf("la URL contiene credenciales; skilus nunca guarda tokens: %w", domain.ErrInvalid)
 	case u.RawQuery != "" || u.Fragment != "":
-		return Source{}, true, fmt.Errorf("archive URLs cannot have a query or fragment, which would be recorded in the lock: %w", domain.ErrInvalid)
+		return Source{}, true, domain.Errorf("las URL de archivos comprimidos no pueden llevar query ni fragmento, porque quedarían registrados en el lock: %w", domain.ErrInvalid)
 	}
 	return Source{Kind: KindArchive, Raw: raw, URL: raw, ID: raw}, true, nil
 }

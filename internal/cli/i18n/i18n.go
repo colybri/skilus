@@ -87,6 +87,10 @@ func (c *Catalog) T(msgid string, args ...any) string {
 	return fmt.Sprintf(s, args...)
 }
 
+// Translate returns the translation of a message id built outside the CLI,
+// such as an error's format, without formatting it.
+func (c *Catalog) Translate(msgid string) string { return c.T(msgid) }
+
 // Lookup returns the supported language for code.
 func Lookup(code string) (Language, bool) {
 	for _, l := range Languages {

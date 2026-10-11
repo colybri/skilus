@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -46,7 +45,7 @@ func (h ListProfilesHandler) Handle(ctx context.Context, q ListProfiles) ([]Prof
 	}
 	lf, err := h.Locks.Load(ctx, q.Scope)
 	if err != nil {
-		return nil, fmt.Errorf("load lock: %w", err)
+		return nil, domain.Errorf("cargar el lock: %w", err)
 	}
 	out := make([]ProfileStatus, 0, len(m.Profiles))
 	for _, p := range m.Profiles {
@@ -137,7 +136,7 @@ func (h UseProfileHandler) Handle(ctx context.Context, cmd UseProfile) (UseProfi
 		return UseProfileResult{}, err
 	}
 	if missing := undeclared(m, p); len(missing) > 0 {
-		return UseProfileResult{}, fmt.Errorf("profile %s uses skills that skills: in skilus.yaml does not declare: %s: %w", p.Name(), joinNames(missing), domain.ErrInvalid)
+		return UseProfileResult{}, domain.Errorf("el perfil %s usa skills que skills: de skilus.yaml no declara: %s: %w", p.Name(), joinNames(missing), domain.ErrInvalid)
 	}
 	mode := cmd.Mode
 	if mode == "" {
@@ -148,7 +147,7 @@ func (h UseProfileHandler) Handle(ctx context.Context, cmd UseProfile) (UseProfi
 	}
 	lf, err := h.Add.Locks.Load(ctx, cmd.Scope)
 	if err != nil {
-		return UseProfileResult{}, fmt.Errorf("load lock: %w", err)
+		return UseProfileResult{}, domain.Errorf("cargar el lock: %w", err)
 	}
 
 	plan, groups, err := h.plan(ctx, cmd, m, p, mode, lf)
@@ -223,7 +222,7 @@ func (h UseProfileHandler) plan(ctx context.Context, cmd UseProfile, m Manifest,
 		}
 		selected, err := selectSkills(fetched, bySource[src])
 		if err != nil {
-			return plan, nil, fmt.Errorf("source %s: %w", src, err)
+			return plan, nil, domain.Errorf("origen %s: %w", src, err)
 		}
 		untrusted, err := trustFindings(ctx, h.Add.Trust, src, trustScopes(cmd.Scope)...)
 		if err != nil {
@@ -296,7 +295,7 @@ func (h UseProfileHandler) retarget(ctx context.Context, e lock.Entry, want []Pl
 	for _, t := range e.Targets {
 		a, ok := byID[t.Agent]
 		if !ok {
-			return Retarget{}, false, fmt.Errorf("skill %s targets agent %s, which is no longer in the catalog: %w", e.Skill, t.Agent, domain.ErrConflict)
+			return Retarget{}, false, domain.Errorf("la skill %s apunta al agente %s, que ya no está en el catálogo: %w", e.Skill, t.Agent, domain.ErrConflict)
 		}
 		current[skillsDir(a, t.Scope, h.Add.ProjectRoot)] = t
 	}
@@ -328,22 +327,22 @@ func profileGate(plan ProfilePlan, cmd UseProfile, m Manifest) error {
 	for _, e := range m.Skills {
 		declared[e.Name] = e
 	}
-	var reasons []string
+	var reasons domain.Errors
 	for _, ip := range plan.Install {
 		for _, s := range ip.Skills {
 			r, name := s.Report, s.Package.Name()
 			switch {
 			case r.Blocking():
-				reasons = append(reasons, fmt.Sprintf("%s: blocking findings", name))
+				reasons = append(reasons, domain.Errorf("%s: hallazgos que bloquean", name))
 			case cmd.Strict && r.Warnings() > 0:
-				reasons = append(reasons, fmt.Sprintf("%s: %d warnings under --strict", name, r.Warnings()))
+				reasons = append(reasons, domain.Errorf("%s: %d avisos con --strict", name, r.Warnings()))
 			case cmd.Yes && len(r.Executables) > 0 && !cmd.AllowScripts && !allowsScripts(declared[name]):
-				reasons = append(reasons, fmt.Sprintf("%s: executable files need --allow-scripts or allow: [scripts] in skilus.yaml", name))
+				reasons = append(reasons, domain.Errorf("%s: los ficheros ejecutables necesitan --allow-scripts o allow: [scripts] en skilus.yaml", name))
 			}
 		}
 	}
 	if len(reasons) > 0 {
-		return fmt.Errorf("%s: %w", strings.Join(reasons, "; "), ErrRejected)
+		return domain.Errorf("%w: %w", reasons, ErrRejected)
 	}
 	return nil
 }
@@ -365,18 +364,18 @@ func (h UseProfileHandler) apply(ctx context.Context, cmd UseProfile, plan Profi
 		if len(r.Add) > 0 {
 			storeDir, _, err := h.Sync.content(ctx, e, sources)
 			if err != nil {
-				return res, fmt.Errorf("skill %s: %w", e.Skill, err)
+				return res, domain.Errorf("skill %s: %w", e.Skill, err)
 			}
 			for _, t := range r.Add {
 				dest := filepath.Join(t.Dir, e.Skill.String())
 				if err := h.Add.Deployer.Deploy(ctx, storeDir, dest, t.Target.Mode); err != nil {
-					return res, fmt.Errorf("deploy %s to %s: %w", e.Skill, dest, err)
+					return res, domain.Errorf("desplegar %s en %s: %w", e.Skill, dest, err)
 				}
 			}
 		}
 		for _, dir := range r.Drop {
 			if err := h.Add.Deployer.Remove(ctx, dir); err != nil {
-				return res, fmt.Errorf("remove %s: %w", dir, err)
+				return res, domain.Errorf("borrar %s: %w", dir, err)
 			}
 		}
 		e.Targets = r.Targets
@@ -394,11 +393,11 @@ func (h UseProfileHandler) apply(ctx context.Context, cmd UseProfile, plan Profi
 		for _, t := range e.Targets {
 			a, ok := byID[t.Agent]
 			if !ok {
-				return res, fmt.Errorf("skill %s targets agent %s, which is no longer in the catalog: %w", e.Skill, t.Agent, domain.ErrConflict)
+				return res, domain.Errorf("la skill %s apunta al agente %s, que ya no está en el catálogo: %w", e.Skill, t.Agent, domain.ErrConflict)
 			}
 			dest := filepath.Join(skillsDir(a, t.Scope, h.Add.ProjectRoot), e.Skill.String())
 			if err := h.Add.Deployer.Remove(ctx, dest); err != nil {
-				return res, fmt.Errorf("remove %s: %w", dest, err)
+				return res, domain.Errorf("borrar %s: %w", dest, err)
 			}
 		}
 		if err := lf.Remove(e.Skill); err != nil {
@@ -407,7 +406,7 @@ func (h UseProfileHandler) apply(ctx context.Context, cmd UseProfile, plan Profi
 		res.Removed = append(res.Removed, e)
 	}
 	if err := h.Add.Locks.Save(ctx, cmd.Scope, lf); err != nil {
-		return res, fmt.Errorf("save lock: %w", err)
+		return res, domain.Errorf("guardar el lock: %w", err)
 	}
 	lf.PullEvents()
 	return res, nil
@@ -422,9 +421,9 @@ func findProfile(m Manifest, name string) (profile.Profile, error) {
 		names = append(names, p.Name())
 	}
 	if len(names) == 0 {
-		return profile.Profile{}, fmt.Errorf("skilus.yaml declares no profiles: %w", domain.ErrNotFound)
+		return profile.Profile{}, domain.Errorf("skilus.yaml no declara ningún perfil: %w", domain.ErrNotFound)
 	}
-	return profile.Profile{}, fmt.Errorf("profile %q is not in skilus.yaml; profiles: %s: %w", name, strings.Join(names, ", "), domain.ErrNotFound)
+	return profile.Profile{}, domain.Errorf("el perfil %q no está en skilus.yaml; perfiles: %s: %w", name, strings.Join(names, ", "), domain.ErrNotFound)
 }
 
 func undeclared(m Manifest, p profile.Profile) []skill.Name {

@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path"
 	"path/filepath"
 	"strings"
@@ -19,9 +18,9 @@ import (
 // Errors returned by AddSkill besides the domain ones.
 var (
 	// ErrRejected means the inspection blocked the installation.
-	ErrRejected = errors.New("rejected by inspection")
+	ErrRejected = domain.NewError("rechazado por la inspección")
 	// ErrCancelled means the user answered no.
-	ErrCancelled = errors.New("cancelled")
+	ErrCancelled = domain.NewError("cancelado")
 )
 
 // AllowScripts is the manifest allow value that accepts executable files.
@@ -123,7 +122,7 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 
 	lf, err := h.Locks.Load(ctx, cmd.Scope)
 	if err != nil {
-		return AddResult{}, fmt.Errorf("load lock: %w", err)
+		return AddResult{}, domain.Errorf("cargar el lock: %w", err)
 	}
 
 	fetched.Source = h.recordedSource(cmd.Scope, fetched.Source)
@@ -137,7 +136,7 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 	}
 	for _, s := range selected {
 		if _, ok := lf.Entry(s.Package.Name()); ok {
-			return AddResult{}, fmt.Errorf("skill %s is already installed; use skilus update: %w", s.Package.Name(), domain.ErrAlreadyExists)
+			return AddResult{}, domain.Errorf("la skill %s ya está instalada; usa skilus update: %w", s.Package.Name(), domain.ErrAlreadyExists)
 		}
 		report := policy.Inspect(s.Package, h.Limits, policy.Allow{Scripts: cmd.AllowScripts})
 		report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
@@ -203,7 +202,7 @@ func (h AddSkillHandler) installGroups(ctx context.Context, scope agent.Scope, g
 func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.Mode) ([]PlannedTarget, error) {
 	agents, err := h.Catalog.Agents(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("load agent catalog: %w", err)
+		return nil, domain.Errorf("cargar el catálogo de agentes: %w", err)
 	}
 	byID := make(map[agent.ID]agent.Agent, len(agents))
 	known := make(map[string]agent.Agent, len(agents))
@@ -217,7 +216,7 @@ func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.M
 		for _, id := range cmd.Agents {
 			a, ok := known[id]
 			if !ok {
-				return nil, fmt.Errorf("unknown agent %q; see skilus agents: %w", id, domain.ErrNotFound)
+				return nil, domain.Errorf("agente %q desconocido; consulta skilus agents: %w", id, domain.ErrNotFound)
 			}
 			chosen = append(chosen, a)
 		}
@@ -225,7 +224,7 @@ func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.M
 		for _, a := range agents {
 			ok, err := h.Detector.Installed(ctx, a)
 			if err != nil {
-				return nil, fmt.Errorf("detect agent %s: %w", a.ID(), err)
+				return nil, domain.Errorf("detectar el agente %s: %w", a.ID(), err)
 			}
 			if ok {
 				chosen = append(chosen, a)
@@ -242,7 +241,7 @@ func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.M
 		out = append(out, PlannedTarget{Target: t, Dir: skillsDir(byID[t.Agent], t.Scope, h.ProjectRoot)})
 	}
 	if len(out) == 0 {
-		return nil, fmt.Errorf("no agent selected or detected; pass --agent: %w", domain.ErrInvalid)
+		return nil, domain.Errorf("no hay ningún agente elegido ni detectado; usa --agent: %w", domain.ErrInvalid)
 	}
 	return out, nil
 }
@@ -271,11 +270,11 @@ func fetchSource(ctx context.Context, fetchers map[source.Kind]Fetcher, raw stri
 	}
 	fetcher, ok := fetchers[src.Kind]
 	if !ok {
-		return Fetched{}, fmt.Errorf("%s sources are not supported yet: %w", src.Kind, domain.ErrInvalid)
+		return Fetched{}, domain.Errorf("los orígenes %s aún no están soportados: %w", src.Kind, domain.ErrInvalid)
 	}
 	fetched, err := fetcher.Fetch(ctx, src)
 	if err != nil {
-		return Fetched{}, fmt.Errorf("read source %s: %w", raw, err)
+		return Fetched{}, domain.Errorf("leer el origen %s: %w", raw, err)
 	}
 	return fetched, nil
 }
@@ -285,9 +284,9 @@ func selectSkills(fetched Fetched, names []string) ([]FetchedSkill, error) {
 	if len(found) == 0 {
 		if len(fetched.Invalid) > 0 {
 			bad := fetched.Invalid[0]
-			return nil, fmt.Errorf("skill in %s: %w", bad.Path, bad.Err)
+			return nil, domain.Errorf("skill en %s: %w", bad.Path, bad.Err)
 		}
-		return nil, fmt.Errorf("no %s found in the source: %w", skill.ManifestFile, domain.ErrNotFound)
+		return nil, domain.Errorf("no hay ningún %s en el origen: %w", skill.ManifestFile, domain.ErrNotFound)
 	}
 	if len(names) == 0 {
 		return found, nil
@@ -302,10 +301,10 @@ func selectSkills(fetched Fetched, names []string) ([]FetchedSkill, error) {
 		if !ok {
 			for _, bad := range fetched.Invalid {
 				if path.Base(bad.Path) == n {
-					return nil, fmt.Errorf("skill in %s: %w", bad.Path, bad.Err)
+					return nil, domain.Errorf("skill en %s: %w", bad.Path, bad.Err)
 				}
 			}
-			return nil, fmt.Errorf("skill %q is not in the source: %w", n, domain.ErrNotFound)
+			return nil, domain.Errorf("la skill %q no está en el origen: %w", n, domain.ErrNotFound)
 		}
 		out = append(out, s)
 	}
@@ -315,7 +314,7 @@ func selectSkills(fetched Fetched, names []string) ([]FetchedSkill, error) {
 // gate applies the rules that do not need the user: blocking findings,
 // --strict, and scripts that were not explicitly allowed under --yes.
 func gate(plan InstallPlan, cmd AddSkill) error {
-	var reasons []string
+	var reasons domain.Errors
 	var skills []PlannedSkill
 	for _, p := range plan.All() {
 		skills = append(skills, p.Skills...)
@@ -324,15 +323,15 @@ func gate(plan InstallPlan, cmd AddSkill) error {
 		r := s.Report
 		switch {
 		case r.Blocking():
-			reasons = append(reasons, fmt.Sprintf("%s: blocking findings", s.Package.Name()))
+			reasons = append(reasons, domain.Errorf("%s: hallazgos que bloquean", s.Package.Name()))
 		case cmd.Strict && r.Warnings() > 0:
-			reasons = append(reasons, fmt.Sprintf("%s: %d warnings under --strict", s.Package.Name(), r.Warnings()))
+			reasons = append(reasons, domain.Errorf("%s: %d avisos con --strict", s.Package.Name(), r.Warnings()))
 		case cmd.Yes && len(r.Executables) > 0 && !cmd.AllowScripts:
-			reasons = append(reasons, fmt.Sprintf("%s: executable files need --allow-scripts", s.Package.Name()))
+			reasons = append(reasons, domain.Errorf("%s: los ficheros ejecutables necesitan --allow-scripts", s.Package.Name()))
 		}
 	}
 	if len(reasons) > 0 {
-		return fmt.Errorf("%s: %w", strings.Join(reasons, "; "), ErrRejected)
+		return domain.Errorf("%w: %w", reasons, ErrRejected)
 	}
 	return nil
 }
@@ -345,7 +344,7 @@ func (h AddSkillHandler) install(ctx context.Context, cmd AddSkill, fetched Fetc
 		}
 		for i := len(deployed) - 1; i >= 0; i-- {
 			if rmErr := h.Deployer.Remove(ctx, deployed[i]); rmErr != nil {
-				err = errors.Join(err, fmt.Errorf("roll back %s: %w", deployed[i], rmErr))
+				err = errors.Join(err, domain.Errorf("deshacer %s: %w", deployed[i], rmErr))
 			}
 		}
 	}()
@@ -359,12 +358,12 @@ func (h AddSkillHandler) install(ctx context.Context, cmd AddSkill, fetched Fetc
 	for _, s := range plan.Skills {
 		storeDir, err := h.Store.Put(ctx, s.Package)
 		if err != nil {
-			return nil, fmt.Errorf("store %s: %w", s.Package.Name(), err)
+			return nil, domain.Errorf("guardar %s en el almacén: %w", s.Package.Name(), err)
 		}
 		for _, t := range plan.Targets {
 			dest := filepath.Join(t.Dir, s.Package.Name().String())
 			if err := h.Deployer.Deploy(ctx, storeDir, dest, t.Target.Mode); err != nil {
-				return nil, fmt.Errorf("deploy %s to %s: %w", s.Package.Name(), dest, err)
+				return nil, domain.Errorf("desplegar %s en %s: %w", s.Package.Name(), dest, err)
 			}
 			deployed = append(deployed, dest)
 		}
@@ -400,13 +399,13 @@ func (h AddSkillHandler) install(ctx context.Context, cmd AddSkill, fetched Fetc
 	}
 
 	if err := h.Locks.Save(ctx, cmd.Scope, lf); err != nil {
-		return nil, fmt.Errorf("save lock: %w", err)
+		return nil, domain.Errorf("guardar el lock: %w", err)
 	}
 	lf.PullEvents()
 	for _, m := range manifest {
 		if err := h.Manifests.AddSkill(ctx, cmd.Scope, m); err != nil {
 			// The lock already records the installation; report without rolling back.
-			return installed, fmt.Errorf("installed, but could not update skilus.yaml: %w", err)
+			return installed, domain.Errorf("instalado, pero no se pudo actualizar skilus.yaml: %w", err)
 		}
 	}
 	return installed, nil

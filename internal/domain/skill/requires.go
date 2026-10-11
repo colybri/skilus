@@ -1,7 +1,6 @@
 package skill
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/colybri/skilus/internal/domain"
@@ -42,14 +41,14 @@ func ParseRequires(s string) ([]Requirement, error) {
 			src, raw = "", field
 		}
 		if ok && src == "" {
-			return nil, fmt.Errorf("requirement %q has an empty source: %w", field, domain.ErrInvalid)
+			return nil, domain.Errorf("el requisito %q tiene un origen vacío: %w", field, domain.ErrInvalid)
 		}
 		n, err := NewName(raw)
 		if err != nil {
-			return nil, fmt.Errorf("requirement %q: %w", field, err)
+			return nil, domain.Errorf("requisito %q: %w", field, err)
 		}
 		if seen[n] {
-			return nil, fmt.Errorf("skill %s is required twice: %w", n, domain.ErrInvalid)
+			return nil, domain.Errorf("la skill %s se requiere dos veces: %w", n, domain.ErrInvalid)
 		}
 		seen[n] = true
 		out = append(out, Requirement{Source: src, Name: n})

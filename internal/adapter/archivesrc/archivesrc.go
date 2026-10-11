@@ -11,7 +11,6 @@ import (
 	"compress/gzip"
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
@@ -67,7 +66,7 @@ func (f Fetcher) Fetch(ctx context.Context, src source.Source) (app.Fetched, err
 		entries, err = f.untar(data)
 	}
 	if err != nil {
-		return app.Fetched{}, fmt.Errorf("unpack %s: %w", src.URL, err)
+		return app.Fetched{}, domain.Errorf("desempaquetar %s: %w", src.URL, err)
 	}
 	entries = stripTopDir(entries)
 
@@ -104,14 +103,14 @@ func (f Fetcher) download(ctx context.Context, raw string) ([]byte, error) {
 	}
 	u, err := url.Parse(raw)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", raw, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: %w", raw, domain.ErrInvalid)
 	}
 	var body io.ReadCloser
 	switch u.Scheme {
 	case "file":
 		file, err := os.Open(filePath(u))
 		if errors.Is(err, fs.ErrNotExist) {
-			return nil, fmt.Errorf("%s does not exist: %w", raw, domain.ErrNotFound)
+			return nil, domain.Errorf("%s no existe: %w", raw, domain.ErrNotFound)
 		}
 		if err != nil {
 			return nil, err
@@ -128,30 +127,30 @@ func (f Fetcher) download(ctx context.Context, raw string) ([]byte, error) {
 		}
 		resp, err := client.Do(req)
 		if err != nil {
-			return nil, fmt.Errorf("download %s: %w", raw, err)
+			return nil, domain.Errorf("descargar %s: %w", raw, err)
 		}
 		switch {
 		case resp.StatusCode == http.StatusNotFound:
 			resp.Body.Close() //nolint:errcheck // nothing to read
-			return nil, fmt.Errorf("download %s: %s: %w", raw, resp.Status, domain.ErrNotFound)
+			return nil, domain.Errorf("descargar %s: %s: %w", raw, resp.Status, domain.ErrNotFound)
 		case resp.StatusCode != http.StatusOK:
 			resp.Body.Close() //nolint:errcheck // nothing to read
-			return nil, fmt.Errorf("download %s: %s", raw, resp.Status)
+			return nil, domain.Errorf("descargar %s: %s", raw, resp.Status)
 		case resp.Request.URL.Scheme != "https":
 			resp.Body.Close() //nolint:errcheck // nothing to read
-			return nil, fmt.Errorf("download %s: redirected to %s, which is not HTTPS: %w", raw, resp.Request.URL.Scheme, domain.ErrInvalid)
+			return nil, domain.Errorf("descargar %s: redirige a %s, que no es HTTPS: %w", raw, resp.Request.URL.Scheme, domain.ErrInvalid)
 		}
 		body = resp.Body
 	default:
-		return nil, fmt.Errorf("scheme %s is not supported for archives: %w", u.Scheme, domain.ErrInvalid)
+		return nil, domain.Errorf("el esquema %s no está soportado para archivos comprimidos: %w", u.Scheme, domain.ErrInvalid)
 	}
 	defer body.Close() //nolint:errcheck // read-only
 	data, err := io.ReadAll(io.LimitReader(body, limit+1))
 	if err != nil {
-		return nil, fmt.Errorf("download %s: %w", raw, err)
+		return nil, domain.Errorf("descargar %s: %w", raw, err)
 	}
 	if int64(len(data)) > limit {
-		return nil, fmt.Errorf("%s is larger than %d bytes: %w", raw, limit, domain.ErrInvalid)
+		return nil, domain.Errorf("%s ocupa más de %d bytes: %w", raw, limit, domain.ErrInvalid)
 	}
 	return data, nil
 }
@@ -186,7 +185,7 @@ func (f Fetcher) newBudget() *budget {
 func (b *budget) entry() error {
 	b.entries--
 	if b.entries < 0 {
-		return fmt.Errorf("too many entries: %w", domain.ErrInvalid)
+		return domain.Errorf("demasiadas entradas: %w", domain.ErrInvalid)
 	}
 	return nil
 }
@@ -200,7 +199,7 @@ func (b *budget) read(r io.Reader) ([]byte, error) {
 	}
 	b.bytes -= int64(len(data))
 	if b.bytes < 0 {
-		return nil, fmt.Errorf("unpacks to too many bytes: %w", domain.ErrInvalid)
+		return nil, domain.Errorf("al desempaquetarlo ocupa demasiados bytes: %w", domain.ErrInvalid)
 	}
 	return data, nil
 }
@@ -208,7 +207,7 @@ func (b *budget) read(r io.Reader) ([]byte, error) {
 func (f Fetcher) unzip(data []byte) ([]entry, error) {
 	zr, err := zip.NewReader(bytes.NewReader(data), int64(len(data)))
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", err, domain.ErrInvalid)
+		return nil, domain.Errorf("%w: %w", err, domain.ErrInvalid)
 	}
 	b := f.newBudget()
 	var out []entry
@@ -226,19 +225,19 @@ func (f Fetcher) unzip(data []byte) ([]entry, error) {
 		}
 		rc, err := zf.Open()
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w: %w", name, err, domain.ErrInvalid)
+			return nil, domain.Errorf("%s: %w: %w", name, err, domain.ErrInvalid)
 		}
 		content, err := b.read(rc)
 		rc.Close() //nolint:errcheck // read-only
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", name, err)
+			return nil, domain.Errorf("%s: %w", name, err)
 		}
 		file := skill.File{Kind: skill.KindRegular, Data: content}
 		switch {
 		case mode&fs.ModeSymlink != 0:
 			file = skill.File{Kind: skill.KindSymlink, LinkTarget: string(content)}
 		case mode&fs.ModeType != 0:
-			return nil, fmt.Errorf("%s is not a regular file, directory or symlink: %w", name, domain.ErrInvalid)
+			return nil, domain.Errorf("%s no es un fichero normal, un directorio ni un enlace simbólico: %w", name, domain.ErrInvalid)
 		case mode.Perm()&0o111 != 0:
 			file.Kind = skill.KindExecutable
 		}
@@ -250,7 +249,7 @@ func (f Fetcher) unzip(data []byte) ([]entry, error) {
 func (f Fetcher) untar(data []byte) ([]entry, error) {
 	zr, err := gzip.NewReader(bytes.NewReader(data))
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w", err, domain.ErrInvalid)
+		return nil, domain.Errorf("%w: %w", err, domain.ErrInvalid)
 	}
 	b := f.newBudget()
 	tr := tar.NewReader(zr)
@@ -261,7 +260,7 @@ func (f Fetcher) untar(data []byte) ([]entry, error) {
 			return out, nil
 		}
 		if err != nil {
-			return nil, fmt.Errorf("%w: %w", err, domain.ErrInvalid)
+			return nil, domain.Errorf("%w: %w", err, domain.ErrInvalid)
 		}
 		if err := b.entry(); err != nil {
 			return nil, err
@@ -279,7 +278,7 @@ func (f Fetcher) untar(data []byte) ([]entry, error) {
 		case tar.TypeReg:
 			content, err := b.read(tr)
 			if err != nil {
-				return nil, fmt.Errorf("%s: %w", name, err)
+				return nil, domain.Errorf("%s: %w", name, err)
 			}
 			file := skill.File{Kind: skill.KindRegular, Data: content}
 			if h.Mode&0o111 != 0 {
@@ -289,7 +288,7 @@ func (f Fetcher) untar(data []byte) ([]entry, error) {
 		case tar.TypeSymlink:
 			out = append(out, entry{path: name, file: skill.File{Kind: skill.KindSymlink, LinkTarget: h.Linkname}})
 		default:
-			return nil, fmt.Errorf("%s is not a regular file, directory or symlink: %w", name, domain.ErrInvalid)
+			return nil, domain.Errorf("%s no es un fichero normal, un directorio ni un enlace simbólico: %w", name, domain.ErrInvalid)
 		}
 	}
 }
@@ -303,7 +302,7 @@ func cleanName(name string) (string, error) {
 		bad = bad || part == ".." || (part == "" && n != "") || part == "."
 	}
 	if bad {
-		return "", fmt.Errorf("unsafe path %q in the archive: %w", name, domain.ErrInvalid)
+		return "", domain.Errorf("ruta insegura %q en el archivo comprimido: %w", name, domain.ErrInvalid)
 	}
 	return n, nil
 }

@@ -3,7 +3,6 @@
 package lock
 
 import (
-	"fmt"
 	"sort"
 
 	"github.com/colybri/skilus/internal/domain"
@@ -29,7 +28,7 @@ func Restore(entries []Entry) (*Lockfile, error) {
 	l := New()
 	for _, e := range entries {
 		if _, ok := l.entries[e.Skill]; ok {
-			return nil, fmt.Errorf("lock has skill %s twice: %w", e.Skill, domain.ErrConflict)
+			return nil, domain.Errorf("el lock tiene la skill %s dos veces: %w", e.Skill, domain.ErrConflict)
 		}
 		l.entries[e.Skill] = e
 	}
@@ -39,7 +38,7 @@ func Restore(entries []Entry) (*Lockfile, error) {
 // Install records a newly installed skill.
 func (l *Lockfile) Install(e Entry) error {
 	if _, ok := l.entries[e.Skill]; ok {
-		return fmt.Errorf("skill %s is already installed: %w", e.Skill, domain.ErrAlreadyExists)
+		return domain.Errorf("la skill %s ya está instalada: %w", e.Skill, domain.ErrAlreadyExists)
 	}
 	l.entries[e.Skill] = e
 	l.events = append(l.events, SkillInstalled{Entry: e})
@@ -51,7 +50,7 @@ func (l *Lockfile) Install(e Entry) error {
 func (l *Lockfile) Update(e Entry) error {
 	prev, ok := l.entries[e.Skill]
 	if !ok {
-		return fmt.Errorf("skill %s is not installed: %w", e.Skill, domain.ErrNotFound)
+		return domain.Errorf("la skill %s no está instalada: %w", e.Skill, domain.ErrNotFound)
 	}
 	l.entries[e.Skill] = e
 	l.events = append(l.events, SkillUpdated{Previous: prev, Current: e})
@@ -62,7 +61,7 @@ func (l *Lockfile) Update(e Entry) error {
 func (l *Lockfile) Remove(name skill.Name) error {
 	e, ok := l.entries[name]
 	if !ok {
-		return fmt.Errorf("skill %s is not installed: %w", name, domain.ErrNotFound)
+		return domain.Errorf("la skill %s no está instalada: %w", name, domain.ErrNotFound)
 	}
 	delete(l.entries, name)
 	l.events = append(l.events, SkillRemoved{Entry: e})

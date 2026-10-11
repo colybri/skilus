@@ -4,11 +4,11 @@ package osfs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 
 	"github.com/colybri/skilus/internal/app"
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 )
 
@@ -30,6 +30,6 @@ func (Detector) Installed(_ context.Context, a agent.Agent) (bool, error) {
 	case errors.Is(err, fs.ErrNotExist):
 		return false, nil
 	default:
-		return false, fmt.Errorf("stat %s: %w", a.DetectPath(), err)
+		return false, domain.Errorf("consultar %s: %w", a.DetectPath(), err)
 	}
 }

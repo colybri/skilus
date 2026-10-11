@@ -3,7 +3,6 @@ package osfs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -25,11 +24,11 @@ func (TreeReader) ReadTree(_ context.Context, dir string) ([]skill.File, error) 
 	info, err := os.Stat(dir)
 	switch {
 	case errors.Is(err, fs.ErrNotExist):
-		return nil, fmt.Errorf("%s does not exist: %w", dir, domain.ErrNotFound)
+		return nil, domain.Errorf("%s no existe: %w", dir, domain.ErrNotFound)
 	case err != nil:
 		return nil, err
 	case !info.IsDir():
-		return nil, fmt.Errorf("%s is not a directory: %w", dir, domain.ErrInvalid)
+		return nil, domain.Errorf("%s no es un directorio: %w", dir, domain.ErrInvalid)
 	}
 	resolved, err := filepath.EvalSymlinks(dir)
 	if err != nil {

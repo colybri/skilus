@@ -1,7 +1,6 @@
 package skill
 
 import (
-	"fmt"
 	"regexp"
 
 	"github.com/colybri/skilus/internal/domain"
@@ -17,7 +16,7 @@ type TreeHash struct {
 // NewTreeHash validates s as 64 lowercase hex characters.
 func NewTreeHash(s string) (TreeHash, error) {
 	if !treeHashRe.MatchString(s) {
-		return TreeHash{}, fmt.Errorf("tree hash %q is not 64 lowercase hex characters: %w", s, domain.ErrInvalid)
+		return TreeHash{}, domain.Errorf("el hash de árbol %q no tiene 64 caracteres hexadecimales en minúscula: %w", s, domain.ErrInvalid)
 	}
 	return TreeHash{value: s}, nil
 }

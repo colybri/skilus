@@ -67,7 +67,7 @@ func Run(deps Deps, args []string, stdin io.Reader, stdout, stderr io.Writer) in
 	}
 	var r reported
 	if !errors.As(err, &r) {
-		fmt.Fprintln(stderr, "skilus:", err)
+		fmt.Fprintln(stderr, "skilus:", localize(err, t))
 	}
 	return exitCode(err)
 }
@@ -95,7 +95,7 @@ func exitCode(err error) int {
 	}
 }
 
-var errUsage = errors.New("usage error")
+var errUsage = domain.NewError("uso incorrecto")
 
 // language picks the catalog to print with. A broken setting must not stop
 // skilus, so it is reported and the system decides.
@@ -104,16 +104,16 @@ func language(deps Deps, stderr io.Writer) (i18n.Choice, *i18n.Catalog) {
 	if getenv == nil {
 		getenv = func(string) string { return "" }
 	}
-	setting, err := deps.Language.Get(context.Background())
-	if err != nil {
-		fmt.Fprintln(stderr, "skilus:", err)
-	}
+	setting, settingErr := deps.Language.Get(context.Background())
 	choice := i18n.Resolve(setting, getenv, deps.SystemLocale)
 	t, err := i18n.Load(choice.Code)
 	if err != nil {
 		fmt.Fprintln(stderr, "skilus:", err)
 		choice = i18n.Choice{Code: i18n.Source, Origin: i18n.FromFallback}
 		t, _ = i18n.Load(i18n.Source)
+	}
+	if settingErr != nil {
+		fmt.Fprintln(stderr, "skilus:", localize(settingErr, t))
 	}
 	return choice, t
 }
@@ -129,7 +129,7 @@ func newRoot(deps Deps, choice i18n.Choice, t *i18n.Catalog) *cobra.Command {
 	// Cobra's completion command only speaks English; it still works.
 	root.CompletionOptions.HiddenDefaultCmd = true
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
-		return fmt.Errorf("%w: %w", errUsage, err)
+		return domain.Errorf("%w: %w", errUsage, err)
 	})
 	root.AddCommand(newAgentsCommand(deps.ListAgents, t), newAddCommand(deps.AddSkill, t), newListCommand(deps.ListSkills, t), newRemoveCommand(deps.RemoveSkill, t), newVerifyCommand(deps.Verify, t), newSyncCommand(deps.Sync, t), newInspectCommand(deps.Inspect, t), newOutdatedCommand(deps.Outdated, t), newUpdateCommand(deps.Update, t), newProfileCommand(deps.ListProfiles, deps.UseProfile, deps.EditProfile, t), newSearchCommand(deps.Search, t), newAuditCommand(deps.Audit, t), newLangCommand(deps.Language, choice, t))
 	localizeCobra(root, t)

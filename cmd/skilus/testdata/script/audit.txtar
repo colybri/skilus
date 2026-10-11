@@ -26,7 +26,7 @@ exec skilus add ./mine --agent claude-code --yes
 exec skilus audit
 stdout '^review \(project\)  file://.*remote @ [0-9a-f]{12}$'
 stdout 'firma: sin firmar'
-stdout 'aviso \[unsigned-commit\] commit [0-9a-f]{12} is not signed'
+stdout 'aviso \[unsigned-commit\] el commit [0-9a-f]{12} no está firmado'
 ! stdout 'untrusted-source'
 stdout '^mine \(project\)'
 stdout 'Auditadas 2 skill\(s\): 0 bloqueo\(s\), 1 aviso\(s\)\.'
@@ -36,7 +36,7 @@ cp $WORK/trusted.yaml skilus.yaml.trust
 exec sh -c 'cat skilus.yaml.trust >> skilus.yaml'
 ! exec skilus audit --strict
 stdout 'aviso \[untrusted-source\]'
-stderr 'review: 2 warnings under --strict'
+stderr 'review: 2 avisos con --strict'
 
 exec skilus audit --json
 stdout '"state": "unsigned"'

@@ -7,7 +7,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -82,16 +81,16 @@ func (r Repo) Load(_ context.Context, scope agent.Scope) (*lock.Lockfile, error)
 	}
 	var doc lockDoc
 	if err := yaml.Unmarshal(data, &doc); err != nil {
-		return nil, fmt.Errorf("%s: %w: %w", p, err, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: %w: %w", p, err, domain.ErrInvalid)
 	}
 	if doc.Version != 1 {
-		return nil, fmt.Errorf("%s: version %d is not supported: %w", p, doc.Version, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: la versión %d no está soportada: %w", p, doc.Version, domain.ErrInvalid)
 	}
 	entries := make([]lock.Entry, 0, len(doc.Skills))
 	for name, raw := range doc.Skills {
 		e, err := raw.toDomain(name)
 		if err != nil {
-			return nil, fmt.Errorf("%s: skill %s: %w", p, name, err)
+			return nil, domain.Errorf("%s: skill %s: %w", p, name, err)
 		}
 		entries = append(entries, e)
 	}

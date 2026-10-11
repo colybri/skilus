@@ -169,7 +169,7 @@ func renderReport(w io.Writer, r policy.Report, t *i18n.Catalog) {
 		if f.Path != "" {
 			where = " " + clean(f.Path) + ":"
 		}
-		fmt.Fprintf(w, "    %s [%s]%s %s\n", label, f.Code, where, clean(f.Detail))
+		fmt.Fprintf(w, "    %s [%s]%s %s\n", label, f.Code, where, clean(text(f.Detail, t)))
 	}
 }
 

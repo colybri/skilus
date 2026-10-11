@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/policy"
 	"github.com/colybri/skilus/internal/domain/source"
@@ -33,7 +33,7 @@ func trustFindings(ctx context.Context, tl TrustList, raw string, scopes ...agen
 	for _, s := range scopes {
 		t, err := tl.Trust(ctx, s)
 		if err != nil {
-			return nil, fmt.Errorf("read trust: of the %s scope: %w", s, err)
+			return nil, domain.Errorf("leer trust: del ámbito %s: %w", s, err)
 		}
 		trust = append(trust, t...)
 	}

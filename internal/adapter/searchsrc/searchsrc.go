@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"net/http"
@@ -65,7 +64,7 @@ func (r SkillsSH) Search(ctx context.Context, query, owner string, limit int) ([
 		} `json:"skills"`
 	}
 	if err := json.Unmarshal(data, &body); err != nil {
-		return nil, fmt.Errorf("skills.sh answered something that is not a search result: %w", err)
+		return nil, domain.Errorf("skills.sh ha respondido algo que no es un resultado de búsqueda: %w", err)
 	}
 	var out []app.Listing
 	for _, s := range body.Skills {
@@ -110,23 +109,23 @@ func (x Indexes) Index(ctx context.Context, raw string) ([]app.Listing, error) {
 		} `yaml:"skills"`
 	}
 	if err := yaml.Unmarshal(data, &f); err != nil {
-		return nil, fmt.Errorf("%s: %w: %w", raw, err, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: %w: %w", raw, err, domain.ErrInvalid)
 	}
 	if f.Version != 1 {
-		return nil, fmt.Errorf("%s: index version %d is not supported: %w", raw, f.Version, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: la versión %d del índice no está soportada: %w", raw, f.Version, domain.ErrInvalid)
 	}
 	out := make([]app.Listing, 0, len(f.Skills))
 	for i, s := range f.Skills {
 		if _, err := skill.NewName(s.Name); err != nil {
-			return nil, fmt.Errorf("%s: entry %d: %w", raw, i+1, err)
+			return nil, domain.Errorf("%s: entrada %d: %w", raw, i+1, err)
 		}
 		src, err := source.Parse(s.Source)
 		if err != nil {
-			return nil, fmt.Errorf("%s: skill %s: %w", raw, s.Name, err)
+			return nil, domain.Errorf("%s: skill %s: %w", raw, s.Name, err)
 		}
 		if src.Kind == source.KindLocal {
 			// A path in a remote file would point into the reader's disk.
-			return nil, fmt.Errorf("%s: skill %s has a local source: %w", raw, s.Name, domain.ErrInvalid)
+			return nil, domain.Errorf("%s: la skill %s tiene un origen local: %w", raw, s.Name, domain.ErrInvalid)
 		}
 		out = append(out, app.Listing{Name: s.Name, Source: s.Source, Description: s.Description})
 	}
@@ -138,14 +137,14 @@ func (x Indexes) Index(ctx context.Context, raw string) ([]app.Listing, error) {
 func get(ctx context.Context, client *http.Client, raw string, httpsOnly bool) ([]byte, error) {
 	u, err := url.Parse(raw)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", raw, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: %w", raw, domain.ErrInvalid)
 	}
 	var body io.ReadCloser
 	switch {
 	case u.Scheme == "file" && !httpsOnly:
 		file, err := os.Open(filePath(u))
 		if errors.Is(err, fs.ErrNotExist) {
-			return nil, fmt.Errorf("%s does not exist: %w", raw, domain.ErrNotFound)
+			return nil, domain.Errorf("%s no existe: %w", raw, domain.ErrNotFound)
 		}
 		if err != nil {
 			return nil, err
@@ -153,7 +152,7 @@ func get(ctx context.Context, client *http.Client, raw string, httpsOnly bool) (
 		body = file
 	case u.Scheme == "https":
 		if u.User != nil {
-			return nil, fmt.Errorf("%s: URLs with credentials are not accepted: %w", u.Redacted(), domain.ErrInvalid)
+			return nil, domain.Errorf("%s: no se aceptan URLs con credenciales: %w", u.Redacted(), domain.ErrInvalid)
 		}
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, raw, nil)
 		if err != nil {
@@ -169,18 +168,18 @@ func get(ctx context.Context, client *http.Client, raw string, httpsOnly bool) (
 		}
 		if resp.Request.URL.Scheme != "https" {
 			resp.Body.Close() //nolint:errcheck // nothing to read
-			return nil, fmt.Errorf("%s redirected to a URL that is not https: %w", raw, domain.ErrInvalid)
+			return nil, domain.Errorf("%s redirige a una URL que no es https: %w", raw, domain.ErrInvalid)
 		}
 		if resp.StatusCode != http.StatusOK {
 			resp.Body.Close() //nolint:errcheck // nothing to read
 			if resp.StatusCode == http.StatusNotFound {
-				return nil, fmt.Errorf("%s: %s: %w", raw, resp.Status, domain.ErrNotFound)
+				return nil, domain.Errorf("%s: %s: %w", raw, resp.Status, domain.ErrNotFound)
 			}
-			return nil, fmt.Errorf("%s: %s", raw, resp.Status)
+			return nil, domain.Errorf("%s: %s", raw, resp.Status)
 		}
 		body = resp.Body
 	default:
-		return nil, fmt.Errorf("%s: only https URLs are accepted: %w", raw, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: solo se aceptan URLs https: %w", raw, domain.ErrInvalid)
 	}
 	defer body.Close() //nolint:errcheck // read-only
 	data, err := io.ReadAll(io.LimitReader(body, maxBody+1))
@@ -188,7 +187,7 @@ func get(ctx context.Context, client *http.Client, raw string, httpsOnly bool) (
 		return nil, err
 	}
 	if len(data) > maxBody {
-		return nil, fmt.Errorf("%s is larger than %d bytes: %w", raw, maxBody, domain.ErrInvalid)
+		return nil, domain.Errorf("%s ocupa más de %d bytes: %w", raw, maxBody, domain.ErrInvalid)
 	}
 	return data, nil
 }

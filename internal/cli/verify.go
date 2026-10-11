@@ -71,7 +71,7 @@ con el lock, y dice qué.`),
 			}
 			out := cmd.OutOrStdout()
 			if asJSON {
-				if jerr := renderChecksJSON(out, res); jerr != nil {
+				if jerr := renderChecksJSON(out, res, t); jerr != nil {
 					return jerr
 				}
 			} else {
@@ -106,8 +106,8 @@ func renderChecks(w io.Writer, res app.VerifyResult, t *i18n.Catalog) {
 	changes := map[string]string{"added": t.T("añadido"), "removed": t.T("borrado"), "modified": t.T("modificado")}
 	for _, c := range problems {
 		fmt.Fprint(w, t.T("%s %s (%s, %s) en %s\n", labels[c.Problem], c.Skill, c.Scope, c.Target.Agent, clean(c.Dir)))
-		if c.Detail != "" {
-			fmt.Fprintf(w, "  %s\n", clean(c.Detail))
+		if c.Err != nil {
+			fmt.Fprintf(w, "  %s\n", clean(localize(c.Err, t)))
 		}
 		for _, ch := range c.Changes {
 			fmt.Fprintf(w, "  %s: %s\n", changes[string(ch.Kind)], clean(ch.Path))
@@ -125,7 +125,7 @@ func renderManifestCheck(w io.Writer, c app.ManifestCheck, t *i18n.Catalog) {
 	switch c.Problem {
 	case app.ManifestInvalid:
 		fmt.Fprint(w, t.T("ERROR skilus.yaml (%s) no se puede leer:\n", c.Scope))
-		fmt.Fprintf(w, "  %s\n", clean(c.Detail))
+		fmt.Fprintf(w, "  %s\n", clean(localize(c.Err, t)))
 	case app.ProfileUndeclared:
 		fmt.Fprint(w, t.T("ERROR el perfil %s (%s) usa %s, que no está en skills: de skilus.yaml\n", c.Profile, c.Scope, c.Skill))
 		fmt.Fprint(w, t.T("  Añádela con skilus add o quítala con skilus profile remove %s %s.\n", c.Profile, c.Skill))
@@ -138,12 +138,15 @@ func renderManifestCheck(w io.Writer, c app.ManifestCheck, t *i18n.Catalog) {
 	}
 }
 
-func renderChecksJSON(w io.Writer, res app.VerifyResult) error {
+func renderChecksJSON(w io.Writer, res app.VerifyResult, t *i18n.Catalog) error {
 	rows := make([]checkJSON, 0, len(res.Checks)+len(res.Manifest))
 	for _, c := range res.Checks {
-		row := checkJSON{Skill: c.Skill.String(), Scope: string(c.Scope), Agent: c.Target.Agent.String(), Dir: c.Dir, Status: "ok", Detail: c.Detail}
+		row := checkJSON{Skill: c.Skill.String(), Scope: string(c.Scope), Agent: c.Target.Agent.String(), Dir: c.Dir, Status: "ok"}
 		if c.Problem != "" {
 			row.Status = string(c.Problem)
+		}
+		if c.Err != nil {
+			row.Detail = localize(c.Err, t)
 		}
 		for _, ch := range c.Changes {
 			row.Changes = append(row.Changes, changeJSON{Path: ch.Path, Change: string(ch.Kind)})
@@ -151,9 +154,12 @@ func renderChecksJSON(w io.Writer, res app.VerifyResult) error {
 		rows = append(rows, row)
 	}
 	for _, c := range res.Manifest {
-		row := checkJSON{Scope: string(c.Scope), Profile: c.Profile, Source: c.Source, Status: string(c.Problem), Detail: c.Detail}
+		row := checkJSON{Scope: string(c.Scope), Profile: c.Profile, Source: c.Source, Status: string(c.Problem)}
 		if c.Problem != app.ManifestInvalid {
 			row.Skill = c.Skill.String()
+		}
+		if c.Err != nil {
+			row.Detail = localize(c.Err, t)
 		}
 		rows = append(rows, row)
 	}
