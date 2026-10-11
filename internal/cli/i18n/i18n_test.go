@@ -53,3 +53,54 @@ func TestSpanishIsTheSource(t *testing.T) {
 		t.Fatal("Load(it) should fail")
 	}
 }
+
+func TestEveryLanguageLoads(t *testing.T) {
+	for _, l := range Languages {
+		c, err := Load(l.Code)
+		if err != nil {
+			t.Errorf("Load(%s): %v", l.Code, err)
+			continue
+		}
+		if c.Lang() != l.Code {
+			t.Errorf("Lang() = %q, want %q", c.Lang(), l.Code)
+		}
+	}
+}
+
+func TestTranslate(t *testing.T) {
+	c := &Catalog{lang: "en", messages: map[string]string{
+		"Instalada %s en %s\n": "Installed %s in %s\n",
+		"vacía":                "",
+	}}
+	if got := c.T("Instalada %s en %s\n", "pdf", "/x"); got != "Installed pdf in /x\n" {
+		t.Errorf("T = %q", got)
+	}
+	if got := c.Translate("Instalada %s en %s\n"); got != "Installed %s in %s\n" {
+		t.Errorf("Translate should not format: %q", got)
+	}
+	if got := c.T("sin traducir"); got != "sin traducir" {
+		t.Errorf("a missing id should print in Spanish: %q", got)
+	}
+	if got := c.T("vacía"); got != "vacía" {
+		t.Errorf("an empty translation should print in Spanish: %q", got)
+	}
+	var none *Catalog
+	if got := none.T("hola %s", "Mario"); got != "hola Mario" {
+		t.Errorf("a nil catalog should print in Spanish: %q", got)
+	}
+}
+
+func TestHasAndUnused(t *testing.T) {
+	c := &Catalog{lang: "en", messages: map[string]string{"b": "B", "a": "A", "c": "C"}}
+	if !c.Has("a") || c.Has("z") {
+		t.Errorf("Has(a), Has(z) = %v, %v", c.Has("a"), c.Has("z"))
+	}
+	es, _ := Load(Source)
+	if !es.Has("cualquier texto") {
+		t.Error("Spanish has every id")
+	}
+	got := c.Unused([]string{"b"})
+	if len(got) != 2 || got[0] != "a" || got[1] != "c" {
+		t.Errorf("Unused = %v, want [a c]", got)
+	}
+}
