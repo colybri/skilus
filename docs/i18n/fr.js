@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'Stockage de contenu partagé entre projets.'],
     ]),
     p('Dans un projet, les skills sont installées en copie pour pouvoir être versionnées ; en portée globale, en symlink vers le stockage.'),
-    note('info', 'État : phase 3 en cours. Fonctionnent déjà : `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` et `audit`.'),
+    note('info', 'État : version préliminaire (0.x) ; le format de `skilus.yaml` et de `skilus.lock` peut encore changer. Commandes disponibles : `agents`, `add`, `list`, `remove`, `edit`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, `audit` et `lang`.'),
   ] },
   'getting-started': { title: 'Prise en main', lead: 'Installez skilus, vérifiez le téléchargement et ajoutez votre première skill en quelques minutes.', blocks: [
     h2('requirements', 'Prérequis'),

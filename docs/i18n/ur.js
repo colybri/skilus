@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'منصوبوں کے درمیان مشترک مواد کا ذخیرہ۔'],
     ]),
     p('پروجیکٹ میں اسکلز کاپی کے طور پر انسٹال ہوتی ہیں تاکہ انہیں ورژن کنٹرول میں رکھا جا سکے؛ عالمی دائرے میں ذخیرے کی طرف symlink کے طور پر۔'),
-    note('info', 'حالت: مرحلہ 3 زیرِ تعمیر۔ ابھی کام کرنے والی کمانڈز: `agents`، `add`، `list`، `remove`، `inspect`، `verify`، `sync`، `outdated`، `update`، `profile`، `edit`، `search` اور `audit`۔'),
+    note('info', 'حالت: پری ریلیز (0.x)؛ `skilus.yaml` اور `skilus.lock` کا فارمیٹ ابھی بدل سکتا ہے۔ دستیاب کمانڈز: `agents`، `add`، `list`، `remove`، `edit`، `inspect`، `verify`، `sync`، `outdated`، `update`، `profile`، `search`، `audit` اور `lang`۔'),
   ] },
   'getting-started': { title: 'آغاز', lead: 'چند منٹ میں skilus انسٹال کریں، ڈاؤن لوڈ کی تصدیق کریں اور اپنی پہلی اسکل شامل کریں۔', blocks: [
     h2('requirements', 'تقاضے'),

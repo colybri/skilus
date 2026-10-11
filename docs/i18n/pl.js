@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'Magazyn zawartości współdzielony między projektami.'],
     ]),
     p('W projekcie skille instalowane są jako kopie, aby można je było wersjonować; w zakresie globalnym jako symlinki do magazynu.'),
-    note('info', 'Status: trwa faza 3. Już działają `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` i `audit`.'),
+    note('info', 'Status: wersja wstępna (0.x); format `skilus.yaml` i `skilus.lock` może się jeszcze zmienić. Dostępne polecenia: `agents`, `add`, `list`, `remove`, `edit`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, `audit` i `lang`.'),
   ] },
   'getting-started': { title: 'Pierwsze kroki', lead: 'Zainstaluj skilus, zweryfikuj pobrany plik i dodaj pierwszy skill w kilka minut.', blocks: [
     h2('requirements', 'Wymagania'),

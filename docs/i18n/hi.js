@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'प्रोजेक्टों के बीच साझा कंटेंट स्टोर।'],
     ]),
     p('प्रोजेक्ट में स्किल्स कॉपी के रूप में इंस्टॉल होती हैं ताकि उन्हें वर्ज़न कंट्रोल में रखा जा सके; ग्लोबल स्कोप में स्टोर की ओर symlink के रूप में।'),
-    note('info', 'स्थिति: चरण 3 पर काम जारी है। अभी काम करने वाले कमांड: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` और `audit`।'),
+    note('info', 'स्थिति: प्री-रिलीज़ (0.x); `skilus.yaml` और `skilus.lock` का फ़ॉर्मैट अभी बदल सकता है। उपलब्ध कमांड: `agents`, `add`, `list`, `remove`, `edit`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, `audit` और `lang`।'),
   ] },
   'getting-started': { title: 'शुरुआत करें', lead: 'कुछ ही मिनटों में skilus इंस्टॉल करें, डाउनलोड सत्यापित करें और अपनी पहली स्किल जोड़ें।', blocks: [
     h2('requirements', 'आवश्यकताएँ'),

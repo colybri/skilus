@@ -87,7 +87,7 @@ const es = {
       ['`~/.skilus/store/<sha256>`', 'Almacén de contenido compartido entre proyectos.'],
     ]),
     p('En el proyecto, las skills se instalan como copia para poder versionarlas; en el ámbito global, como symlink al almacén.'),
-    note('info', 'Estado: fase 3 en construcción. Ya funcionan `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` y `audit`.'),
+    note('info', 'Estado: versión preliminar (0.x); el formato de `skilus.yaml` y `skilus.lock` aún puede cambiar. Funcionan `agents`, `add`, `list`, `remove`, `edit`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, `audit` y `lang`.'),
   ] },
   'getting-started': { title: 'Primeros pasos', lead: 'Instala skilus, verifica la descarga y añade tu primera skill en unos minutos.', blocks: [
     h2('requisitos', 'Requisitos'),
@@ -314,7 +314,7 @@ const en = {
       ['`~/.skilus/store/<sha256>`', 'Content store shared across projects.'],
     ]),
     p('In a project, skills are installed as copies so you can commit them; in global scope, as symlinks to the store.'),
-    note('info', 'Status: phase 3 in progress. Working today: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` and `audit`.'),
+    note('info', 'Status: pre-release (0.x); the `skilus.yaml` and `skilus.lock` formats may still change. Available commands: `agents`, `add`, `list`, `remove`, `edit`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, `audit` and `lang`.'),
   ] },
   'getting-started': { title: 'Getting Started', lead: 'Install skilus, verify the download and add your first skill in a few minutes.', blocks: [
     h2('requirements', 'Requirements'),

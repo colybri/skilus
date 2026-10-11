@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'Penyimpanan isi yang dipakai bersama antarproyek.'],
     ]),
     p('Di proyek, skill dipasang sebagai salinan agar bisa diversikan; di cakupan global, sebagai symlink ke penyimpanan.'),
-    note('info', 'Status: fase 3 sedang dikembangkan. Sudah berfungsi: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search`, dan `audit`.'),
+    note('info', 'Status: pra-rilis (0.x); format `skilus.yaml` dan `skilus.lock` masih bisa berubah. Perintah yang tersedia: `agents`, `add`, `list`, `remove`, `edit`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, `audit`, dan `lang`.'),
   ] },
   'getting-started': { title: 'Memulai', lead: 'Pasang skilus, verifikasi unduhan, dan tambahkan skill pertama Anda dalam beberapa menit.', blocks: [
     h2('requirements', 'Persyaratan'),

@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'Хранилище содержимого, общее для всех проектов.'],
     ]),
     p('В проекте навыки устанавливаются копией, чтобы их можно было версионировать; в глобальной области — симлинком на хранилище.'),
-    note('info', 'Статус: идёт фаза 3. Уже работают `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` и `audit`.'),
+    note('info', 'Статус: предварительная версия (0.x); формат `skilus.yaml` и `skilus.lock` ещё может измениться. Доступные команды: `agents`, `add`, `list`, `remove`, `edit`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, `audit` и `lang`.'),
   ] },
   'getting-started': { title: 'Начало работы', lead: 'Установите skilus, проверьте загрузку и добавьте первый навык за несколько минут.', blocks: [
     h2('requirements', 'Требования'),

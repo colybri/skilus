@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', '在各项目间共享的内容存储。'],
     ]),
     p('在项目中，技能以副本形式安装，便于纳入版本控制；在全局范围内，则以指向存储的符号链接形式安装。'),
-    note('info', '状态：第 3 阶段开发中。目前可用：`agents`、`add`、`list`、`remove`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`edit`、`search` 和 `audit`。'),
+    note('info', '状态：预发布版本（0.x）；`skilus.yaml` 和 `skilus.lock` 的格式仍可能变化。可用命令：`agents`、`add`、`list`、`remove`、`edit`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`search`、`audit` 和 `lang`。'),
   ] },
   'getting-started': { title: '快速入门', lead: '几分钟内安装 skilus、验证下载并添加你的第一个技能。', blocks: [
     h2('requirements', '环境要求'),

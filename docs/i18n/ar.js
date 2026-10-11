@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'مخزن محتوى مشترك بين المشاريع.'],
     ]),
     p('في المشروع تُثبَّت المهارات كنسخة ليمكن إدارتها بنظام التحكم بالإصدارات؛ وعلى المستوى العام كرابط رمزي إلى المخزن.'),
-    note('info', 'الحالة: المرحلة 3 قيد التطوير. تعمل حاليًا `agents` و`add` و`list` و`remove` و`inspect` و`verify` و`sync` و`outdated` و`update` و`profile` و`edit` و`search` و`audit`.'),
+    note('info', 'الحالة: إصدار تجريبي (0.x)؛ قد تتغير صيغة `skilus.yaml` و`skilus.lock`. الأوامر المتاحة: `agents` و`add` و`list` و`remove` و`edit` و`inspect` و`verify` و`sync` و`outdated` و`update` و`profile` و`search` و`audit` و`lang`.'),
   ] },
   'getting-started': { title: 'البدء', lead: 'ثبّت skilus وتحقّق من التنزيل وأضف مهارتك الأولى في دقائق.', blocks: [
     h2('requirements', 'المتطلبات'),
