@@ -32,7 +32,7 @@ func newSearchCommand(h app.SearchHandler, t *i18n.Catalog) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   t.T("search <consulta>..."),
 		Short: t.T("Busca skills en skills.sh y en los índices de skilus.yaml"),
-		Long: t.T(`Busca en skills.sh y en los índices curados que declara indexes: en
+		Long: t.T(`Busca en skills.sh y en los índices que declara indexes: en
 skilus.yaml (del proyecto y el global):
 
   indexes:

@@ -111,7 +111,7 @@ skills: []
 #   - github.com/anthropics
 
 `)
-	b.WriteString("# " + t.T("Índices curados que consulta skilus search.") + "\n")
+	b.WriteString("# " + t.T("Índices de skills recomendadas que consulta skilus search.") + "\n")
 	b.WriteString(`# indexes:
 #   - https://example.com/skills-index.yaml
 `)

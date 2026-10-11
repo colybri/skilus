@@ -132,7 +132,7 @@ agents:
 
 Solo se lee el de tu directorio personal: un repositorio clonado no puede decidir dónde escribe skilus fuera del proyecto.
 
-`skilus search` consulta [skills.sh](https://skills.sh) y los índices curados que declara `indexes:` en `skilus.yaml` (del proyecto y el global). Un índice es un fichero YAML, por https o `file://`, que un equipo mantiene con las skills que recomienda:
+`skilus search` consulta [skills.sh](https://skills.sh) y los índices de skills recomendadas que declara `indexes:` en `skilus.yaml` (del proyecto y el global). Un índice es un fichero YAML, por https o `file://`, que un equipo mantiene con las skills que recomienda:
 
 ```yaml
 version: 1
