@@ -1,5 +1,5 @@
-# skilus outdated sees that the requested branch moved; skilus update shows
-# what changes and moves the lock to the new commit.
+# skilus update --check sees that the requested branch moved; skilus update
+# shows what changes and moves the lock to the new commit.
 [!exec:git] skip 'git is not installed'
 [windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
@@ -23,7 +23,7 @@ cd $WORK/project
 exec skilus add file://$WORK/remote --agent claude-code --yes
 exec skilus add file://$WORK/remote@v1.0.0 --scope global --agent claude-code --yes
 
-exec skilus outdated
+exec skilus update --check
 stdout '^review +project +\(rama por defecto\) +[0-9a-f]{12} +[0-9a-f]{12} +al día$'
 stdout '^review +global +v1.0.0 .* al día$'
 
@@ -34,9 +34,18 @@ exec git add .
 exec git commit --quiet -m v2
 cd $WORK/project
 
-exec skilus outdated --json
+exec skilus update --check --json
 stdout '"state": "outdated"'
 stdout '"state": "current"'
+
+# --check takes skill names and leaves the rest out.
+exec skilus update --check review --scope project
+stdout '^review +project '
+! stdout 'global'
+! exec skilus update --check nope
+stderr 'la skill nope no está instalada'
+! exec skilus update --json
+stderr 'json solo se usa con --check'
 
 # Answering no changes nothing.
 stdin $WORK/no.txt
@@ -53,21 +62,21 @@ stdout 'Actualizada review'
 exists .claude/skills/review/notes.md
 grep 'Review v2' .claude/skills/review/SKILL.md
 exec skilus verify --scope project
-exec skilus outdated --scope project
+exec skilus update --check --scope project
 stdout 'al día$'
 ! grep 'notes' skilus.yaml
 
 exec skilus update
 stdout 'Todo al día\.'
 
-# Pinning the tag by hand in skilus.yaml: verify and outdated notice it and
+# Pinning the tag by hand in skilus.yaml: verify and --check notice it and
 # update moves the skill back to v1.0.0.
 env SKILUS_EDITOR='fakeedit $WORK/pinned.yaml'
 exec skilus edit
 ! exec skilus verify --scope project
 stdout '^CAMBIADA review \(project\): skilus.yaml pide file://.*remote@v1.0.0 y skilus.lock tiene file://.*remote$'
 stdout '^  Aplica el cambio con skilus update review\.$'
-exec skilus outdated --scope project
+exec skilus update --check --scope project
 stdout 'cambiada en skilus.yaml: file://.*remote@v1.0.0$'
 exec skilus update --yes
 stderr '^  origen cambiado en skilus.yaml: file://.*remote → file://.*remote@v1.0.0$'

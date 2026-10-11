@@ -6,12 +6,14 @@ import (
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
+	"github.com/colybri/skilus/internal/domain/skill"
 	"github.com/colybri/skilus/internal/domain/source"
 )
 
-// Outdated is the query behind `skilus outdated`.
+// Outdated is the query behind `skilus update --check`.
 type Outdated struct {
 	Scopes []agent.Scope
+	Names  []string // skills to check; empty means all of them
 }
 
 // Freshness says whether a skill's requested ref has moved.
@@ -53,6 +55,14 @@ type OutdatedHandler struct {
 // ref share a single lookup. A ref that cannot be resolved is reported, not
 // returned as an error, so one gone repository does not hide the rest.
 func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshness, error) {
+	wanted := map[skill.Name]bool{}
+	for _, raw := range q.Names {
+		n, err := skill.NewName(raw)
+		if err != nil {
+			return nil, err
+		}
+		wanted[n] = false
+	}
 	var out []SkillFreshness
 	resolved := map[string]SkillFreshness{}
 	for _, scope := range q.Scopes {
@@ -65,6 +75,12 @@ func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshne
 			return nil, err
 		}
 		for _, e := range lf.Entries() {
+			if len(q.Names) > 0 {
+				if _, ok := wanted[e.Skill]; !ok {
+					continue
+				}
+				wanted[e.Skill] = true
+			}
 			f := SkillFreshness{Scope: scope, Entry: e}
 			src, err := source.Parse(e.Source)
 			_, changed, cerr := changedSource(declared, e, h.ProjectRoot)
@@ -98,6 +114,11 @@ func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshne
 				}
 			}
 			out = append(out, f)
+		}
+	}
+	for _, raw := range q.Names {
+		if n, _ := skill.NewName(raw); !wanted[n] {
+			return nil, domain.Errorf("la skill %s no está instalada: %w", n, domain.ErrNotFound)
 		}
 	}
 	return out, nil
