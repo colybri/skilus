@@ -29,6 +29,12 @@ const (
 	// FreshChanged: skilus.yaml declares another source or ref, which
 	// skilus update will move to.
 	FreshChanged Freshness = "changed"
+	// FreshAdded: skilus.yaml declares the skill and the lock lacks it, so
+	// skilus update will install it.
+	FreshAdded Freshness = "added"
+	// FreshRemoved: skilus.yaml no longer declares the skill, so skilus
+	// update will remove it.
+	FreshRemoved Freshness = "removed"
 )
 
 // SkillFreshness is one skill and where its ref points now.
@@ -37,7 +43,7 @@ type SkillFreshness struct {
 	Entry    lock.Entry
 	Latest   string // commit the requested ref points to now
 	State    Freshness
-	Declared string // for FreshChanged, the source skilus.yaml declares
+	Declared string // for FreshChanged and FreshAdded, the source skilus.yaml declares
 	Err      error
 }
 
@@ -45,13 +51,14 @@ type SkillFreshness struct {
 type OutdatedHandler struct {
 	Resolver RefResolver
 	Locks    LockRepository
-	// Manifest reveals skills whose source changed in skilus.yaml; nil
-	// skips that check.
+	// Manifest reveals skills added to, removed from or changed in
+	// skilus.yaml; nil skips that check.
 	Manifest    ManifestReader
 	ProjectRoot string
 }
 
-// Handle checks every Git skill in the scopes. Skills of one repository and
+// Handle checks every Git skill in the scopes and what skilus update would
+// install or remove to match skilus.yaml. Skills of one repository and
 // ref share a single lookup. A ref that cannot be resolved is reported, not
 // returned as an error, so one gone repository does not hide the rest.
 func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshness, error) {
@@ -70,21 +77,38 @@ func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshne
 		if err != nil {
 			return nil, domain.Errorf("cargar el lock del ámbito %s: %w", scope, err)
 		}
-		declared, err := declaredSources(ctx, h.Manifest, scope)
-		if err != nil {
-			return nil, err
+		var m *Manifest
+		if h.Manifest != nil {
+			got, err := h.Manifest.Manifest(ctx, scope)
+			if err != nil {
+				return nil, domain.Errorf("leer skilus.yaml: %w", err)
+			}
+			if !got.Missing {
+				m = &got
+			}
+		}
+		declared := sourcesOf(m)
+		pick := func(n skill.Name) bool {
+			if len(q.Names) == 0 {
+				return true
+			}
+			if _, ok := wanted[n]; !ok {
+				return false
+			}
+			wanted[n] = true
+			return true
 		}
 		for _, e := range lf.Entries() {
-			if len(q.Names) > 0 {
-				if _, ok := wanted[e.Skill]; !ok {
-					continue
-				}
-				wanted[e.Skill] = true
+			if !pick(e.Skill) {
+				continue
 			}
 			f := SkillFreshness{Scope: scope, Entry: e}
 			src, err := source.Parse(e.Source)
 			_, changed, cerr := changedSource(declared, e, h.ProjectRoot)
+			_, isDeclared := declared[e.Skill]
 			switch {
+			case m != nil && !e.Dependency && !isDeclared:
+				f.State = FreshRemoved
 			case err != nil:
 				f.State, f.Err = FreshUnknown, err
 			case cerr != nil:
@@ -115,10 +139,18 @@ func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshne
 			}
 			out = append(out, f)
 		}
+		if m == nil || profileActive(*m, lf) {
+			continue
+		}
+		for _, d := range m.Skills {
+			if _, ok := lf.Entry(d.Name); !ok && pick(d.Name) {
+				out = append(out, SkillFreshness{Scope: scope, Entry: lock.Entry{Skill: d.Name}, State: FreshAdded, Declared: d.Source})
+			}
+		}
 	}
 	for _, raw := range q.Names {
 		if n, _ := skill.NewName(raw); !wanted[n] {
-			return nil, domain.Errorf("la skill %s no está instalada: %w", n, domain.ErrNotFound)
+			return nil, domain.Errorf("la skill %s no está instalada ni en skilus.yaml: %w", n, domain.ErrNotFound)
 		}
 	}
 	return out, nil

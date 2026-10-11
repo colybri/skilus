@@ -191,58 +191,21 @@ func (h UseProfileHandler) plan(ctx context.Context, cmd UseProfile, m Manifest,
 		return err
 	}
 
-	// Skills to install, grouped by the source skilus.yaml records, in
-	// the order the profile lists them, plus what they require.
-	declared := map[skill.Name]ManifestEntry{}
-	for _, e := range m.Skills {
-		declared[e.Name] = e
-	}
-	var order []string
-	bySource := map[string][]string{}
+	// Skills to install, in the order the profile lists them, plus what
+	// they require.
+	var missing []skill.Name
 	for _, n := range p.Skills() {
-		if _, ok := lf.Entry(n); ok {
-			continue
+		if _, ok := lf.Entry(n); !ok {
+			missing = append(missing, n)
 		}
-		src := declared[n].Source
-		if _, ok := bySource[src]; !ok {
-			order = append(order, src)
-		}
-		bySource[src] = append(bySource[src], n.String())
 	}
 	var groups []planGroup
-	if len(order) > 0 {
+	if len(missing) > 0 {
 		if err := resolve(); err != nil {
 			return plan, nil, err
 		}
-	}
-	for _, src := range order {
-		fetched, err := fetchSource(ctx, h.Add.Fetchers, src)
-		if err != nil {
-			return plan, nil, err
-		}
-		selected, err := selectSkills(fetched, bySource[src])
-		if err != nil {
-			return plan, nil, domain.Errorf("origen %s: %w", src, err)
-		}
-		untrusted, err := trustFindings(ctx, h.Add.Trust, src, trustScopes(cmd.Scope)...)
-		if err != nil {
-			return plan, nil, err
-		}
-		fetched.Source = h.Add.recordedSource(cmd.Scope, fetched.Source)
-		ip := InstallPlan{Source: fetched.Source, Commit: fetched.Commit, Targets: targets}
-		for _, s := range selected {
-			allow := policy.Allow{Scripts: cmd.AllowScripts || allowsScripts(declared[s.Package.Name()])}
-			report := policy.Inspect(s.Package, h.Add.Limits, allow)
-			report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
-			ip.Skills = append(ip.Skills, PlannedSkill{Package: s.Package, Path: s.Path, Report: report})
-		}
-		groups = append(groups, planGroup{raw: src, fetched: fetched, plan: ip})
-	}
-	if len(groups) > 0 {
-		r := h.Add.resolver(cmd.Scope, cmd.AllowScripts, lf)
-		r.allowScripts = func(n skill.Name) bool { return cmd.AllowScripts || allowsScripts(declared[n]) }
 		var err error
-		if groups, err = r.resolve(ctx, groups, targets); err != nil {
+		if groups, err = h.Add.planDeclared(ctx, cmd.Scope, m, missing, targets, cmd.AllowScripts, lf); err != nil {
 			return plan, nil, err
 		}
 	}
@@ -284,6 +247,62 @@ func (h UseProfileHandler) plan(ctx context.Context, cmd UseProfile, m Manifest,
 	return plan, fetched, nil
 }
 
+// planDeclared plans installing the named skills from the sources
+// skilus.yaml declares for them, one group per source in the order the
+// names come, plus what they require. Scripts are allowed by the flag or
+// by the skill's allow: in skilus.yaml.
+func (h AddSkillHandler) planDeclared(ctx context.Context, scope agent.Scope, m Manifest, names []skill.Name, targets []PlannedTarget, allowScripts bool, lf *lock.Lockfile) ([]planGroup, error) {
+	declared := declaredEntries(m)
+	var order []string
+	bySource := map[string][]string{}
+	for _, n := range names {
+		src := declared[n].Source
+		if _, ok := bySource[src]; !ok {
+			order = append(order, src)
+		}
+		bySource[src] = append(bySource[src], n.String())
+	}
+	var groups []planGroup
+	for _, src := range order {
+		fetched, err := fetchSource(ctx, h.Fetchers, src)
+		if err != nil {
+			return nil, err
+		}
+		selected, err := selectSkills(fetched, bySource[src])
+		if err != nil {
+			return nil, domain.Errorf("origen %s: %w", src, err)
+		}
+		untrusted, err := trustFindings(ctx, h.Trust, src, trustScopes(scope)...)
+		if err != nil {
+			return nil, err
+		}
+		fetched.Source = h.recordedSource(scope, fetched.Source)
+		ip := InstallPlan{Source: fetched.Source, Commit: fetched.Commit, Targets: targets}
+		for _, s := range selected {
+			allow := policy.Allow{Scripts: allowScripts || allowsScripts(declared[s.Package.Name()])}
+			report := policy.Inspect(s.Package, h.Limits, allow)
+			report.Findings = append(append([]policy.Finding(nil), untrusted...), report.Findings...)
+			ip.Skills = append(ip.Skills, PlannedSkill{Package: s.Package, Path: s.Path, Report: report})
+		}
+		groups = append(groups, planGroup{raw: src, fetched: fetched, plan: ip})
+	}
+	if len(groups) == 0 {
+		return nil, nil
+	}
+	r := h.resolver(scope, allowScripts, lf)
+	r.allowScripts = func(n skill.Name) bool { return allowScripts || allowsScripts(declared[n]) }
+	return r.resolve(ctx, groups, targets)
+}
+
+// declaredEntries indexes skills: of skilus.yaml by name.
+func declaredEntries(m Manifest) map[skill.Name]ManifestEntry {
+	out := make(map[skill.Name]ManifestEntry, len(m.Skills))
+	for _, e := range m.Skills {
+		out[e.Name] = e
+	}
+	return out
+}
+
 // retarget compares where e is deployed with where the profile wants it,
 // by directory: agents that share a directory need no new copy.
 func (h UseProfileHandler) retarget(ctx context.Context, e lock.Entry, want []PlannedTarget) (Retarget, bool, error) {
@@ -323,28 +342,33 @@ func (h UseProfileHandler) retarget(ctx context.Context, e lock.Entry, want []Pl
 // profileGate applies add's rules per skill, where scripts are allowed by
 // the flag or by the skill's allow: in skilus.yaml.
 func profileGate(plan ProfilePlan, cmd UseProfile, m Manifest) error {
-	declared := map[skill.Name]ManifestEntry{}
-	for _, e := range m.Skills {
-		declared[e.Name] = e
+	reasons := declaredGate(plan.Install, cmd.Yes, cmd.Strict, cmd.AllowScripts, m)
+	if len(reasons) > 0 {
+		return domain.Errorf("%w: %w", reasons, ErrRejected)
 	}
+	return nil
+}
+
+// declaredGate returns why the plans of skills declared in skilus.yaml
+// cannot be installed under add's rules, with scripts allowed by the flag
+// or by the skill's allow:.
+func declaredGate(plans []InstallPlan, yes, strict, allowScripts bool, m Manifest) domain.Errors {
+	declared := declaredEntries(m)
 	var reasons domain.Errors
-	for _, ip := range plan.Install {
+	for _, ip := range plans {
 		for _, s := range ip.Skills {
 			r, name := s.Report, s.Package.Name()
 			switch {
 			case r.Blocking():
 				reasons = append(reasons, domain.Errorf("%s: hallazgos que bloquean", name))
-			case cmd.Strict && r.Warnings() > 0:
+			case strict && r.Warnings() > 0:
 				reasons = append(reasons, domain.Errorf("%s: %d avisos con --strict", name, r.Warnings()))
-			case cmd.Yes && len(r.Executables) > 0 && !cmd.AllowScripts && !allowsScripts(declared[name]):
+			case yes && len(r.Executables) > 0 && !allowScripts && !allowsScripts(declared[name]):
 				reasons = append(reasons, domain.Errorf("%s: los ficheros ejecutables necesitan --allow-scripts o allow: [scripts] en skilus.yaml", name))
 			}
 		}
 	}
-	if len(reasons) > 0 {
-		return domain.Errorf("%w: %w", reasons, ErrRejected)
-	}
-	return nil
+	return reasons
 }
 
 func (h UseProfileHandler) apply(ctx context.Context, cmd UseProfile, plan ProfilePlan, groups []Fetched, lf *lock.Lockfile) (UseProfileResult, error) {
@@ -385,31 +409,43 @@ func (h UseProfileHandler) apply(ctx context.Context, cmd UseProfile, plan Profi
 		res.Retargeted = append(res.Retargeted, e)
 	}
 
-	byID, err := agentsByID(ctx, h.Add.Catalog)
+	removed, err := removeEntries(ctx, h.Add.Catalog, h.Add.Deployer, h.Add.ProjectRoot, plan.Remove, lf)
+	res.Removed = removed
 	if err != nil {
 		return res, err
-	}
-	for _, e := range plan.Remove {
-		for _, t := range e.Targets {
-			a, ok := byID[t.Agent]
-			if !ok {
-				return res, domain.Errorf("la skill %s apunta al agente %s, que ya no está en el catálogo: %w", e.Skill, t.Agent, domain.ErrConflict)
-			}
-			dest := filepath.Join(skillsDir(a, t.Scope, h.Add.ProjectRoot), e.Skill.String())
-			if err := h.Add.Deployer.Remove(ctx, dest); err != nil {
-				return res, domain.Errorf("borrar %s: %w", dest, err)
-			}
-		}
-		if err := lf.Remove(e.Skill); err != nil {
-			return res, err
-		}
-		res.Removed = append(res.Removed, e)
 	}
 	if err := h.Add.Locks.Save(ctx, cmd.Scope, lf); err != nil {
 		return res, domain.Errorf("guardar el lock: %w", err)
 	}
 	lf.PullEvents()
 	return res, nil
+}
+
+// removeEntries deletes the entries from their agents and from the lock,
+// which the caller saves.
+func removeEntries(ctx context.Context, c AgentCatalog, d Deployer, root string, entries []lock.Entry, lf *lock.Lockfile) ([]lock.Entry, error) {
+	byID, err := agentsByID(ctx, c)
+	if err != nil {
+		return nil, err
+	}
+	var removed []lock.Entry
+	for _, e := range entries {
+		for _, t := range e.Targets {
+			a, ok := byID[t.Agent]
+			if !ok {
+				return removed, domain.Errorf("la skill %s apunta al agente %s, que ya no está en el catálogo: %w", e.Skill, t.Agent, domain.ErrConflict)
+			}
+			dest := filepath.Join(skillsDir(a, t.Scope, root), e.Skill.String())
+			if err := d.Remove(ctx, dest); err != nil {
+				return removed, domain.Errorf("borrar %s: %w", dest, err)
+			}
+		}
+		if err := lf.Remove(e.Skill); err != nil {
+			return removed, err
+		}
+		removed = append(removed, e)
+	}
+	return removed, nil
 }
 
 func findProfile(m Manifest, name string) (profile.Profile, error) {

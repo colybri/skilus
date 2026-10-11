@@ -100,6 +100,10 @@ func TestManifestAddSkillKeepsUserContent(t *testing.T) {
 
 func TestManifestCreatedWhenMissing(t *testing.T) {
 	repo := yamlrepo.Repo{ProjectRoot: t.TempDir()}
+	m, err := repo.Manifest(context.Background(), agent.ScopeProject)
+	if err != nil || !m.Missing {
+		t.Fatalf("Manifest() = %+v, %v; want Missing", m, err)
+	}
 	n, _ := skill.NewName("demo")
 	if err := repo.AddSkill(context.Background(), agent.ScopeProject, app.ManifestEntry{Name: n, Source: "."}); err != nil {
 		t.Fatal(err)
@@ -111,6 +115,9 @@ func TestManifestCreatedWhenMissing(t *testing.T) {
 	want := "version: 1\nskills:\n  - name: demo\n    source: .\n"
 	if string(data) != want {
 		t.Fatalf("manifest =\n%s\nwant\n%s", data, want)
+	}
+	if m, err := repo.Manifest(context.Background(), agent.ScopeProject); err != nil || m.Missing {
+		t.Fatalf("Manifest() = %+v, %v; the file exists now", m, err)
 	}
 }
 

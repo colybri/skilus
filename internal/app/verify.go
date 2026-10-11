@@ -182,11 +182,7 @@ func (h VerifyHandler) checkManifest(ctx context.Context, scope agent.Scope, lf 
 	for _, e := range m.Skills {
 		declared[e.Name] = true
 	}
-	active := false
-	for _, p := range m.Profiles {
-		active = active || isActive(p, lf)
-	}
-	if !active {
+	if !profileActive(m, lf) {
 		for _, e := range m.Skills {
 			if _, ok := lf.Entry(e.Name); !ok {
 				out = append(out, ManifestCheck{Scope: scope, Problem: NotInstalled, Skill: e.Name, Source: e.Source})

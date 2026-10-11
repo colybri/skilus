@@ -135,10 +135,10 @@ func renderManifestCheck(w io.Writer, c app.ManifestCheck, t *i18n.Catalog) {
 		fmt.Fprint(w, t.T("  Añádela con skilus add o quítala con skilus profile remove %s %s.\n", c.Profile, c.Skill))
 	case app.NotInstalled:
 		fmt.Fprint(w, t.T("NO INSTALADA %s (%s) está en skills: de skilus.yaml pero no en skilus.lock\n", c.Skill, c.Scope))
-		fmt.Fprint(w, t.T("  Instálala con skilus add %s --skill %s o bórrala de skills:.\n", clean(c.Source), c.Skill))
+		fmt.Fprint(w, t.T("  Instálala con skilus update %s o bórrala de skills:.\n", c.Skill))
 	case app.NotDeclared:
 		fmt.Fprint(w, t.T("NO DECLARADA %s (%s) está en skilus.lock pero no en skills: de skilus.yaml\n", c.Skill, c.Scope))
-		fmt.Fprint(w, t.T("  Retírala con skilus remove %s o añádela a skills:.\n", c.Skill))
+		fmt.Fprint(w, t.T("  Retírala con skilus update %s o añádela a skills:.\n", c.Skill))
 	case app.SourceChanged:
 		fmt.Fprint(w, t.T("CAMBIADA %s (%s): skilus.yaml pide %s y skilus.lock tiene %s\n", c.Skill, c.Scope, clean(c.Source), clean(c.Locked)))
 		fmt.Fprint(w, t.T("  Aplica el cambio con skilus update %s.\n", c.Skill))
