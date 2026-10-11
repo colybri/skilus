@@ -23,7 +23,8 @@ Para publicar una versión basta con empujar un tag `vX.Y.Z`: el workflow `relea
 ## Uso
 
 ```sh
-skilus agents          # agentes soportados, sus rutas y si están instalados
+skilus agents          # agentes detectados en tu equipo y sus rutas
+skilus agents --all    # todos los soportados, con una columna que dice si están instalados
 skilus agents --json
 
 skilus add anthropics/skills --skill pdf     # GitHub, rama por defecto
@@ -114,7 +115,7 @@ No hace falta editar el YAML a mano: `skilus profile create web --skill systemat
 
 `skilus profile use web` instala las skills del perfil que faltan, desde el origen que registra `skills:` y con la misma inspección que `add` (`allow: [scripts]` en esa entrada cuenta como `--allow-scripts`); mueve a los agentes del perfil las que ya estaban, reutilizando el contenido fijado en el lock; y retira de los agentes y del lock las que el perfil no incluye. Primero instala y solo después retira, y `skilus.yaml` no cambia, así que volver a `backend` reinstala exactamente lo mismo. El perfil activo no se guarda: es aquel cuyas skills coinciden con las del lock.
 
-En una terminal, `skilus add` sin `--skill` te deja marcar qué skills del origen instalar y, sin `--agent`, en qué agentes de los instalados en tu equipo; los que comparten carpeta (en un proyecto, Codex, Cursor, Gemini CLI y otros usan `.agents/skills`) salen como una sola opción y reciben una sola copia. Las flechas mueven, la barra espaciadora marca, → marca todo, ← nada, al escribir se filtra y Esc cancela. Con `-y`, o si la entrada o la salida no son una terminal, no pregunta y usa todas las skills y todos los agentes detectados. `skilus agents` lista los 74 agentes que conoce, con sus rutas y si están instalados; la tabla completa está también en la web.
+En una terminal, `skilus add` sin `--skill` te deja marcar qué skills del origen instalar y, sin `--agent`, en qué agentes de los instalados en tu equipo; los que comparten carpeta (en un proyecto, Codex, Cursor, Gemini CLI y otros usan `.agents/skills`) salen como una sola opción y reciben una sola copia. Las flechas mueven, la barra espaciadora marca, → marca todo, ← nada, al escribir se filtra y Esc cancela. Con `-y`, o si la entrada o la salida no son una terminal, no pregunta y usa todas las skills y todos los agentes detectados. `skilus agents` lista los agentes detectados en tu equipo, con sus rutas, y `skilus agents --all` los 74 que conoce; la tabla completa está también en la web.
 
 Para añadir un agente que skilus no trae, o cambiar las rutas de uno, crea `~/.skilus/agents.yaml` con el formato del catálogo incluido (`internal/adapter/catalog/agents.yaml`): un id que ya existe reemplaza a ese agente y uno nuevo se añade al final.
 

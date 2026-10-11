@@ -1,4 +1,4 @@
-# skilus agents lists the catalog and detects installed agents.
+# skilus agents lists the detected agents; --all lists the whole catalog.
 [windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
 env CLAUDE_CONFIG_DIR=
@@ -9,6 +9,13 @@ mkdir home/.claude home/.cursor
 exec skilus agents
 stdout '^AGENTE +PROYECTO +GLOBAL +DETECTADO$'
 stdout '^claude-code +\.claude/skills +.*home/\.claude/skills +sí$'
+stdout '^cursor +\.agents/skills +.*home/\.cursor/skills +sí$'
+! stdout '^codex '
+! stdout ' no$'
+stderr '^72 agentes soportados más sin detectar; skilus agents --all los lista\.$'
+
+exec skilus agents --all
+stdout '^claude-code +\.claude/skills +.*home/\.claude/skills +sí$'
 stdout '^codex +\.agents/skills +.*home/\.agents/skills +no$'
 stdout '^cursor +\.agents/skills +.*home/\.cursor/skills +sí$'
 stdout '^github-copilot +\.agents/skills +.*home/\.copilot/skills +no$'
@@ -16,9 +23,20 @@ stdout '^windsurf +\.windsurf/skills +.*home/\.codeium/windsurf/skills +no$'
 ! stdout '^universal '
 ! stderr .
 
-exec skilus agents --json
+exec skilus agents -a --json
 stdout '"id": "github-copilot"'
 stdout '"installed": false'
+
+exec skilus agents --json
+stdout '"id": "cursor"'
+! stdout '"installed": false'
+
+# With nothing detected there is no table, only the hint.
+env HOME=$WORK/empty
+mkdir $WORK/empty
+exec skilus agents
+! stdout .
+stderr '^No se ha detectado ningún agente; skilus agents --all lista los 74 que soporta\.$'
 
 # Unknown flags are usage errors (exit code 2).
 ! exec skilus agents --nope

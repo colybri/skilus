@@ -56,7 +56,7 @@ export default {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Perintah'),
     table(['Perintah', 'Fungsi'], [
-      ['`skilus agents`', 'Agen yang didukung, path-nya, dan apakah terpasang.'],
+      ['`skilus agents`', 'Agen yang terdeteksi di komputer Anda beserta jalurnya; dengan `--all`, semua yang didukung.'],
       ['`skilus add`', 'Memasang skill dari Git, ZIP/tar.gz, atau direktori lokal.'],
       ['`skilus list`', 'Skill terpasang beserta commit, hash, dan agen.'],
       ['`skilus remove`', 'Menghapus skill dari agen, lock, dan `skilus.yaml`.'],
@@ -205,6 +205,9 @@ export default {
     ul('Hasil dari indeks muncul lebih dulu.', 'Dengan daftar `trust:`, setiap hasil menyebutkan apakah sumbernya tepercaya.', 'Jika sebuah sumber tidak merespons, muncul peringatan dan sisanya tetap ditampilkan.', '`--no-registry` hanya menyisakan indeks; `SKILUS_REGISTRY_URL` menunjuk ke server lain yang kompatibel (hanya https).'),
   ] },
   agents: { title: 'Agen dan dependensi', lead: 'Tambahkan agen yang tidak dibawa skilus dan deklarasikan skill yang bergantung pada skill lain.', blocks: [
+    h2('command', '`skilus agents`'),
+    p('Menampilkan agen yang dideteksi skilus di komputer Anda, beserta folder skills masing-masing di proyek dan di cakupan global. Dengan `-a` atau `--all`, semua agen yang didukung ditampilkan dan kolom terakhir menunjukkan mana yang terpasang.'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', 'Agen yang didukung'),
     p('skilus memasang ke 74 agen ini. Gunakan id-nya dengan `--agent` atau di `agents:` sebuah profil. Di proyek, agen yang berbagi folder mendapat satu salinan skill dan lock mencatat yang pertama. Beberapa path global mengikuti variabel lingkungan seperti `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR`, atau `CODEX_HOME`; `skilus agents` menampilkan path di komputer Anda.'),
     table(['id', 'Agen', 'Proyek'], AGENT_ROWS),

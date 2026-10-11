@@ -20,15 +20,28 @@ type agentJSON struct {
 }
 
 func newAgentsCommand(q app.ListAgents, t *i18n.Catalog) *cobra.Command {
-	var asJSON bool
+	var asJSON, all bool
 	cmd := &cobra.Command{
 		Use:   "agents",
-		Short: t.T("Lista los agentes soportados y cuáles están instalados"),
-		Args:  cobra.NoArgs,
+		Short: t.T("Lista los agentes instalados en este equipo y sus rutas"),
+		Long: t.T(`Lista los agentes que skilus detecta en este equipo, con la carpeta de
+skills de cada uno en un proyecto y en el ámbito global. Con --all lista
+todos los que soporta, detectados o no.`),
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			statuses, err := q.Handle(cmd.Context())
 			if err != nil {
 				return err
+			}
+			total := len(statuses)
+			if !all {
+				detected := statuses[:0]
+				for _, s := range statuses {
+					if s.Installed {
+						detected = append(detected, s)
+					}
+				}
+				statuses = detected
 			}
 			out := cmd.OutOrStdout()
 			if asJSON {
@@ -46,6 +59,19 @@ func newAgentsCommand(q app.ListAgents, t *i18n.Catalog) *cobra.Command {
 				enc.SetIndent("", "  ")
 				return enc.Encode(rows)
 			}
+			// The hint goes to stderr so the table stays easy to pipe.
+			hidden := total - len(statuses)
+			if len(statuses) == 0 {
+				fmt.Fprint(cmd.ErrOrStderr(), t.T("No se ha detectado ningún agente; skilus agents --all lista los %d que soporta.\n", total))
+				return nil
+			}
+			defer func() {
+				if hidden > 0 {
+					fmt.Fprint(cmd.ErrOrStderr(), count(hidden,
+						t.T("%d agente soportado más sin detectar; skilus agents --all lo lista.\n"),
+						t.T("%d agentes soportados más sin detectar; skilus agents --all los lista.\n")))
+				}
+			}()
 			tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 			fmt.Fprintln(tw, t.T("AGENTE\tPROYECTO\tGLOBAL\tDETECTADO"))
 			for _, s := range statuses {
@@ -59,5 +85,6 @@ func newAgentsCommand(q app.ListAgents, t *i18n.Catalog) *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolVar(&asJSON, "json", false, t.T("salida en JSON"))
+	cmd.Flags().BoolVarP(&all, "all", "a", false, t.T("lista también los agentes no detectados"))
 	return cmd
 }

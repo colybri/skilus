@@ -56,7 +56,7 @@ export default {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Commandes'),
     table(['Commande', 'Rôle'], [
-      ['`skilus agents`', 'Agents pris en charge, leurs chemins et s’ils sont installés.'],
+      ['`skilus agents`', 'Agents détectés sur votre machine et leurs chemins ; avec `--all`, tous ceux pris en charge.'],
       ['`skilus add`', 'Installe des skills depuis Git, ZIP/tar.gz ou un dossier local.'],
       ['`skilus list`', 'Skills installées avec commit, hash et agents.'],
       ['`skilus remove`', 'Retire une skill des agents, du lock et de `skilus.yaml`.'],
@@ -205,6 +205,9 @@ export default {
     ul('Les résultats des index apparaissent en premier.', 'Avec une liste `trust:`, chaque résultat indique si son origine est de confiance.', 'Si une source ne répond pas, un avertissement s’affiche et les autres sont montrées.', '`--no-registry` ne garde que les index ; `SKILUS_REGISTRY_URL` pointe vers un autre serveur compatible (https uniquement).'),
   ] },
   agents: { title: 'Agents et dépendances', lead: 'Ajoutez des agents que skilus ne fournit pas et déclarez des skills qui dépendent d’autres.', blocks: [
+    h2('command', '`skilus agents`'),
+    p('Liste les agents que skilus détecte sur votre machine, avec le dossier de skills de chacun dans un projet et dans la portée globale. Avec `-a` ou `--all`, il liste tous ceux qu’il prend en charge et la dernière colonne indique lesquels sont installés.'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', 'Agents pris en charge'),
     p('skilus installe dans ces 74 agents. Utilisez leur id avec `--agent` ou dans les `agents:` d’un profil. Dans un projet, les agents qui partagent un dossier reçoivent une seule copie de la skill et le lock enregistre le premier. Certains chemins globaux suivent des variables d’environnement comme `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR` ou `CODEX_HOME` ; `skilus agents` affiche ceux de votre machine.'),
     table(['id', 'Agent', 'Projet'], AGENT_ROWS),

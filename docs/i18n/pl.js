@@ -56,7 +56,7 @@ export default {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Polecenia'),
     table(['Polecenie', 'Co robi'], [
-      ['`skilus agents`', 'Obsługiwani agenci, ich ścieżki i czy są zainstalowani.'],
+      ['`skilus agents`', 'Agenci wykryci na Twoim komputerze i ich ścieżki; z `--all` wszyscy obsługiwani.'],
       ['`skilus add`', 'Instaluje skille z Gita, ZIP/tar.gz lub lokalnego katalogu.'],
       ['`skilus list`', 'Zainstalowane skille z commitem, hashem i agentami.'],
       ['`skilus remove`', 'Usuwa skill z agentów, locka i `skilus.yaml`.'],
@@ -205,6 +205,9 @@ export default {
     ul('Wyniki z indeksów pojawiają się jako pierwsze.', 'Z listą `trust:` każdy wynik informuje, czy jego źródło jest zaufane.', 'Jeśli źródło nie odpowiada, pojawia się ostrzeżenie, a pozostałe wyniki są pokazywane.', '`--no-registry` zostawia tylko indeksy; `SKILUS_REGISTRY_URL` wskazuje inny zgodny serwer (tylko https).'),
   ] },
   agents: { title: 'Agenci i zależności', lead: 'Dodawaj agentów, których skilus nie zawiera, i deklaruj skille zależne od innych.', blocks: [
+    h2('command', '`skilus agents`'),
+    p('Wyświetla agentów wykrytych przez skilus na Twoim komputerze wraz z folderem skills każdego z nich w projekcie i w zakresie globalnym. Z `-a` lub `--all` wyświetla wszystkich obsługiwanych agentów, a ostatnia kolumna pokazuje, którzy są zainstalowani.'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', 'Obsługiwani agenci'),
     p('skilus instaluje w tych agentach (jest ich 74). Używaj ich id w `--agent` lub w `agents:` profilu. W projekcie agenci dzielący folder dostają jedną kopię skilla, a lock zapisuje pierwszego. Niektóre ścieżki globalne zależą od zmiennych środowiskowych, takich jak `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR` czy `CODEX_HOME`; `skilus agents` pokazuje ścieżki na twoim komputerze.'),
     table(['id', 'Agent', 'Projekt'], AGENT_ROWS),

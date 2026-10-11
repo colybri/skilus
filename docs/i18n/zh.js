@@ -56,7 +56,7 @@ export default {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', '命令'),
     table(['命令', '作用'], [
-      ['`skilus agents`', '支持的智能体、其路径以及是否已安装。'],
+      ['`skilus agents`', '本机检测到的智能体及其路径；使用 `--all` 列出所有支持的智能体。'],
       ['`skilus add`', '从 Git、ZIP/tar.gz 或本地目录安装技能。'],
       ['`skilus list`', '已安装的技能及其提交、哈希和智能体。'],
       ['`skilus remove`', '从智能体、锁文件和 `skilus.yaml` 中移除技能。'],
@@ -205,6 +205,9 @@ export default {
     ul('索引结果优先显示。', '有 `trust:` 列表时，每个结果会标明其来源是否可信。', '某个来源无响应时会给出警告，并显示其余结果。', '`--no-registry` 只保留索引；`SKILUS_REGISTRY_URL` 指向另一个兼容服务器（仅限 https）。'),
   ] },
   agents: { title: '智能体与依赖', lead: '添加 skilus 未内置的智能体，并声明依赖其他技能的技能。', blocks: [
+    h2('command', '`skilus agents`'),
+    p('列出 skilus 在你的电脑上检测到的智能体，以及每个智能体在项目和全局范围中的 skills 文件夹。使用 `-a` 或 `--all` 会列出所有支持的智能体，最后一列显示哪些已安装。'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', '支持的智能体'),
     p('skilus 可安装到这 74 个智能体。在 `--agent` 或配置档的 `agents:` 中使用它们的 id。在项目中，共用目录的智能体只会得到一份技能副本，锁文件记录第一个。部分全局路径会随 `XDG_CONFIG_HOME`、`CLAUDE_CONFIG_DIR` 或 `CODEX_HOME` 等环境变量变化；`skilus agents` 会显示你电脑上的实际路径。'),
     table(['id', '智能体', '项目'], AGENT_ROWS),
