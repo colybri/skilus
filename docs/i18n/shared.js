@@ -40,6 +40,21 @@ description: ${d}
 metadata:
   requires: pdf anthropics/skills#docx
 ---`;
+export const MANIFEST = `version: 1
+skills:
+  - name: pdf
+    source: anthropics/skills@v1.0.0
+  - name: systematic-debugging
+    source: obra/superpowers
+    allow: [scripts]
+profiles:
+  docs:
+    skills: [pdf]
+    agents: [claude-code]
+trust:
+  - github.com/anthropics
+indexes:
+  - https://example.com/skills-index.yaml`;
 export const INDEX = (d) => `version: 1
 skills:
   - name: pdf

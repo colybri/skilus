@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: 'Überblick', lead: 'Ein Skill-Manager für KI-Agenten: an einen Commit gebunden, mit Inhalts-Hash und vor der Installation geprüft.', blocks: [
     p('skilus verwaltet Skills (`SKILL.md`) für KI-Agenten und wird als einzelnes Go-Binary ausgeliefert. Es installiert Skills aus Git, aus einem ZIP- oder tar.gz-Archiv oder aus einem lokalen Verzeichnis und verteilt sie an die Agenten, die du installiert hast.'),
@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'Inhaltsspeicher, den alle Projekte teilen.'],
     ]),
     p('Im Projekt werden Skills als Kopie installiert, damit du sie versionieren kannst; im globalen Bereich als Symlink in den Speicher.'),
-    note('info', 'Status: Phase 3 in Arbeit. Bereits verfügbar: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search` und `audit`.'),
+    note('info', 'Status: Phase 3 in Arbeit. Bereits verfügbar: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` und `audit`.'),
   ] },
   'getting-started': { title: 'Erste Schritte', lead: 'Installiere skilus, prüfe den Download und füge in wenigen Minuten deine erste Skill hinzu.', blocks: [
     h2('requirements', 'Voraussetzungen'),
@@ -53,13 +53,14 @@ export default {
     ul('[Skills hinzufügen](add): alle unterstützten Quellen.', '[Prüfung und Vertrauen](inspect): was skilus prüft und wie du Quellen einschränkst.', '[Profile](profiles): Skill-Sets mit einem Befehl wechseln.'),
   ] },
   'user-guide': { title: 'Benutzerhandbuch', lead: 'Referenz der skilus-Befehle und wie sie im Alltag zusammenspielen.', blocks: [
-    cards('add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
+    cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Befehle'),
     table(['Befehl', 'Funktion'], [
       ['`skilus agents`', 'Unterstützte Agenten, ihre Pfade und ob sie installiert sind.'],
       ['`skilus add`', 'Installiert Skills aus Git, ZIP/tar.gz oder einem lokalen Verzeichnis.'],
       ['`skilus list`', 'Installierte Skills mit Commit, Hash und Agenten.'],
       ['`skilus remove`', 'Entfernt eine Skill aus den Agenten, dem Lock und `skilus.yaml`.'],
+      ['`skilus edit`', 'Öffnet `skilus.yaml` in deinem Editor und speichert sie nur, wenn sie gültig ist.'],
       ['`skilus inspect`', 'Zeigt, was `add` prüfen würde, ohne zu installieren.'],
       ['`skilus verify`', 'Prüft, ob das Installierte dem Lock entspricht.'],
       ['`skilus sync`', 'Bringt die Agenten auf den Stand des Locks.'],
@@ -71,6 +72,7 @@ export default {
     ]),
     h2('scopes', 'Bereiche'),
     p('Die Befehle akzeptieren `--scope project|global|all`. Standardmäßig arbeitet `sync` im Projekt und `verify` in beiden Bereichen. Global liegen `skilus.yaml` und `skilus.lock` in `~/.skilus/`.'),
+    p('[Die Datei skilus.yaml](manifest) erklärt, was jeder Bereich enthält und wo er auf jedem System liegt.'),
     h2('exit-codes', 'Exit-Codes'),
     table(['Code', 'Bedeutung'], [['`0`', 'Erfolg'], ['`1`', 'Fehler oder abgebrochen'], ['`2`', 'Ungültige Verwendung'], ['`3`', 'Nicht gefunden'], ['`4`', 'Bereits installiert oder Konflikt'], ['`5`', 'Von der Prüfung abgelehnt'], ['`6`', 'Installiertes entspricht nicht dem Lock']]),
   ] },
@@ -94,6 +96,44 @@ export default {
     h2('archives', 'ZIP- und tar.gz-Archive'),
     p('Sie werden im Speicher entpackt, ohne auf die Festplatte zu schreiben, mit Grenzen für Downloadgröße (50 MB), entpackte Größe und Anzahl der Einträge. Absolute Pfade und Pfade mit `..` werden abgelehnt. Liegt alles unter einem einzigen Verzeichnis, wie bei GitHub-Archiven, wird es entfernt.'),
     note('warn', 'Archive haben weder `@ref` noch Commit: Der Lock fixiert ihren Inhalt über den Hash. Eine URL mit `?` wird abgelehnt, weil sie meist ein Token enthält.'),
+  ] },
+  manifest: { title: 'Die Datei skilus.yaml', lead: 'Was in der skilus.yaml steht, wo sie in jedem Bereich liegt und wie du sie bearbeitest, ohne sie kaputtzumachen.', blocks: [
+    p('`skilus.yaml` ist die Absicht: welche Skills du willst, woher sie kommen und wie sie gruppiert sind. `skilus add`, `remove` und `profile` halten sie aktuell, ohne deine Kommentare anzufassen, und du kannst sie auch von Hand bearbeiten. Was tatsächlich installiert wurde, steht in `skilus.lock`; siehe [Lockdatei und Synchronisierung](lock).'),
+    h2('scopes', 'Projekt- und globaler Bereich'),
+    p('Jeder Bereich hat seine eigene `skilus.yaml` und seine eigene `skilus.lock`. Die Befehle arbeiten im Projekt, außer du gibst `--scope global` an; `list` und `verify` prüfen beide.'),
+    table(['Bereich', 'skilus.yaml und skilus.lock', 'Wo die Skills installiert werden'], [
+      ['Projekt', 'Das Verzeichnis, in dem du skilus ausführst, meist die Wurzel deines Repositorys.', 'Im Projektverzeichnis jedes Agenten, etwa `.claude/skills`, als Kopie, die du versionieren kannst.'],
+      ['Global', '`~/.skilus/` in deinem Home-Verzeichnis.', 'Im Benutzerverzeichnis jedes Agenten, etwa `~/.claude/skills`, als Symlink in den Speicher (unter Windows als Kopie).'],
+    ]),
+    p('Nutze den Projektbereich für Skills, die dein Team zusammen mit dem Code teilt, und den globalen für die, die du in jedem Projekt willst.'),
+    h2('location', 'Speicherort je System'),
+    p('Die globale Datei liegt im Ordner `.skilus` deines Home-Verzeichnisses:'),
+    table(['System', 'Globale skilus.yaml'], [
+      ['Linux', '`/home/<benutzer>/.skilus/skilus.yaml`'],
+      ['macOS', '`/Users/<benutzer>/.skilus/skilus.yaml`'],
+      ['Windows', '`C:\\Users\\<benutzer>\\.skilus\\skilus.yaml`'],
+    ]),
+    p('Merken musst du dir das nicht: `skilus edit --path` gibt den Pfad für den gewählten Bereich aus.'),
+    code('skilus edit --path\nskilus edit --path --scope global'),
+    note('info', '`~/.skilus/` enthält außerdem `config.yaml` (die mit `skilus lang set` gewählte Sprache), `agents.yaml` (deine eigenen Agenten) und `store/`, den Inhaltsspeicher, den alle Projekte teilen.'),
+    h2('format', 'Format'),
+    code(MANIFEST, 'yaml'),
+    table(['Schlüssel', 'Inhalt'], [
+      ['`version`', 'Immer `1`.'],
+      ['`skills`', 'Die gewünschten Skills: `name`, `source` so, wie `skilus add` sie annimmt (mit optionalem `@ref`), und bei Bedarf `allow: [scripts]`, um ausführbare Dateien zu erlauben.'],
+      ['`profiles`', 'Benannte Gruppen von Skills aus `skills:` und optional ihre Agenten.'],
+      ['`trust`', 'Vertrauenswürdige Organisationen oder Repositorys.'],
+      ['`indexes`', 'Kuratierte Indizes, die `skilus search` liest.'],
+    ]),
+    p('Jeder Abschnitt hat eine eigene Seite: [Skills hinzufügen](add), [Profile](profiles), [Prüfung und Vertrauen](inspect) und [Suche und Indizes](search).'),
+    p('Jeder andere Schlüssel auf oberster Ebene ist ein Fehler, sodass ein Tippfehler wie `skils:` nicht unbemerkt bleibt.'),
+    h2('edit', 'Mit `skilus edit` bearbeiten'),
+    code('skilus edit\nskilus edit --scope global'),
+    p('`skilus edit` öffnet die Datei in deinem Editor oder, wenn es sie noch nicht gibt, eine kommentierte Vorlage. Es nimmt den ersten, den es in `SKILUS_EDITOR`, `VISUAL`, `EDITOR` und `core.editor` von git findet; ist keiner gesetzt, `notepad` unter Windows und sonst `nano` oder `vi`.'),
+    code('export EDITOR=nano            # Linux und macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
+    note('warn', 'Ein grafischer Editor muss warten, bis du die Datei schließt: nutze `code --wait` oder `subl -w`, sonst liest skilus die Datei, bevor du sie speicherst.'),
+    p('Nach dem Schließen prüft skilus die Datei mit den Regeln von `skilus verify`: gültiges YAML, bekannte Schlüssel, Skills mit Quelle und Profile, die nur deklarierte Skills nutzen. Bei Fehlern listet es sie auf und fragt, ob du sie erneut bearbeiten willst, ausgehend von dem, was du geschrieben hast; sagst du nein, werden die Änderungen verworfen, `skilus.yaml` bleibt, wie sie war, und der Exit-Code ist 2.'),
+    note('tip', 'Das Bearbeiten der `skilus.yaml` installiert nichts. Danach zeigt `skilus verify`, was nicht zum Lock passt, und den Befehl, der es behebt: `skilus add` für eine neue Skill, `skilus remove` für eine gelöschte und `skilus profile use`, um ein Profil auszurollen.'),
   ] },
   inspect: { title: 'Prüfung und Vertrauen', lead: 'Was skilus vor der Installation prüft, wie du Quellen einschränkst und wie du das Installierte auditierst.', blocks: [
     h2('rules', 'Was geprüft wird'),
@@ -180,6 +220,7 @@ export default {
       ['Was, wenn ich eine installierte Skill von Hand ändere?', '`skilus verify` erkennt es und beendet sich mit Code 6. `skilus sync` überschreibt sie nicht, außer mit `--force`.'],
       ['Wie nutze ich es in der CI?', 'Kombiniere `skilus inspect --strict --json`, `skilus verify` und `skilus audit --strict --json`. Die Codes 5 und 6 melden eine Ablehnung oder eine Abweichung vom Lock.'],
       ['Kann ich aus GitLab oder von einem anderen Host installieren?', 'Ja: jede Git-URL (`https://`, `ssh://`, `file://` oder `git@host:…`) oder `host/owner/repo`.'],
+      ['Wo liegt skilus.yaml und wie bearbeite ich sie?', 'In der Wurzel des Projekts oder für den globalen Bereich in `~/.skilus/` (`C:\\Users\\<benutzer>\\.skilus` unter Windows). `skilus edit` öffnet sie in deinem Editor und speichert sie nur, wenn sie gültig ist; `skilus edit --path` zeigt, wo sie liegt. Siehe [Die Datei skilus.yaml](manifest).'],
       ['Darf ich skilus kommerziell nutzen?', 'skilus steht unter PolyForm Noncommercial 1.0.0. Kommerzielle Nutzung erfordert eine Lizenz: siehe [COMMERCIAL.md](https://github.com/colybri/skilus/blob/main/COMMERCIAL.md).'],
     ),
   ] },

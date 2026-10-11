@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: '概要', lead: 'AI エージェント向けのスキルマネージャー。コミットに固定し、内容をハッシュ化し、インストール前に検査します。', blocks: [
     p('skilus は AI エージェント向けスキル（`SKILL.md`）のマネージャーで、単一の Go バイナリとして配布されます。Git、ZIP・tar.gz アーカイブ、ローカルディレクトリからスキルをインストールし、インストール済みのエージェントに配置します。'),
@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'プロジェクト間で共有されるコンテンツストア。'],
     ]),
     p('プロジェクトではバージョン管理できるようコピーとして、グローバルではストアへのシンボリックリンクとしてインストールされます。'),
-    note('info', 'ステータス：フェーズ 3 開発中。現在使えるコマンド：`agents`、`add`、`list`、`remove`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`search`、`audit`。'),
+    note('info', 'ステータス：フェーズ 3 開発中。現在使えるコマンド：`agents`、`add`、`list`、`remove`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`edit`、`search`、`audit`。'),
   ] },
   'getting-started': { title: 'はじめに', lead: '数分で skilus をインストールし、ダウンロードを検証して、最初のスキルを追加します。', blocks: [
     h2('requirements', '要件'),
@@ -53,13 +53,14 @@ export default {
     ul('[スキルの追加](add)：対応するすべての取得元。', '[検査と信頼](inspect)：skilus が確認する内容と取得元の制限方法。', '[プロファイル](profiles)：1 コマンドでスキルセットを切り替え。'),
   ] },
   'user-guide': { title: 'ユーザーガイド', lead: 'skilus コマンドのリファレンスと、日常的な組み合わせ方。', blocks: [
-    cards('add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
+    cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'コマンド'),
     table(['コマンド', '機能'], [
       ['`skilus agents`', '対応エージェント、そのパス、インストール状況。'],
       ['`skilus add`', 'Git、ZIP/tar.gz、ローカルディレクトリからスキルをインストール。'],
       ['`skilus list`', 'インストール済みスキルとコミット、ハッシュ、エージェント。'],
       ['`skilus remove`', 'エージェント、ロック、`skilus.yaml` からスキルを削除。'],
+      ['`skilus edit`', '`skilus.yaml` をエディターで開き、有効な場合だけ保存します。'],
       ['`skilus inspect`', '`add` が確認する内容を、インストールせずに表示。'],
       ['`skilus verify`', 'インストール内容がロックと一致するか確認。'],
       ['`skilus sync`', 'エージェントをロックどおりの状態にする。'],
@@ -71,6 +72,7 @@ export default {
     ]),
     h2('scopes', 'スコープ'),
     p('コマンドは `--scope project|global|all` を受け付けます。既定では `sync` はプロジェクト、`verify` は両方のスコープを対象にします。グローバルでは `skilus.yaml` と `skilus.lock` は `~/.skilus/` に置かれます。'),
+    p('[skilus.yaml ファイル](manifest)では、各スコープに何があり、OS ごとにどこにあるかを説明しています。'),
     h2('exit-codes', '終了コード'),
     table(['コード', '意味'], [['`0`', '成功'], ['`1`', 'エラーまたはキャンセル'], ['`2`', '不正な使い方'], ['`3`', '見つからない'], ['`4`', 'インストール済みまたは競合'], ['`5`', '検査により拒否'], ['`6`', 'インストール内容がロックと不一致']]),
   ] },
@@ -94,6 +96,44 @@ export default {
     h2('archives', 'ZIP と tar.gz アーカイブ'),
     p('ディスクに書き込まずメモリ上で展開し、ダウンロードサイズ（50 MB）、展開後サイズ、エントリ数に上限を設けます。絶対パスや `..` を含むパスは拒否されます。GitHub のアーカイブのようにすべてが単一ディレクトリ配下にある場合、そのディレクトリは取り除かれます。'),
     note('warn', 'アーカイブには `@ref` もコミットもありません。ロックはハッシュで内容を固定します。`?` を含む URL はトークンを含むことが多いため拒否されます。'),
+  ] },
+  manifest: { title: 'skilus.yaml ファイル', lead: 'skilus.yaml に何が書かれ、各スコープでどこにあり、壊さずに編集するにはどうするか。', blocks: [
+    p('`skilus.yaml` は意図を表します。どのスキルが欲しいか、どこから取得するか、どうまとめるかです。`skilus add`、`remove`、`profile` がコメントを残したまま更新し、手で編集することもできます。実際にインストールされた内容は `skilus.lock` にあり、[ロックと同期](lock)で説明しています。'),
+    h2('scopes', 'プロジェクトスコープとグローバルスコープ'),
+    p('スコープごとに専用の `skilus.yaml` と `skilus.lock` があります。`--scope global` を渡さない限りコマンドはプロジェクトに対して動き、`list` と `verify` は両方を見ます。'),
+    table(['スコープ', 'skilus.yaml と skilus.lock', 'スキルのインストール先'], [
+      ['プロジェクト', 'skilus を実行するディレクトリ。通常はリポジトリのルートです。', '各エージェントのプロジェクト用ディレクトリ（`.claude/skills` など）に、コミットできるコピーとして置きます。'],
+      ['グローバル', 'ホームディレクトリの `~/.skilus/`。', '各エージェントのユーザー用ディレクトリ（`~/.claude/skills` など）に、ストアへのシンボリックリンクとして置きます（Windows ではコピー）。'],
+    ]),
+    p('チームがコードと一緒に共有するスキルにはプロジェクトスコープを、すべてのプロジェクトで使いたいスキルにはグローバルスコープを使います。'),
+    h2('location', 'OS ごとの場所'),
+    p('グローバルのファイルはホームディレクトリの `.skilus` フォルダーにあります。'),
+    table(['OS', 'グローバルの skilus.yaml'], [
+      ['Linux', '`/home/<ユーザー名>/.skilus/skilus.yaml`'],
+      ['macOS', '`/Users/<ユーザー名>/.skilus/skilus.yaml`'],
+      ['Windows', '`C:\\Users\\<ユーザー名>\\.skilus\\skilus.yaml`'],
+    ]),
+    p('覚えておく必要はありません。`skilus edit --path` が選んだスコープのパスを表示します。'),
+    code('skilus edit --path\nskilus edit --path --scope global'),
+    note('info', '`~/.skilus/` には `config.yaml`（`skilus lang set` で設定した言語）、`agents.yaml`（独自のエージェント）、`store/`（全プロジェクトで共有するコンテンツストア）もあります。'),
+    h2('format', '形式'),
+    code(MANIFEST, 'yaml'),
+    table(['キー', '内容'], [
+      ['`version`', '常に `1`。'],
+      ['`skills`', '欲しいスキル。`name`、`skilus add` と同じ形式の `source`（`@ref` は任意）、必要なら実行ファイルを許可する `allow: [scripts]`。'],
+      ['`profiles`', '`skills:` のスキルを名前付きでまとめたもの。エージェントも指定できます。'],
+      ['`trust`', '信頼する組織やリポジトリ。'],
+      ['`indexes`', '`skilus search` が読むキュレーション済みインデックス。'],
+    ]),
+    p('各セクションの詳細は [スキルの追加](add)、[プロファイル](profiles)、[検査と信頼](inspect)、[検索とインデックス](search) を参照してください。'),
+    p('トップレベルにそれ以外のキーがあるとエラーになるので、`skils:` のようなタイプミスも見逃しません。'),
+    h2('edit', '`skilus edit` で編集する'),
+    code('skilus edit\nskilus edit --scope global'),
+    p('`skilus edit` はファイルをエディターで開きます。まだ存在しない場合はコメント付きのテンプレートを開きます。エディターは `SKILUS_EDITOR`、`VISUAL`、`EDITOR`、git の `core.editor` の順で最初に見つかったものを使い、どれもなければ Windows では `notepad`、それ以外では `nano` か `vi` を使います。'),
+    code('export EDITOR=nano            # Linux と macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
+    note('warn', 'GUI のエディターはファイルを閉じるまで待つ必要があります。`code --wait` や `subl -w` を使ってください。そうしないと、保存する前に skilus がファイルを読んでしまいます。'),
+    p('エディターを閉じると、skilus は `skilus verify` と同じ規則でファイルを検査します。有効な YAML、既知のキー、取得元のあるスキル、宣言済みのスキルだけを使うプロファイルです。問題があればエラーを一覧表示し、書いた内容からもう一度編集するか尋ねます。編集しない場合は変更を破棄し、`skilus.yaml` は元のまま、終了コード 2 で終わります。'),
+    note('tip', '`skilus.yaml` を編集しても何もインストールされません。その後 `skilus verify` を実行すると、ロックと合わない点と、それを直すコマンドを示します。新しいスキルには `skilus add`、削除したスキルには `skilus remove`、プロファイルの展開には `skilus profile use` です。'),
   ] },
   inspect: { title: '検査と信頼', lead: 'インストール前に skilus が確認する内容、取得元の制限方法、インストール内容の監査方法。', blocks: [
     h2('rules', '検査項目'),
@@ -180,6 +220,7 @@ export default {
       ['インストール済みのスキルを手で編集したら？', '`skilus verify` が検出してコード 6 で終了します。`skilus sync` は `--force` を付けない限り上書きしません。'],
       ['CI ではどう使いますか？', '`skilus inspect --strict --json`、`skilus verify`、`skilus audit --strict --json` を組み合わせます。終了コード 5 と 6 は拒否またはロックとの不一致を示します。'],
       ['GitLab など他のホストからインストールできますか？', 'はい。任意の Git URL（`https://`、`ssh://`、`file://`、`git@host:…`）または `host/owner/repo` が使えます。'],
+      ['skilus.yaml はどこにあり、どう編集しますか？', 'プロジェクトのルート、グローバルスコープなら `~/.skilus/` にあります（Windows では `C:\\Users\\<ユーザー名>\\.skilus`）。`skilus edit` でエディターで開き、有効な場合だけ保存します。`skilus edit --path` で場所を表示できます。[skilus.yaml ファイル](manifest)を参照してください。'],
       ['skilus を商用利用できますか？', 'skilus は PolyForm Noncommercial 1.0.0 で公開されています。商用利用には商用ライセンスが必要です：[COMMERCIAL.md](https://github.com/colybri/skilus/blob/main/COMMERCIAL.md) を参照してください。'],
     ),
   ] },

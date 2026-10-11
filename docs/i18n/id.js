@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: 'Ikhtisar', lead: 'Pengelola skill untuk agen AI: dipatok ke sebuah commit, di-hash isinya, dan diperiksa sebelum dipasang.', blocks: [
     p('skilus adalah pengelola skill (`SKILL.md`) untuk agen AI, didistribusikan sebagai satu biner Go. Ia memasang skill dari Git, dari arsip ZIP atau tar.gz, atau dari direktori lokal, lalu menerapkannya ke agen yang terpasang di komputer Anda.'),
@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'Penyimpanan isi yang dipakai bersama antarproyek.'],
     ]),
     p('Di proyek, skill dipasang sebagai salinan agar bisa diversikan; di cakupan global, sebagai symlink ke penyimpanan.'),
-    note('info', 'Status: fase 3 sedang dikembangkan. Sudah berfungsi: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search`, dan `audit`.'),
+    note('info', 'Status: fase 3 sedang dikembangkan. Sudah berfungsi: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search`, dan `audit`.'),
   ] },
   'getting-started': { title: 'Memulai', lead: 'Pasang skilus, verifikasi unduhan, dan tambahkan skill pertama Anda dalam beberapa menit.', blocks: [
     h2('requirements', 'Persyaratan'),
@@ -53,13 +53,14 @@ export default {
     ul('[Menambahkan skill](add): semua sumber yang didukung.', '[Pemeriksaan dan kepercayaan](inspect): apa yang diperiksa skilus dan cara membatasi sumber.', '[Profil](profiles): ganti set skill dengan satu perintah.'),
   ] },
   'user-guide': { title: 'Panduan Pengguna', lead: 'Referensi perintah skilus dan cara memadukannya sehari-hari.', blocks: [
-    cards('add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
+    cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Perintah'),
     table(['Perintah', 'Fungsi'], [
       ['`skilus agents`', 'Agen yang didukung, path-nya, dan apakah terpasang.'],
       ['`skilus add`', 'Memasang skill dari Git, ZIP/tar.gz, atau direktori lokal.'],
       ['`skilus list`', 'Skill terpasang beserta commit, hash, dan agen.'],
       ['`skilus remove`', 'Menghapus skill dari agen, lock, dan `skilus.yaml`.'],
+      ['`skilus edit`', 'Membuka `skilus.yaml` di editor Anda dan menyimpannya hanya jika valid.'],
       ['`skilus inspect`', 'Menampilkan apa yang akan ditinjau `add`, tanpa memasang.'],
       ['`skilus verify`', 'Memeriksa bahwa yang terpasang cocok dengan lock.'],
       ['`skilus sync`', 'Menyamakan agen dengan isi lock.'],
@@ -71,6 +72,7 @@ export default {
     ]),
     h2('scopes', 'Cakupan'),
     p('Perintah menerima `--scope project|global|all`. Secara bawaan `sync` bekerja di proyek dan `verify` di kedua cakupan. Di global, `skilus.yaml` dan `skilus.lock` berada di `~/.skilus/`.'),
+    p('[Berkas skilus.yaml](manifest) menjelaskan isi setiap cakupan dan lokasinya di setiap sistem operasi.'),
     h2('exit-codes', 'Kode keluar'),
     table(['Kode', 'Arti'], [['`0`', 'Berhasil'], ['`1`', 'Galat atau dibatalkan'], ['`2`', 'Penggunaan tidak valid'], ['`3`', 'Tidak ditemukan'], ['`4`', 'Sudah terpasang atau konflik'], ['`5`', 'Ditolak oleh pemeriksaan'], ['`6`', 'Yang terpasang tidak cocok dengan lock']]),
   ] },
@@ -94,6 +96,44 @@ export default {
     h2('archives', 'Arsip ZIP dan tar.gz'),
     p('Diekstrak di memori tanpa menulis ke disk, dengan batas ukuran unduhan (50 MB), ukuran setelah diekstrak, dan jumlah entri. Path absolut atau yang mengandung `..` ditolak. Jika semuanya berada di bawah satu direktori, seperti arsip GitHub, direktori itu dilepas.'),
     note('warn', 'Arsip tidak memiliki `@ref` maupun commit: lock mematok isinya lewat hash. URL yang berisi `?` ditolak karena biasanya membawa token.'),
+  ] },
+  manifest: { title: 'Berkas skilus.yaml', lead: 'Isi skilus.yaml, lokasinya di setiap cakupan, dan cara mengeditnya tanpa merusaknya.', blocks: [
+    p('`skilus.yaml` adalah niat Anda: skill yang Anda inginkan, asalnya, dan pengelompokannya. `skilus add`, `remove`, dan `profile` menjaganya tetap terbaru tanpa menyentuh komentar Anda, dan Anda juga bisa mengeditnya manual. Apa yang benar-benar terpasang ada di `skilus.lock`, dijelaskan di [Lock dan sinkronisasi](lock).'),
+    h2('scopes', 'Cakupan proyek dan global'),
+    p('Setiap cakupan punya `skilus.yaml` dan `skilus.lock` sendiri. Perintah bekerja di proyek kecuali Anda memberikan `--scope global`; `list` dan `verify` memeriksa keduanya.'),
+    table(['Cakupan', 'skilus.yaml dan skilus.lock', 'Tempat skill dipasang'], [
+      ['Proyek', 'Direktori tempat Anda menjalankan skilus, biasanya akar repositori.', 'Di direktori proyek setiap agen, seperti `.claude/skills`, sebagai salinan yang bisa Anda commit.'],
+      ['Global', '`~/.skilus/`, di direktori home Anda.', 'Di direktori pengguna setiap agen, seperti `~/.claude/skills`, sebagai symlink ke store (salinan di Windows).'],
+    ]),
+    p('Gunakan cakupan proyek untuk skill yang dibagikan tim bersama kode, dan cakupan global untuk skill yang Anda inginkan di semua proyek.'),
+    h2('location', 'Lokasi di setiap sistem'),
+    p('Berkas global ada di folder `.skilus` di direktori home Anda:'),
+    table(['Sistem', 'skilus.yaml global'], [
+      ['Linux', '`/home/<pengguna>/.skilus/skilus.yaml`'],
+      ['macOS', '`/Users/<pengguna>/.skilus/skilus.yaml`'],
+      ['Windows', '`C:\\Users\\<pengguna>\\.skilus\\skilus.yaml`'],
+    ]),
+    p('Tidak perlu diingat: `skilus edit --path` mencetak path untuk cakupan yang Anda pilih.'),
+    code('skilus edit --path\nskilus edit --path --scope global'),
+    note('info', '`~/.skilus/` juga berisi `config.yaml` (bahasa yang diatur dengan `skilus lang set`), `agents.yaml` (agen Anda sendiri), dan `store/`, tempat konten yang dipakai bersama semua proyek.'),
+    h2('format', 'Format'),
+    code(MANIFEST, 'yaml'),
+    table(['Kunci', 'Isi'], [
+      ['`version`', 'Selalu `1`.'],
+      ['`skills`', 'Skill yang Anda inginkan: `name`, `source` seperti yang diterima `skilus add` (dengan `@ref` opsional) dan, bila perlu, `allow: [scripts]` untuk menerima berkas yang dapat dieksekusi.'],
+      ['`profiles`', 'Kumpulan skill bernama dari `skills:` dan, opsional, agennya.'],
+      ['`trust`', 'Organisasi atau repositori tepercaya.'],
+      ['`indexes`', 'Indeks kurasi yang dibaca `skilus search`.'],
+    ]),
+    p('Setiap bagian punya halamannya sendiri: [Menambahkan skill](add), [Profil](profiles), [Pemeriksaan dan kepercayaan](inspect), dan [Pencarian dan indeks](search).'),
+    p('Kunci lain di tingkat teratas adalah kesalahan, jadi salah ketik seperti `skils:` tidak akan terlewat.'),
+    h2('edit', 'Mengedit dengan `skilus edit`'),
+    code('skilus edit\nskilus edit --scope global'),
+    p('`skilus edit` membuka berkas di editor Anda atau, jika belum ada, templat yang berisi komentar. Editor yang dipakai adalah yang pertama ditemukan di antara `SKILUS_EDITOR`, `VISUAL`, `EDITOR`, dan `core.editor` git; jika tidak ada, `notepad` di Windows dan `nano` atau `vi` di sistem lain.'),
+    code('export EDITOR=nano            # Linux dan macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
+    note('warn', 'Editor grafis harus menunggu sampai Anda menutup berkas: gunakan `code --wait` atau `subl -w`; jika tidak, skilus membaca berkas sebelum Anda menyimpannya.'),
+    p('Saat editor ditutup, skilus memeriksa berkas dengan aturan `skilus verify`: YAML valid, kunci yang dikenal, skill dengan sumber, dan profil yang hanya memakai skill yang dideklarasikan. Jika ada yang salah, skilus mencantumkan kesalahannya dan bertanya apakah ingin mengedit lagi, mulai dari yang Anda tulis; jika Anda menjawab tidak, perubahan dibuang, `skilus.yaml` tetap seperti semula, dan keluar dengan kode 2.'),
+    note('tip', 'Mengedit `skilus.yaml` tidak memasang apa pun. Setelahnya, `skilus verify` memberi tahu apa yang tidak cocok dengan lock dan perintah untuk memperbaikinya: `skilus add` untuk skill baru, `skilus remove` untuk skill yang Anda hapus, dan `skilus profile use` untuk menerapkan profil.'),
   ] },
   inspect: { title: 'Pemeriksaan dan kepercayaan', lead: 'Apa yang diperiksa skilus sebelum memasang, cara membatasi sumber, dan cara mengaudit yang sudah terpasang.', blocks: [
     h2('rules', 'Yang diperiksa'),
@@ -180,6 +220,7 @@ export default {
       ['Bagaimana jika saya mengubah skill terpasang secara manual?', '`skilus verify` mendeteksinya dan keluar dengan kode 6. `skilus sync` tidak menimpanya kecuali dengan `--force`.'],
       ['Bagaimana memakainya di CI?', 'Gabungkan `skilus inspect --strict --json`, `skilus verify`, dan `skilus audit --strict --json`. Kode 5 dan 6 menandakan penolakan atau ketidakcocokan dengan lock.'],
       ['Bisakah memasang dari GitLab atau host lain?', 'Bisa: URL Git apa pun (`https://`, `ssh://`, `file://`, atau `git@host:…`) atau `host/owner/repo`.'],
+      ['Di mana skilus.yaml dan bagaimana cara mengeditnya?', 'Di akar proyek, atau di `~/.skilus/` untuk cakupan global (`C:\\Users\\<pengguna>\\.skilus` di Windows). `skilus edit` membukanya di editor Anda dan menyimpannya hanya jika valid; `skilus edit --path` mencetak lokasinya. Lihat [Berkas skilus.yaml](manifest).'],
       ['Bolehkah skilus dipakai secara komersial?', 'skilus dirilis di bawah PolyForm Noncommercial 1.0.0. Penggunaan komersial memerlukan lisensi: lihat [COMMERCIAL.md](https://github.com/colybri/skilus/blob/main/COMMERCIAL.md).'],
     ),
   ] },

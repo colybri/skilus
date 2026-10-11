@@ -1,0 +1,103 @@
+# skilus edit opens skilus.yaml in the user's editor and only saves it
+# when it is valid. fakeedit plays the editor: each run saves the next file.
+env HOME=$WORK/home
+env USERPROFILE=$WORK/home
+env VISUAL=
+env EDITOR=
+cd project
+
+# --path only prints where the file lives.
+exec skilus edit --path
+stdout 'project[/\\]skilus\.yaml$'
+exec skilus edit --path --scope global
+stdout 'home[/\\]\.skilus[/\\]skilus\.yaml$'
+! exists skilus.yaml
+
+# A new file starts from the commented template; saving it untouched
+# creates nothing.
+env SKILUS_EDITOR='fakeedit KEEP'
+exec skilus edit --scope global
+stdout 'Sin cambios en'
+grep '^# skilus.yaml: las skills que quieres' $WORK/shown-1
+grep '^#   - github.com/anthropics$' $WORK/shown-1
+! exists $HOME/.skilus/skilus.yaml
+
+# A valid file is saved as written, comments included.
+rm $WORK/.fakeedit
+env SKILUS_EDITOR='fakeedit $WORK/valid.yaml'
+exec skilus edit
+stdout 'Creado .*skilus\.yaml'
+stdout 'skilus verify dice qué falta por aplicar'
+cmp skilus.yaml $WORK/valid.yaml
+
+# Errors are listed and the editor reopens with what the user wrote.
+rm $WORK/.fakeedit
+env SKILUS_EDITOR='fakeedit $WORK/typo.yaml $WORK/orphan.yaml $WORK/fixed.yaml'
+stdin $WORK/yes-yes
+exec skilus edit
+stderr 'skilus.yaml tiene errores:'
+stderr 'clave desconocida "skils" en la línea 2'
+stderr 'el perfil web usa docx, que no está en skills'
+stdout '¿Volver a editarlo\? \[s/N\]'
+stdout 'Guardado .*skilus\.yaml'
+cmp $WORK/shown-2 $WORK/typo.yaml
+cmp $WORK/shown-3 $WORK/orphan.yaml
+cmp skilus.yaml $WORK/fixed.yaml
+
+# Saying no discards the changes and leaves the file as it was.
+rm $WORK/.fakeedit
+env SKILUS_EDITOR='fakeedit $WORK/typo.yaml'
+stdin $WORK/no
+! exec skilus edit
+stderr 'cambios descartados; skilus.yaml no se ha modificado'
+cmp skilus.yaml $WORK/fixed.yaml
+
+# The other commands still read the edited file.
+exec skilus profile list
+stdout 'web'
+
+# An editor that fails changes nothing.
+rm $WORK/.fakeedit
+env SKILUS_EDITOR='fakeedit $WORK/FAIL'
+! exec skilus edit
+stderr 'el editor fakeedit .* falló'
+cmp skilus.yaml $WORK/fixed.yaml
+
+# Messages follow the language.
+rm $WORK/.fakeedit
+env SKILUS_LANG=en
+env SKILUS_EDITOR='fakeedit $WORK/typo.yaml'
+stdin $WORK/no
+! exec skilus edit
+stderr 'skilus.yaml has errors:'
+stderr 'unknown key "skils" on line 2'
+stderr 'changes discarded; skilus.yaml was not modified'
+
+-- project/.keep --
+-- valid.yaml --
+# Team skills
+version: 1
+skills: []
+-- typo.yaml --
+version: 1
+skils: []
+-- orphan.yaml --
+version: 1
+skills: []
+profiles:
+  web:
+    skills: [docx]
+-- fixed.yaml --
+# Team skills
+version: 1
+skills:
+  - name: docx
+    source: anthropics/skills
+profiles:
+  web:
+    skills: [docx]
+-- yes-yes --
+s
+s
+-- no --
+n

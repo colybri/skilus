@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: '概览', lead: '面向 AI 智能体的技能管理器：固定到提交、计算内容哈希，并在安装前检查。', blocks: [
     p('skilus 是面向 AI 智能体的技能（`SKILL.md`）管理器，以单个 Go 二进制文件发布。它可以从 Git、ZIP 或 tar.gz 压缩包或本地目录安装技能，并部署到你已安装的智能体中。'),
@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', '在各项目间共享的内容存储。'],
     ]),
     p('在项目中，技能以副本形式安装，便于纳入版本控制；在全局范围内，则以指向存储的符号链接形式安装。'),
-    note('info', '状态：第 3 阶段开发中。目前可用：`agents`、`add`、`list`、`remove`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`search` 和 `audit`。'),
+    note('info', '状态：第 3 阶段开发中。目前可用：`agents`、`add`、`list`、`remove`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`edit`、`search` 和 `audit`。'),
   ] },
   'getting-started': { title: '快速入门', lead: '几分钟内安装 skilus、验证下载并添加你的第一个技能。', blocks: [
     h2('requirements', '环境要求'),
@@ -53,13 +53,14 @@ export default {
     ul('[添加技能](add)：所有支持的来源。', '[检查与信任](inspect)：skilus 检查什么，以及如何限制来源。', '[配置档](profiles)：一条命令切换技能组合。'),
   ] },
   'user-guide': { title: '用户指南', lead: 'skilus 命令参考，以及它们在日常使用中如何配合。', blocks: [
-    cards('add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
+    cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', '命令'),
     table(['命令', '作用'], [
       ['`skilus agents`', '支持的智能体、其路径以及是否已安装。'],
       ['`skilus add`', '从 Git、ZIP/tar.gz 或本地目录安装技能。'],
       ['`skilus list`', '已安装的技能及其提交、哈希和智能体。'],
       ['`skilus remove`', '从智能体、锁文件和 `skilus.yaml` 中移除技能。'],
+      ['`skilus edit`', '在你的编辑器中打开 `skilus.yaml`，仅在内容有效时保存。'],
       ['`skilus inspect`', '显示 `add` 会审阅的内容，但不安装。'],
       ['`skilus verify`', '检查已安装内容是否与锁文件一致。'],
       ['`skilus sync`', '让智能体与锁文件保持一致。'],
@@ -71,6 +72,7 @@ export default {
     ]),
     h2('scopes', '范围'),
     p('命令接受 `--scope project|global|all`。默认情况下 `sync` 作用于项目，`verify` 作用于两个范围。全局范围下，`skilus.yaml` 和 `skilus.lock` 位于 `~/.skilus/`。'),
+    p('[skilus.yaml 文件](manifest)说明了每个范围保存什么，以及在各操作系统中的位置。'),
     h2('exit-codes', '退出码'),
     table(['代码', '含义'], [['`0`', '成功'], ['`1`', '错误或已取消'], ['`2`', '用法无效'], ['`3`', '未找到'], ['`4`', '已安装或冲突'], ['`5`', '被检查拒绝'], ['`6`', '已安装内容与锁文件不一致']]),
   ] },
@@ -94,6 +96,44 @@ export default {
     h2('archives', 'ZIP 和 tar.gz 压缩包'),
     p('在内存中解压，不写入磁盘，并限制下载大小（50 MB）、解压后大小和条目数量。拒绝绝对路径和包含 `..` 的路径。如果所有内容都位于单一目录下（如 GitHub 生成的压缩包），该目录会被去除。'),
     note('warn', '压缩包没有 `@ref` 或提交：锁文件通过哈希固定其内容。带 `?` 的 URL 会被拒绝，因为它通常携带令牌。'),
+  ] },
+  manifest: { title: 'skilus.yaml 文件', lead: 'skilus.yaml 保存什么、在每个范围中位于何处，以及如何安全地编辑它。', blocks: [
+    p('`skilus.yaml` 记录的是意图：你想要哪些技能、来自哪里以及如何分组。`skilus add`、`remove` 和 `profile` 会自动更新它，并保留你的注释；你也可以手动编辑。实际安装的内容记录在 `skilus.lock` 中，参见[锁文件与同步](lock)。'),
+    h2('scopes', '项目范围与全局范围'),
+    p('每个范围都有自己的 `skilus.yaml` 和 `skilus.lock`。除非传入 `--scope global`，命令都作用于项目；`list` 和 `verify` 会同时检查两者。'),
+    table(['范围', 'skilus.yaml 和 skilus.lock', '技能安装位置'], [
+      ['项目', '运行 skilus 的目录，通常是仓库根目录。', '各智能体的项目目录，例如 `.claude/skills`，以副本形式存放，可纳入版本控制。'],
+      ['全局', '主目录下的 `~/.skilus/`。', '各智能体的用户目录，例如 `~/.claude/skills`，以指向存储区的符号链接存放（Windows 上为副本）。'],
+    ]),
+    p('团队随代码共享的技能用项目范围，希望在所有项目中使用的技能用全局范围。'),
+    h2('location', '在各系统中的位置'),
+    p('全局文件位于主目录的 `.skilus` 文件夹中：'),
+    table(['系统', '全局 skilus.yaml'], [
+      ['Linux', '`/home/<用户名>/.skilus/skilus.yaml`'],
+      ['macOS', '`/Users/<用户名>/.skilus/skilus.yaml`'],
+      ['Windows', '`C:\\Users\\<用户名>\\.skilus\\skilus.yaml`'],
+    ]),
+    p('不用记：`skilus edit --path` 会打印所选范围的路径。'),
+    code('skilus edit --path\nskilus edit --path --scope global'),
+    note('info', '`~/.skilus/` 中还有 `config.yaml`（用 `skilus lang set` 设置的语言）、`agents.yaml`（你自定义的智能体）和 `store/`（所有项目共享的内容存储区）。'),
+    h2('format', '格式'),
+    code(MANIFEST, 'yaml'),
+    table(['键', '内容'], [
+      ['`version`', '始终为 `1`。'],
+      ['`skills`', '你需要的技能：`name`、`source`（格式与 `skilus add` 相同，可带 `@ref`），以及可选的 `allow: [scripts]`，用于接受可执行文件。'],
+      ['`profiles`', '由 `skills:` 中技能组成的具名集合，可选指定其智能体。'],
+      ['`trust`', '受信任的组织或仓库。'],
+      ['`indexes`', '`skilus search` 读取的精选索引。'],
+    ]),
+    p('每个部分都有单独的页面：[添加技能](add)、[配置](profiles)、[检查与信任](inspect) 和 [搜索与索引](search)。'),
+    p('顶层出现其他任何键都会报错，因此像 `skils:` 这样的拼写错误不会被忽略。'),
+    h2('edit', '用 `skilus edit` 编辑'),
+    code('skilus edit\nskilus edit --scope global'),
+    p('`skilus edit` 会在你的编辑器中打开文件；文件尚不存在时，打开一个带注释的模板。编辑器依次取 `SKILUS_EDITOR`、`VISUAL`、`EDITOR` 和 git 的 `core.editor` 中第一个已设置的；都没有时，Windows 上用 `notepad`，其他系统用 `nano` 或 `vi`。'),
+    code('export EDITOR=nano            # Linux 和 macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
+    note('warn', '图形编辑器必须等你关闭文件才返回：请使用 `code --wait` 或 `subl -w`，否则 skilus 会在你保存之前就读取文件。'),
+    p('关闭编辑器后，skilus 按 `skilus verify` 的规则检查文件：YAML 有效、键已知、技能都有来源、配置只使用已声明的技能。如有问题，它会列出错误并询问是否在你写的内容基础上重新编辑；如果回答否，则放弃修改，`skilus.yaml` 保持原样，退出码为 2。'),
+    note('tip', '编辑 `skilus.yaml` 不会安装任何东西。之后运行 `skilus verify`，它会指出与锁文件不一致的地方以及修复命令：新技能用 `skilus add`，删掉的技能用 `skilus remove`，部署配置用 `skilus profile use`。'),
   ] },
   inspect: { title: '检查与信任', lead: 'skilus 在安装前检查什么、如何限制来源，以及如何审计已安装的内容。', blocks: [
     h2('rules', '检查内容'),
@@ -180,6 +220,7 @@ export default {
       ['如果我手动修改了已安装的技能怎么办？', '`skilus verify` 会检测到并以代码 6 退出。`skilus sync` 不会覆盖它，除非使用 `--force`。'],
       ['如何在 CI 中使用？', '组合使用 `skilus inspect --strict --json`、`skilus verify` 和 `skilus audit --strict --json`。退出码 5 和 6 表示被拒绝或与锁文件不一致。'],
       ['可以从 GitLab 或其他主机安装吗？', '可以：任意 Git URL（`https://`、`ssh://`、`file://` 或 `git@host:…`）或 `host/owner/repo`。'],
+      ['skilus.yaml 在哪里？如何编辑？', '在项目根目录；全局范围则在 `~/.skilus/`（Windows 上为 `C:\\Users\\<用户名>\\.skilus`）。`skilus edit` 会在你的编辑器中打开它，仅在内容有效时保存；`skilus edit --path` 会打印它的位置。参见 [skilus.yaml 文件](manifest)。'],
       ['可以商用 skilus 吗？', 'skilus 以 PolyForm Noncommercial 1.0.0 许可发布。商业使用需要商业许可：参见 [COMMERCIAL.md](https://github.com/colybri/skilus/blob/main/COMMERCIAL.md)。'],
     ),
   ] },
