@@ -1,19 +1,12 @@
 # skilus profile create, add, remove and delete edit profiles: in
 # skilus.yaml without touching the rest of the file.
-[windows] skip 'HOME layout differs on Windows'
-env HOME=$WORK/home
-env CLAUDE_CONFIG_DIR=
-env CODEX_HOME=
-env XDG_CONFIG_HOME=
-mkdir home/.claude
 cd project
 
 exec skilus profile create backend --skill debug,api --agent claude-code
 stdout 'Perfil backend creado\.'
 stdout '^  skills: debug, api$'
 stdout '^  agentes: claude-code$'
-# Without --agent and outside a terminal, the detected agents are written.
-exec skilus profile create web --skill debug
+exec skilus profile create web --skill debug --agent claude-code
 stdout '^  agentes: claude-code$'
 
 ! exec skilus profile create web
@@ -36,9 +29,7 @@ stderr 'indica al menos una skill o un --agent'
 ! exec skilus profile add mobile ui
 stderr 'el perfil "mobile" no está en skilus.yaml'
 
-# Without --skill, every declared skill.
-exec skilus profile create old
-stdout '^  skills: debug, api, ui$'
+exec skilus profile create old --skill api --agent codex
 exec skilus profile delete old
 stdout 'Perfil old borrado\.'
 ! exec skilus profile delete old

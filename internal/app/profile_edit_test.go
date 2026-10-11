@@ -3,6 +3,7 @@ package app_test
 import (
 	"context"
 	"errors"
+	"path/filepath"
 	"slices"
 	"testing"
 
@@ -100,7 +101,7 @@ func TestCreateProfileLetsTheUserChoose(t *testing.T) {
 	h.ProjectRoot = "/repo"
 	installed := lockWith(t, "b")
 	h.Locks = &fakeLocks{lf: installed}
-	c := &fakeChooser{skills: []string{"b", "c"}, dirs: []string{"/repo/.agents/skills"}}
+	c := &fakeChooser{skills: []string{"b", "c"}, dirs: []string{filepath.Join("/repo", ".agents", "skills")}}
 	h.Chooser = c
 
 	p, err := h.Create(ctx, app.CreateProfile{Name: "ops", Scope: agent.ScopeProject})

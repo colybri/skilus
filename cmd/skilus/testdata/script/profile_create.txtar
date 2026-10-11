@@ -1,0 +1,32 @@
+# Outside a terminal, skilus profile create without --skill or --agent
+# writes every declared skill and every detected agent.
+[windows] skip 'HOME layout differs on Windows'
+env HOME=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home/.claude home/.cursor
+cd project
+
+exec skilus profile create web
+stdout '^  skills: debug, ui$'
+stdout '^  agentes: claude-code, cursor$'
+grep 'agents: \[claude-code, cursor\]' skilus.yaml
+
+exec skilus profile create api --skill debug -y
+stdout '^  skills: debug$'
+stdout '^  agentes: claude-code, cursor$'
+
+# With no agent detected there is nowhere to deploy.
+env HOME=$WORK/empty
+mkdir $WORK/empty
+! exec skilus profile create none
+stderr 'no hay ningún agente elegido ni detectado'
+
+-- project/skilus.yaml --
+version: 1
+skills:
+  - name: debug
+    source: ./src
+  - name: ui
+    source: ./src
