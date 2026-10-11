@@ -61,7 +61,7 @@ código 5 si add rechazaría instalarlas (bloqueos, o avisos con --strict).`),
 			}
 			out := cmd.OutOrStdout()
 			if !asJSON {
-				renderPlan(out, plan, t)
+				renderPlan(out, plan, styleFor(cmd, out), t)
 				return err
 			}
 			doc := inspectJSON{Source: plan.Source, Commit: plan.Commit, Skills: []inspectSkillJSON{}}
@@ -96,5 +96,6 @@ código 5 si add rechazaría instalarlas (bloqueos, o avisos con --strict).`),
 	f.BoolVar(&c.Strict, "strict", false, t.T("trata los avisos como bloqueos"))
 	f.BoolVar(&c.AllowScripts, "allow-scripts", false, t.T("no avises de los ficheros ejecutables"))
 	f.BoolVar(&asJSON, "json", false, t.T("salida en JSON"))
+	fullFlag(cmd, t)
 	return cmd
 }

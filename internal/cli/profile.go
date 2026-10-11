@@ -123,14 +123,14 @@ que volver al perfil anterior reinstala lo mismo.`),
 			}
 			c.Name, c.Scope, c.Mode = args[0], s, agent.Mode(mode)
 			out := cmd.OutOrStdout()
-			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t}
+			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t, st: styleFor(cmd, out)}
 			res, err := h.Handle(cmd.Context(), c)
 			if errors.Is(err, app.ErrRejected) || (err == nil && (c.Yes || c.DryRun)) {
 				w := cmd.ErrOrStderr()
 				if c.DryRun {
 					w = out
 				}
-				renderProfilePlan(w, res.Plan, t)
+				renderProfilePlan(w, res.Plan, styleFor(cmd, w), t)
 			}
 			if err != nil {
 				return err
@@ -143,10 +143,14 @@ que volver al perfil anterior reinstala lo mismo.`),
 				return nil
 			}
 			for _, e := range res.Installed {
-				fmt.Fprint(out, t.T("Instalada %s (%s) en %d destino(s).\n", e.Skill, e.TreeHash.Short(), len(e.Targets)))
+				fmt.Fprint(out, installed(e, t))
 			}
 			for _, e := range res.Retargeted {
-				fmt.Fprint(out, t.T("Movida %s a %d destino(s).\n", e.Skill, len(e.Targets)))
+				if len(e.Targets) == 1 {
+					fmt.Fprint(out, t.T("Movida %s a 1 destino.\n", e.Skill))
+				} else {
+					fmt.Fprint(out, t.T("Movida %s a %d destinos.\n", e.Skill, len(e.Targets)))
+				}
 			}
 			for _, e := range res.Removed {
 				fmt.Fprint(out, t.T("Retirada %s.\n", e.Skill))
@@ -162,6 +166,7 @@ que volver al perfil anterior reinstala lo mismo.`),
 	f.BoolVar(&c.Strict, "strict", false, t.T("trata los avisos de la inspección como bloqueos"))
 	f.BoolVar(&c.AllowScripts, "allow-scripts", false, t.T("acepta ficheros ejecutables en todas las skills"))
 	f.BoolVar(&c.DryRun, "dry-run", false, t.T("muestra el plan sin cambiar nada"))
+	fullFlag(cmd, t)
 	return cmd
 }
 
@@ -308,41 +313,53 @@ func renderProfile(w io.Writer, p profile.Profile, t *i18n.Catalog) {
 }
 
 func (p prompter) ConfirmProfile(_ context.Context, plan app.ProfilePlan) (bool, error) {
-	renderProfilePlan(p.out, plan, p.t)
+	renderProfilePlan(p.out, plan, p.st, p.t)
 	return p.ask(p.t.T("¿Cambiar al perfil %s? [s/N] ", plan.Profile))
 }
 
-func renderProfilePlan(w io.Writer, plan app.ProfilePlan, t *i18n.Catalog) {
-	fmt.Fprint(w, t.T("Perfil: %s\n", plan.Profile))
+func renderProfilePlan(w io.Writer, plan app.ProfilePlan, st style, t *i18n.Catalog) {
+	fmt.Fprint(w, t.T("Perfil: %s\n", st.bold(plan.Profile)))
+	fmt.Fprintln(w)
+	var n tally
 	if len(plan.Install) > 0 {
-		fmt.Fprintln(w, t.T("Instalar:"))
-	}
-	for _, ip := range plan.Install {
-		renderPlan(w, ip, t)
+		fmt.Fprintln(w, st.bold(t.T("Instalar:")))
+		for _, ip := range plan.Install {
+			renderSources(w, ip, st, t, &n)
+		}
 	}
 	if len(plan.Retarget) > 0 {
-		fmt.Fprintln(w, t.T("Mover a los agentes del perfil:"))
+		fmt.Fprintln(w, st.bold(t.T("Mover a los agentes del perfil:")))
 		for _, r := range plan.Retarget {
-			fmt.Fprintf(w, "  %s\n", r.Entry.Skill)
+			fmt.Fprintln(w, markSkill+" "+st.bold(r.Entry.Skill.String()))
 			for _, tg := range r.Add {
-				fmt.Fprintf(w, "    + %s (%s)\n", clean(filepath.Join(tg.Dir, r.Entry.Skill.String())), tg.Target.Agent)
+				st.item(w, 2, st.green("+"), fmt.Sprintf("%s (%s)", clean(filepath.Join(tg.Dir, r.Entry.Skill.String())), tg.Target.Agent))
 			}
 			for _, d := range r.Drop {
-				fmt.Fprintf(w, "    - %s\n", clean(d))
+				st.item(w, 2, st.red("-"), clean(d))
 			}
 		}
+		fmt.Fprintln(w)
 	}
 	if len(plan.Remove) > 0 {
-		fmt.Fprintln(w, t.T("Retirar:"))
+		fmt.Fprintln(w, st.bold(t.T("Retirar:")))
 		for _, e := range plan.Remove {
-			fmt.Fprintf(w, "  %s\n", e.Skill)
+			st.item(w, 0, st.red("-"), e.Skill.String())
 		}
+		fmt.Fprintln(w)
 	}
 	if len(plan.Keep) > 0 {
-		fmt.Fprintln(w, t.T("Sin cambios:"))
-		for _, e := range plan.Keep {
-			fmt.Fprintf(w, "  %s\n", e.Skill)
+		names := make([]string, len(plan.Keep))
+		for i, e := range plan.Keep {
+			names[i] = e.Skill.String()
 		}
+		st.line(w, 0, t.T("Sin cambios: %s", strings.Join(names, ", ")), 0)
+		fmt.Fprintln(w)
+	}
+	if len(plan.Install) > 0 {
+		for _, ip := range plan.Install {
+			renderTargets(w, ip, st, t)
+		}
+		n.render(w, st, t)
 	}
 }
 

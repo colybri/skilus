@@ -129,6 +129,7 @@ func newRoot(deps Deps, choice i18n.Choice, t *i18n.Catalog) *cobra.Command {
 	}
 	// Cobra's completion command only speaks English; it still works.
 	root.CompletionOptions.HiddenDefaultCmd = true
+	root.PersistentFlags().Bool("no-color", false, t.T("no uses colores; también con la variable NO_COLOR"))
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
 		return domain.Errorf("%w: %w", errUsage, err)
 	})

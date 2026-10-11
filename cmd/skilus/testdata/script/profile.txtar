@@ -39,7 +39,12 @@ stdout '^\* +backend '
 # codex. skilus.yaml does not change.
 exec skilus profile use web --yes
 stdout 'Instalada ui'
-stdout 'Movida debug a 1 destino\(s\)\.'
+stdout 'Movida debug a 1 destino\.'
+stderr '^Mover a los agentes del perfil:$'
+stderr '^● debug$'
+stderr '^  \+ .*debug \(codex\)$'
+stderr '^Retirar:$'
+stderr '^- api$'
 stdout 'Retirada api\.'
 ! exists .claude/skills/api
 ! exists .claude/skills/debug

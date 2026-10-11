@@ -145,6 +145,7 @@ export default {
     h2('inspect', '`skilus inspect`'),
     p('显示与 `add` 在询问前相同的内容——文件、大小、哈希、解析后的提交、可执行文件和发现项——但不安装也不写入任何东西。'),
     code('skilus inspect anthropics/skills --skill pdf\nskilus inspect ./my-skills --strict --json'),
+    p('在终端中，输出会适应终端宽度，把每个描述缩短为两行（`--full` 显示完整描述），并用颜色标记每个技能：没有发现问题时为绿色 ✓，警告为黄色 !，阻止项为红色 ✗。最后汇总技能、阻止项和警告的数量。`--no-color` 或 `NO_COLOR` 变量会关闭颜色；在管道中或使用 `--json` 时从不使用颜色。'),
     note('tip', '在 CI 中，如果 `add` 会拒绝安装，`--strict` 会以代码 5 退出；`--json` 提供机器可读的输出。'),
     h2('trust', '可信来源'),
     p('在 `skilus.yaml`（项目或全局）中添加 `trust:`，限制技能可以来自哪里：整个组织或单个仓库。'),

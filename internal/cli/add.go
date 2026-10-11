@@ -6,6 +6,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -13,6 +15,7 @@ import (
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/cli/i18n"
 	"github.com/colybri/skilus/internal/domain/agent"
+	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/policy"
 )
 
@@ -42,16 +45,16 @@ una skill (con SKILL.md en su raíz) o skills en skills/<nombre>/ o
 			c.Source, c.Scope, c.Mode, c.AllowScripts = args[0], s, agent.Mode(mode), allowScripts
 
 			out := cmd.OutOrStdout()
-			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t}
+			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t, st: styleFor(cmd, out)}
 			res, err := h.Handle(cmd.Context(), c)
 			if errors.Is(err, app.ErrRejected) {
-				renderPlan(cmd.ErrOrStderr(), res.Plan, t)
+				renderPlan(cmd.ErrOrStderr(), res.Plan, styleFor(cmd, cmd.ErrOrStderr()), t)
 			}
 			if err != nil {
 				return err
 			}
 			for _, e := range res.Installed {
-				fmt.Fprint(out, t.T("Instalada %s (%s) en %d destino(s).\n", e.Skill, e.TreeHash.Short(), len(e.Targets)))
+				fmt.Fprint(out, installed(e, t))
 			}
 			if c.Yes {
 				renderSkipped(cmd.ErrOrStderr(), res.Plan.Skipped, t)
@@ -67,6 +70,7 @@ una skill (con SKILL.md en su raíz) o skills en skills/<nombre>/ o
 	f.BoolVarP(&c.Yes, "yes", "y", false, t.T("no preguntes; los ejecutables siguen necesitando --allow-scripts"))
 	f.BoolVar(&c.Strict, "strict", false, t.T("trata los avisos de la inspección como bloqueos"))
 	f.BoolVar(&allowScripts, "allow-scripts", false, t.T("acepta ficheros ejecutables en las skills"))
+	fullFlag(cmd, t)
 	return cmd
 }
 
@@ -75,15 +79,16 @@ type prompter struct {
 	in  io.Reader
 	out io.Writer
 	t   *i18n.Catalog
+	st  style
 }
 
 func (p prompter) ConfirmInstall(_ context.Context, plan app.InstallPlan) (bool, error) {
-	renderPlan(p.out, plan, p.t)
+	renderPlan(p.out, plan, p.st, p.t)
 	return p.ask(p.t.T("¿Instalar? [s/N] "))
 }
 
 func (p prompter) ConfirmUpdate(_ context.Context, plan app.UpdatePlan) (bool, error) {
-	renderUpdatePlan(p.out, plan, p.t)
+	renderUpdatePlan(p.out, plan, p.st, p.t)
 	return p.ask(p.t.T("¿Actualizar? [s/N] "))
 }
 
@@ -108,69 +113,182 @@ func (p prompter) ask(question string) (bool, error) {
 	return false, nil
 }
 
-func renderPlan(w io.Writer, plan app.InstallPlan, t *i18n.Catalog) {
-	renderSource(w, plan, t)
+// tally counts what a plan shows, for the line before the question.
+type tally struct{ skills, blocks, warns int }
+
+func (n *tally) add(r policy.Report) {
+	n.skills++
+	n.warns += r.Warnings()
+	n.blocks += len(r.Findings) - r.Warnings()
+}
+
+func (n tally) render(w io.Writer, st style, t *i18n.Catalog) {
+	blocks := count(n.blocks, t.T("%d bloqueo"), t.T("%d bloqueos"))
+	if n.blocks > 0 {
+		blocks = st.red(blocks)
+	}
+	warns := count(n.warns, t.T("%d aviso"), t.T("%d avisos"))
+	if n.warns > 0 {
+		warns = st.yellow(warns)
+	}
+	fmt.Fprintln(w, count(n.skills, t.T("%d skill"), t.T("%d skills"))+sep+blocks+sep+warns)
+}
+
+// renderPlan shows what add would install: each source with its skills,
+// where they go and a summary.
+func renderPlan(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog) {
+	var n tally
+	renderSources(w, plan, st, t, &n)
+	renderTargets(w, plan, st, t)
+	n.render(w, st, t)
+}
+
+func renderSources(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog, n *tally) {
+	renderSource(w, plan, st, t, n)
 	for _, more := range plan.More {
-		fmt.Fprintln(w)
-		renderSource(w, more, t)
+		renderSource(w, more, st, t, n)
 	}
 }
 
-func renderSource(w io.Writer, plan app.InstallPlan, t *i18n.Catalog) {
-	fmt.Fprint(w, t.T("Origen: %s\n", clean(plan.Source)))
+func renderSource(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog, n *tally) {
+	head := st.bold(clean(plan.Source))
 	if plan.Commit != "" {
-		fmt.Fprint(w, t.T("Commit: %s\n", plan.Commit))
+		head += sep + "commit " + short(plan.Commit)
 	}
-	if len(plan.Targets) > 0 {
-		fmt.Fprintln(w, t.T("Destinos:"))
-		for _, tg := range plan.Targets {
-			fmt.Fprintf(w, "  %s (%s, %s)\n", clean(tg.Dir), tg.Target.Agent, tg.Target.Mode)
-		}
-	}
+	fmt.Fprintln(w, head+sep+count(len(plan.Skills), t.T("%d skill"), t.T("%d skills")))
+	fmt.Fprintln(w)
 	if len(plan.Skipped) > 0 {
 		fmt.Fprintln(w, t.T("No se pueden leer y no se instalarán:"))
 		for _, s := range plan.Skipped {
-			fmt.Fprintf(w, "  %s: %s\n", clean(s.Path), clean(s.Err.Error()))
+			st.item(w, 2, st.yellow(markWarn), clean(s.Path)+": "+clean(s.Err.Error()))
 		}
+		fmt.Fprintln(w)
 	}
-	fmt.Fprintln(w, t.T("Skills:"))
 	for _, s := range plan.Skills {
 		p := s.Package
-		fmt.Fprint(w, t.T("  %s  %d ficheros, %d bytes, sha256 %s\n", p.Name(), len(p.Files()), p.Size(), p.TreeHash().Short()))
-		fmt.Fprintf(w, "    %s\n", clean(p.Description()))
+		info := []string{
+			count(len(p.Files()), t.T("%d fichero"), t.T("%d ficheros")),
+			size(p.Size(), t),
+			"sha256 " + p.TreeHash().Short(),
+		}
+		fmt.Fprintln(w, markSkill+" "+st.bold(p.Name().String())+"   "+st.dim(strings.Join(info, sep)))
+		if d := strings.Join(strings.Fields(p.Description()), " "); d != "" {
+			lines := 2
+			if st.full {
+				lines = 0
+			}
+			st.line(w, 2, clean(d), lines)
+		}
 		if reqs := p.Requires(); len(reqs) > 0 {
 			names := make([]string, len(reqs))
 			for i, r := range reqs {
 				names[i] = clean(r.String())
 			}
-			fmt.Fprint(w, t.T("    necesita %s\n", strings.Join(names, ", ")))
+			st.line(w, 2, t.T("necesita %s", strings.Join(names, ", ")), 0)
 		}
 		if s.Dependency {
 			names := make([]string, len(s.RequiredBy))
-			for i, n := range s.RequiredBy {
-				names[i] = n.String()
+			for i, r := range s.RequiredBy {
+				names[i] = r.String()
 			}
-			fmt.Fprint(w, t.T("    dependencia de %s\n", strings.Join(names, ", ")))
+			st.line(w, 2, t.T("dependencia de %s", strings.Join(names, ", ")), 0)
 		}
-		renderReport(w, s.Report, t)
+		renderReport(w, s.Report, st, t)
+		n.add(s.Report)
+		fmt.Fprintln(w)
 	}
 }
 
-func renderReport(w io.Writer, r policy.Report, t *i18n.Catalog) {
-	for _, e := range r.Executables {
-		fmt.Fprint(w, t.T("    ejecutable: %s\n", clean(e)))
+// renderTargets lists where the skills go, on one line when it fits.
+func renderTargets(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog) {
+	var dirs []string
+	seen := map[string]bool{}
+	for _, p := range plan.All() {
+		for _, tg := range p.Targets {
+			d := fmt.Sprintf("%s (%s, %s)", clean(shortPath(tg.Dir)), tg.Target.Agent, tg.Target.Mode)
+			if !seen[d] {
+				seen[d] = true
+				dirs = append(dirs, d)
+			}
+		}
 	}
+	if len(dirs) == 0 {
+		return
+	}
+	label := t.T("Destinos:")
+	if one := label + " " + strings.Join(dirs, sep); st.width == 0 || textWidth(one) <= st.width {
+		fmt.Fprintln(w, one)
+		return
+	}
+	fmt.Fprintln(w, label)
+	for _, d := range dirs {
+		fmt.Fprintln(w, "  "+d)
+	}
+}
+
+// shortPath shows dir relative to the working directory when it is inside
+// it, or to the home directory as ~.
+func shortPath(dir string) string {
+	if wd, err := os.Getwd(); err == nil {
+		if rel, err := filepath.Rel(wd, dir); err == nil && filepath.IsLocal(rel) {
+			return rel
+		}
+	}
+	if home, err := os.UserHomeDir(); err == nil {
+		if rel, err := filepath.Rel(home, dir); err == nil && filepath.IsLocal(rel) {
+			return filepath.Join("~", rel)
+		}
+	}
+	return dir
+}
+
+// renderReport shows the inspection of one skill: its findings, the
+// executables already accepted, or that there is nothing to report.
+func renderReport(w io.Writer, r policy.Report, st style, t *i18n.Catalog) {
+	if !renderFindings(w, r, st, t) {
+		st.item(w, 2, st.green(markOK), t.T("sin hallazgos"))
+	}
+}
+
+// renderFindings shows the findings and accepted executables of r and
+// reports whether there was any.
+func renderFindings(w io.Writer, r policy.Report, st style, t *i18n.Catalog) bool {
+	flagged := map[string]bool{}
 	for _, f := range r.Findings {
-		label := t.T("aviso")
+		mark := st.yellow(markWarn)
 		if f.Severity == policy.Block {
-			label = t.T("BLOQUEO")
+			mark = st.red(markBlock)
 		}
 		where := ""
 		if f.Path != "" {
-			where = " " + clean(f.Path) + ":"
+			where = clean(f.Path) + ": "
+			if f.Code == policy.CodeExecutable {
+				flagged[f.Path] = true
+			}
 		}
-		fmt.Fprintf(w, "    %s [%s]%s %s\n", label, f.Code, where, clean(text(f.Detail, t)))
+		st.tagged(w, 2, mark, where+clean(text(f.Detail, t)), "["+string(f.Code)+"]")
 	}
+	accepted := 0
+	for _, e := range r.Executables {
+		if !flagged[e] {
+			accepted++
+			st.item(w, 2, st.dim(markOK), t.T("ejecutable aceptado: %s", clean(e)))
+		}
+	}
+	return len(r.Findings) > 0 || accepted > 0
+}
+
+// installed reports that an entry was installed.
+func installed(e lock.Entry, t *i18n.Catalog) string {
+	if len(e.Targets) == 1 {
+		return t.T("Instalada %s (%s) en 1 destino.\n", e.Skill, e.TreeHash.Short())
+	}
+	return t.T("Instalada %s (%s) en %d destinos.\n", e.Skill, e.TreeHash.Short(), len(e.Targets))
+}
+
+// fullFlag adds --full to a command that shows install plans.
+func fullFlag(cmd *cobra.Command, t *i18n.Catalog) {
+	cmd.Flags().Bool("full", false, t.T("muestra las descripciones completas"))
 }
 
 func renderSkipped(w io.Writer, skipped []app.InvalidSkill, t *i18n.Catalog) {

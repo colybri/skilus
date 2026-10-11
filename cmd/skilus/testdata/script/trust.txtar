@@ -20,7 +20,7 @@ exec git commit --quiet -m v1
 cd $WORK/project
 
 exec skilus inspect file://$WORK/remote
-stdout 'aviso \[untrusted-source\]'
+stdout '! .*\[untrusted-source\]'
 ! exec skilus add file://$WORK/remote --agent claude-code --yes --strict
 stderr 'avisos con --strict'
 ! exists skilus.lock

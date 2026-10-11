@@ -8,16 +8,18 @@ mkdir home project
 cd project
 
 exec skilus inspect ../src
-stdout 'Origen: .*src'
+stdout '^.*src · 1 skill$'
 ! stdout 'Destinos:'
-stdout 'review  2 ficheros'
-stdout 'aviso \[pipe-to-shell\] setup.md:'
+stdout '● review   2 ficheros'
+stdout '^  Reviews code\.$'
+stdout '^  ! setup.md: .* \[pipe-to-shell\]$'
+stdout '^1 skill · 0 bloqueos · 1 aviso$'
 ! exists skilus.lock
 ! exists .claude
 
 # --strict turns warnings into a rejection (exit code 5).
 ! exec skilus inspect ../src --strict
-stdout 'aviso \[pipe-to-shell\]'
+stdout '! .*\[pipe-to-shell\]'
 
 exec skilus inspect ../src --json
 stdout '"name": "review"'

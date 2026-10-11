@@ -120,10 +120,10 @@ actualiza skilus.lock. skilus.yaml no cambia.`),
 			}
 			c.Names, c.Scope = args, s
 			out := cmd.OutOrStdout()
-			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t}
+			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t, st: styleFor(cmd, out)}
 			res, err := h.Handle(cmd.Context(), c)
 			if errors.Is(err, app.ErrRejected) || (err == nil && c.Yes) {
-				renderUpdatePlan(cmd.ErrOrStderr(), res.Plan, t)
+				renderUpdatePlan(cmd.ErrOrStderr(), res.Plan, styleFor(cmd, cmd.ErrOrStderr()), t)
 			}
 			if err != nil {
 				return err
@@ -147,29 +147,35 @@ actualiza skilus.lock. skilus.yaml no cambia.`),
 	f.BoolVar(&c.Strict, "strict", false, t.T("trata los avisos de la inspección como bloqueos"))
 	f.BoolVar(&c.AllowScripts, "allow-scripts", false, t.T("acepta ficheros ejecutables nuevos"))
 	f.BoolVar(&c.Force, "force", false, t.T("sobrescribe las skills modificadas a mano"))
+	fullFlag(cmd, t)
 	return cmd
 }
 
-func renderUpdatePlan(w io.Writer, plan app.UpdatePlan, t *i18n.Catalog) {
-	changes := map[string]string{"added": "+", "removed": "-", "modified": "~"}
+func renderUpdatePlan(w io.Writer, plan app.UpdatePlan, st style, t *i18n.Catalog) {
+	changes := map[string]string{"added": st.green("+"), "removed": st.red("-"), "modified": st.yellow("~")}
+	var n tally
 	for _, u := range plan.Skills {
 		e := u.Previous
-		from, to := short(e.Commit), short(u.Commit)
-		fmt.Fprint(w, t.T("%s  %s -> %s  sha256 %s -> %s\n", e.Skill, from, to, e.TreeHash.Short(), u.Package.TreeHash().Short()))
+		info := short(e.Commit) + " → " + short(u.Commit) + sep + "sha256 " + e.TreeHash.Short() + " → " + u.Package.TreeHash().Short()
+		fmt.Fprintln(w, markSkill+" "+st.bold(e.Skill.String())+"   "+st.dim(info))
 		switch {
 		case !u.ContentChanged():
-			fmt.Fprintln(w, t.T("    sin cambios en los ficheros"))
+			st.line(w, 2, t.T("sin cambios en los ficheros"), 0)
 		case u.Changes == nil:
-			fmt.Fprintln(w, t.T("    la versión instalada ya no está en el almacén; no se puede mostrar qué cambia"))
+			st.line(w, 2, t.T("la versión instalada ya no está en el almacén; no se puede mostrar qué cambia"), 0)
 		default:
 			for _, ch := range u.Changes {
-				fmt.Fprintf(w, "    %s %s\n", changes[string(ch.Kind)], clean(ch.Path))
+				st.item(w, 2, changes[string(ch.Kind)], clean(ch.Path))
 			}
 		}
-		renderReport(w, u.Report, t)
+		renderReport(w, u.Report, st, t)
+		n.add(u.Report)
+		fmt.Fprintln(w)
 	}
 	for _, ip := range plan.Dependencies {
 		fmt.Fprintln(w, t.T("Requeridas por las skills actualizadas:"))
-		renderPlan(w, ip, t)
+		renderSources(w, ip, st, t, &n)
+		renderTargets(w, ip, st, t)
 	}
+	n.render(w, st, t)
 }

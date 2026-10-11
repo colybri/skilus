@@ -10,8 +10,10 @@ cd project
 # Answering no changes nothing.
 stdin no.txt
 ! exec skilus add ../src --agent claude-code
-stdout 'Origen: \.\./src|Origen: .*src'
-stdout 'review  2 ficheros'
+stdout '^.*src · 1 skill$'
+stdout '● review   2 ficheros · [0-9]+ B · sha256 [0-9a-f]{12}'
+stdout '^Destinos: .*\.claude[/\\]skills \(claude-code, copy\)$'
+stdout '^1 skill · 0 bloqueos · 0 avisos$'
 stdout 'Revisa cambios'
 stdout '¿Instalar\? \[s/N\]'
 stderr 'cancelado'
@@ -21,7 +23,7 @@ stderr 'cancelado'
 # Answering yes installs a copy and records it.
 stdin yes.txt
 exec skilus add ../src --agent claude-code
-stdout 'Instalada review \([0-9a-f]{12}\) en 1 destino\(s\)\.'
+stdout 'Instalada review \([0-9a-f]{12}\) en 1 destino\.'
 exists .claude/skills/review/SKILL.md
 exists .claude/skills/review/guide/checklist.md
 grep '^  review:$' skilus.lock
@@ -37,7 +39,8 @@ stderr 'ya está instalada'
 # Blocking findings stop the install without asking (exit code 5).
 symlink ../evil/leak -> ../secret
 ! exec skilus add ../evil --agent claude-code
-stderr 'BLOQUEO \[symlink-escape\] leak: apunta a \.\./secret'
+stderr '✗ leak: apunta a \.\./secret.* \[symlink-escape\]'
+stderr '1 skill · 1 bloqueo · 0 avisos'
 stderr 'rechazado por la inspección'
 ! exists .claude/skills/evil
 

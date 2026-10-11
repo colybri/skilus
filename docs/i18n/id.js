@@ -145,6 +145,7 @@ export default {
     h2('inspect', '`skilus inspect`'),
     p('Menampilkan hal yang sama dengan `add` sebelum bertanya —file, ukuran, hash, commit yang di-resolve, executable, dan temuan— tanpa memasang atau menulis apa pun.'),
     code('skilus inspect anthropics/skills --skill pdf\nskilus inspect ./my-skills --strict --json'),
+    p('Di terminal, keluaran menyesuaikan lebarnya, memendekkan setiap deskripsi menjadi dua baris (`--full` menampilkannya utuh) dan menandai setiap skill dengan warna: ✓ hijau bila tidak ada temuan, ! kuning untuk peringatan, dan ✗ merah untuk pemblokir. Di akhir ada ringkasan jumlah skill, pemblokir, dan peringatan. `--no-color` atau variabel `NO_COLOR` mematikan warna, dan pipe atau `--json` tidak pernah memakainya.'),
     note('tip', 'Di CI, `--strict` keluar dengan kode 5 jika `add` akan menolak pemasangan, dan `--json` memberi keluaran untuk mesin.'),
     h2('trust', 'Sumber tepercaya'),
     p('Tambahkan `trust:` ke `skilus.yaml` (proyek atau global) untuk membatasi asal skill: seluruh organisasi atau satu repositori.'),
