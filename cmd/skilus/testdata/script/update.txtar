@@ -1,8 +1,8 @@
 # skilus update --check sees that the requested branch moved; skilus update
 # shows what changes and moves the lock to the new commit.
 [!exec:git] skip 'git is not installed'
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=

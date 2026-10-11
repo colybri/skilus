@@ -1,8 +1,8 @@
 # skilus verify detects drift and skilus sync restores the lock, downloading
 # each skill by its pinned commit.
 [!exec:git] skip 'git is not installed'
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -22,7 +22,8 @@ cd $WORK/project
 
 exec skilus add file://$WORK/remote --agent claude-code --yes --allow-scripts
 grep 'executables:' skilus.lock
-grep '- run.sh' skilus.lock
+# Git on Windows does not keep the executable bit.
+[!windows] grep '- run.sh' skilus.lock
 
 exec skilus verify
 stdout 'Todo en orden: 1 skill\(s\) en 1 destino\(s\)'

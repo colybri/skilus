@@ -21,7 +21,18 @@ jobs:
         with:
           go-version-file: go.mod
       - run: go vet ./...
-      - run: go test -race ./...
+      - name: go test
+        shell: bash
+        run: |
+          set -o pipefail
+          go test -race ./... 2>&1 | tee test.log && exit 0
+          # Job logs are not always at hand (they are served from another
+          # host), so the end of the output also goes to annotations.
+          grep -v '^ok ' test.log | tail -n 400 | tr -d '\r' | awk '
+            { gsub(/%/, "%25"); buf = buf $0 "%0A"; n++ }
+            n == 40 { print "::error title=go test::" buf; buf = ""; n = 0 }
+            END { if (n) print "::error title=go test::" buf }'
+          exit 1
 
   lint:
     runs-on: ubuntu-latest

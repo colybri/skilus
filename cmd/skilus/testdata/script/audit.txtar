@@ -1,8 +1,8 @@
 # skilus audit checks the installed skills against trust:, the commit
 # signatures and today's inspection; --strict makes warnings fail.
 [!exec:git] skip 'git is not installed'
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env SKILUS_GITHUB_API=-
 env GIT_AUTHOR_NAME=t

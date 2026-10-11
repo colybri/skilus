@@ -1,7 +1,7 @@
 # skilus add installs from a Git repository and pins the commit.
 [!exec:git] skip 'git is not installed'
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -22,10 +22,10 @@ cd $WORK/project
 exec skilus add file://$WORK/remote@v1.0.0 --agent claude-code --yes
 stdout 'Instalada review'
 exists .claude/skills/review/SKILL.md
-grep 'source: file://.*/remote$' skilus.lock
+grep 'source: file://.*[/\\]remote$' skilus.lock
 grep 'requested: v1.0.0' skilus.lock
 grep 'commit: [0-9a-f]{40}' skilus.lock
-grep 'source: file://.*/remote@v1.0.0' skilus.yaml
+grep 'source: file://.*[/\\]remote@v1.0.0' skilus.yaml
 
 # A ref that does not exist is not found (exit code 3).
 ! exec skilus add file://$WORK/remote@nope --agent claude-code --yes

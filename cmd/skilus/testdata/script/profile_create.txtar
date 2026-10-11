@@ -1,7 +1,7 @@
 # Outside a terminal, skilus profile create without --skill or --agent
 # writes every declared skill and every detected agent.
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -19,6 +19,7 @@ stdout '^  agentes: claude-code, cursor$'
 
 # With no agent detected there is nowhere to deploy.
 env HOME=$WORK/empty
+env USERPROFILE=$WORK/empty
 mkdir $WORK/empty
 ! exec skilus profile create none
 stderr 'no hay ningún agente elegido ni detectado'

@@ -1,7 +1,7 @@
 # skilus verify also checks that skilus.yaml can be read and agrees with
 # skilus.lock.
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=

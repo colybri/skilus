@@ -1,8 +1,8 @@
 # trust: in skilus.yaml lists the trusted sources; any other one gets a
 # warning, which --strict turns into a rejection. Local folders are exempt.
 [!exec:git] skip 'git is not installed'
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=

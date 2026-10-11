@@ -1,7 +1,7 @@
 # profiles: in skilus.yaml groups skills; skilus profile use deploys one to
 # its agents and takes away what does not belong to it.
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -67,8 +67,9 @@ exec skilus profile use web
 stdout 'El perfil web ya está desplegado\.'
 
 # Executables need --allow-scripts or allow: [scripts] in skills:.
-! exec skilus profile use ops --yes
-stderr 'deploy: los ficheros ejecutables necesitan --allow-scripts'
+# Windows has no executable bit, so no file counts as a script there.
+[!windows] ! exec skilus profile use ops --yes
+[!windows] stderr 'deploy: los ficheros ejecutables necesitan --allow-scripts'
 exec skilus profile use ops --yes --allow-scripts
 exists .agents/skills/deploy/run.sh
 

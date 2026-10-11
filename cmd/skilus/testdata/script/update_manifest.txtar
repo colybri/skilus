@@ -1,8 +1,8 @@
 # skilus update applies skills added to or removed from skilus.yaml by hand:
 # it installs the new ones in the detected agents, with what they require,
 # and removes the ones gone, with the requirements nothing else needs.
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
