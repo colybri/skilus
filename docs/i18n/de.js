@@ -135,7 +135,7 @@ export default {
     code('export EDITOR=nano            # Linux und macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
     note('warn', 'Ein grafischer Editor muss warten, bis du die Datei schließt: nutze `code --wait` oder `subl -w`, sonst liest skilus die Datei, bevor du sie speicherst.'),
     p('Nach dem Schließen prüft skilus die Datei mit den Regeln von `skilus verify`: gültiges YAML, bekannte Schlüssel, Skills mit Quelle und Profile, die nur deklarierte Skills nutzen. Bei Fehlern listet es sie auf und fragt, ob du sie erneut bearbeiten willst, ausgehend von dem, was du geschrieben hast; sagst du nein, werden die Änderungen verworfen, `skilus.yaml` bleibt, wie sie war, und der Exit-Code ist 2.'),
-    note('tip', 'Das Bearbeiten der `skilus.yaml` installiert nichts. Danach zeigt `skilus verify`, was nicht zum Lock passt, und den Befehl, der es behebt: `skilus add` für eine neue Skill, `skilus remove` für eine gelöschte und `skilus profile use`, um ein Profil auszurollen.'),
+    note('tip', 'Das Bearbeiten der `skilus.yaml` installiert nichts. Danach zeigt `skilus verify`, was nicht zum Lock passt, und den Befehl, der es behebt: `skilus add` für eine neue Skill, `skilus remove` für eine gelöschte und `skilus profile use`, um ein Profil auszurollen. Hast du Quelle oder Ref einer Skill geändert, übernimmt `skilus update` das.'),
   ] },
   inspect: { title: 'Prüfung und Vertrauen', lead: 'Was skilus vor der Installation prüft, wie du Quellen einschränkst und wie du das Installierte auditierst.', blocks: [
     h2('rules', 'Was geprüft wird'),
@@ -170,7 +170,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('Berechnet den Hash jeder Skill in jedem Agenten neu und vergleicht ihn mit dem Lock. Fehlt eine oder wurde eine Datei geändert, nennt es sie und beendet sich mit Code 6.'),
     code('skilus verify\nskilus verify --json'),
-    p('Außerdem prüft es `skilus.yaml`: dass die Datei lesbar ist, dass jede Skill unter `skills:` installiert ist (außer denen außerhalb des aktiven Profils), dass jede installierte Skill, abgesehen von Abhängigkeiten, unter `skills:` steht und dass Profile nur deklarierte Skills verwenden. Hat die Datei Fehler, endet es mit Code 2; passt sie nicht zum Lock, mit Code 6, und schlägt den Befehl vor, der es behebt.'),
+    p('Außerdem prüft es `skilus.yaml`: dass die Datei lesbar ist, dass jede Skill unter `skills:` installiert ist (außer denen außerhalb des aktiven Profils), dass jede installierte Skill, abgesehen von Abhängigkeiten, unter `skills:` steht und dass Profile nur deklarierte Skills verwenden. Hat die Datei Fehler, endet es mit Code 2; passt sie nicht zum Lock, mit Code 6, und schlägt den Befehl vor, der es behebt. Wenn Quelle oder Ref einer Skill in `skilus.yaml` nicht die des Locks sind, meldet er das und schlägt `skilus update` vor.'),
     h2('sync', '`skilus sync`'),
     p('Installiert Fehlendes aus dem Speicher oder, falls dort nicht vorhanden, durch Herunterladen jeder Skill an ihrem Commit, und schlägt fehl, wenn der Hash nicht passt. Es ändert nie `skilus.lock` oder `skilus.yaml` und lässt von Hand geänderte Skills in Ruhe, außer mit `--force`.'),
     code('skilus sync\nskilus sync --force'),
@@ -182,7 +182,7 @@ export default {
     h2('update', '`skilus update`'),
     p('Lädt die neue Version, zeigt hinzugefügte, gelöschte und geänderte Dateien samt Prüfung und ersetzt nach deiner Bestätigung die installierten Kopien und aktualisiert den Lock.'),
     code('skilus update\nskilus update review --yes --allow-scripts'),
-    ul('Ausführbare Dateien, die die Skill schon hatte, werden nicht erneut abgefragt; neue schon.', '`skilus.yaml` ändert sich nicht: Es speichert Branch oder Tag, nicht den Commit.', 'Neue Abhängigkeiten der Version werden installiert.'),
+    ul('Ausführbare Dateien, die die Skill schon hatte, werden nicht erneut abgefragt; neue schon.', '`skilus.yaml` ändert sich nicht: Es speichert Branch oder Tag, nicht den Commit.', 'Neue Abhängigkeiten der Version werden installiert.', 'Wenn du Quelle oder Ref einer Skill in `skilus.yaml` von Hand geändert hast, lädt er sie von dort und trägt das im Lock ein. `skilus outdated` zeigt sie als geändert an.'),
   ] },
   profiles: { title: 'Profile', lead: 'Gruppiere Skills nach Kontext und wechsle das Set mit einem einzigen Befehl.', blocks: [
     p('Ein Profil gruppiert Skills, die bereits unter `skills:` in `skilus.yaml` deklariert sind, und optional die Agenten, für die sie bestimmt sind. Ohne `agents:` werden die erkannten Agenten verwendet.'),

@@ -135,7 +135,7 @@ export default {
     code('export EDITOR=nano            # Linux 和 macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
     note('warn', '图形编辑器必须等你关闭文件才返回：请使用 `code --wait` 或 `subl -w`，否则 skilus 会在你保存之前就读取文件。'),
     p('关闭编辑器后，skilus 按 `skilus verify` 的规则检查文件：YAML 有效、键已知、技能都有来源、配置只使用已声明的技能。如有问题，它会列出错误并询问是否在你写的内容基础上重新编辑；如果回答否，则放弃修改，`skilus.yaml` 保持原样，退出码为 2。'),
-    note('tip', '编辑 `skilus.yaml` 不会安装任何东西。之后运行 `skilus verify`，它会指出与锁文件不一致的地方以及修复命令：新技能用 `skilus add`，删掉的技能用 `skilus remove`，部署配置用 `skilus profile use`。'),
+    note('tip', '编辑 `skilus.yaml` 不会安装任何东西。之后运行 `skilus verify`，它会指出与锁文件不一致的地方以及修复命令：新技能用 `skilus add`，删掉的技能用 `skilus remove`，部署配置用 `skilus profile use`。如果你修改了某个 skill 的来源或 ref，`skilus update` 会应用此更改。'),
   ] },
   inspect: { title: '检查与信任', lead: 'skilus 在安装前检查什么、如何限制来源，以及如何审计已安装的内容。', blocks: [
     h2('rules', '检查内容'),
@@ -170,7 +170,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('重新计算每个智能体中每个技能的哈希并与锁文件比较。如有缺失或文件被修改，会指出具体项并以代码 6 退出。'),
     code('skilus verify\nskilus verify --json'),
-    p('它还会检查 `skilus.yaml`：文件能否读取；`skills:` 中的每个 skill 是否已安装（不属于当前配置档的除外）；每个已安装的 skill（依赖除外）是否都在 `skills:` 中；配置档是否只使用已声明的 skill。文件有错误时以代码 2 退出；与 lock 不一致时以代码 6 退出，并给出修复用的命令。'),
+    p('它还会检查 `skilus.yaml`：文件能否读取；`skills:` 中的每个 skill 是否已安装（不属于当前配置档的除外）；每个已安装的 skill（依赖除外）是否都在 `skills:` 中；配置档是否只使用已声明的 skill。文件有错误时以代码 2 退出；与 lock 不一致时以代码 6 退出，并给出修复用的命令。如果 `skilus.yaml` 中某个 skill 的来源或 ref 与锁文件中的不同，它会指出并建议运行 `skilus update`。'),
     h2('sync', '`skilus sync`'),
     p('从存储中安装缺失的内容；如果存储中没有，则按提交下载每个技能；哈希不匹配时失败。它从不修改 `skilus.lock` 或 `skilus.yaml`，也不会改动手动编辑过的技能，除非使用 `--force`。'),
     code('skilus sync\nskilus sync --force'),
@@ -182,7 +182,7 @@ export default {
     h2('update', '`skilus update`'),
     p('下载新版本，显示新增、删除和修改的文件以及检查结果，确认后替换已安装的副本并更新锁文件。'),
     code('skilus update\nskilus update review --yes --allow-scripts'),
-    ul('技能原有的可执行文件不会再次询问；新增的会询问。', '`skilus.yaml` 不变：它记录的是分支或标签，而不是提交。', '会安装新版本所需的新依赖。'),
+    ul('技能原有的可执行文件不会再次询问；新增的会询问。', '`skilus.yaml` 不变：它记录的是分支或标签，而不是提交。', '会安装新版本所需的新依赖。', '如果你在 `skilus.yaml` 中手动修改了某个 skill 的来源或 ref，它会从那里下载并记录到锁文件中。`skilus outdated` 会将其显示为已更改。'),
   ] },
   profiles: { title: '配置档', lead: '按场景分组技能，一条命令即可切换。', blocks: [
     p('配置档将 `skilus.yaml` 中 `skills:` 下已声明的技能分组，并可选指定它们部署到的智能体。没有 `agents:` 时，使用检测到的智能体。'),

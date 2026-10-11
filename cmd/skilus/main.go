@@ -100,7 +100,7 @@ func run() int {
 			ProjectRoot: cwd,
 		},
 		Inspect:  app.InspectHandler{Fetchers: fetchers, Trust: repo, Limits: policy.DefaultLimits},
-		Outdated: app.OutdatedHandler{Resolver: git, Locks: repo},
+		Outdated: app.OutdatedHandler{Resolver: git, Locks: repo, Manifest: repo, ProjectRoot: cwd},
 		Update: app.UpdateHandler{
 			Catalog:     agents,
 			Fetchers:    fetchers,
@@ -111,6 +111,7 @@ func run() int {
 			Trust:       repo,
 			ProjectRoot: cwd,
 			Limits:      policy.DefaultLimits,
+			Manifest:    repo,
 		},
 		Verify:       app.VerifyHandler{Catalog: agents, Store: store, Trees: osfs.TreeReader{}, Locks: repo, Manifest: repo, ProjectRoot: cwd},
 		Sync:         sync,

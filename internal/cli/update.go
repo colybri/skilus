@@ -21,6 +21,7 @@ type outdatedJSON struct {
 	Requested string `json:"requested,omitempty"`
 	Commit    string `json:"commit,omitempty"`
 	Latest    string `json:"latest,omitempty"`
+	Declared  string `json:"declared,omitempty"`
 	State     string `json:"state"`
 	Error     string `json:"error,omitempty"`
 }
@@ -35,7 +36,10 @@ func newOutdatedCommand(q app.OutdatedHandler, t *i18n.Catalog) *cobra.Command {
 		Short: t.T("Dice qué skills tienen un commit más nuevo en su rama o tag"),
 		Long: t.T(`Consulta, sin descargar contenido, a qué commit apunta ahora la rama o el
 tag de cada skill y lo compara con el del lock. Las skills fijadas a un
-commit y las locales no se comprueban.`),
+commit y las locales no se comprueban.
+
+Las skills cuyo origen o ref has cambiado a mano en skilus.yaml salen
+como cambiadas; skilus update aplica el cambio.`),
 		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			scopes, err := parseScopes(scope)
@@ -51,7 +55,7 @@ commit y las locales no se comprueban.`),
 				rows := make([]outdatedJSON, 0, len(res))
 				for _, f := range res {
 					e := f.Entry
-					row := outdatedJSON{Name: e.Skill.String(), Scope: string(f.Scope), Source: e.Source, Requested: e.Requested, Commit: e.Commit, Latest: f.Latest, State: string(f.State)}
+					row := outdatedJSON{Name: e.Skill.String(), Scope: string(f.Scope), Source: e.Source, Requested: e.Requested, Commit: e.Commit, Latest: f.Latest, Declared: f.Declared, State: string(f.State)}
 					if f.Err != nil {
 						row.Error = f.Err.Error()
 					}
@@ -71,6 +75,7 @@ commit y las locales no se comprueban.`),
 				app.FreshPinned:   t.T("fijada a un commit"),
 				app.FreshLocal:    t.T("local o archivo, sin ref"),
 				app.FreshUnknown:  t.T("no se pudo consultar"),
+				app.FreshChanged:  t.T("cambiada en skilus.yaml"),
 			}
 			tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
 			fmt.Fprintln(tw, t.T("SKILL\tÁMBITO\tREF\tINSTALADO\tÚLTIMO\tESTADO"))
@@ -81,6 +86,9 @@ commit y las locales no se comprueban.`),
 					ref = t.T("(rama por defecto)")
 				}
 				state := states[f.State]
+				if f.State == app.FreshChanged {
+					state += ": " + f.Declared
+				}
 				if f.Err != nil {
 					state += ": " + f.Err.Error()
 				}
@@ -112,7 +120,10 @@ func newUpdateCommand(h app.UpdateHandler, t *i18n.Catalog) *cobra.Command {
 		Long: t.T(`Descarga la versión a la que apunta ahora la rama o el tag de cada skill
 (o de las indicadas), muestra qué ficheros cambian y la inspección de la
 versión nueva y, tras tu confirmación, reemplaza las copias instaladas y
-actualiza skilus.lock. skilus.yaml no cambia.`),
+actualiza skilus.lock. skilus.yaml no cambia.
+
+Si has editado a mano el origen o la ref de una skill en skilus.yaml,
+update la descarga de ahí y registra el cambio en skilus.lock.`),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := agent.ParseScope(scope)
 			if err != nil {
@@ -151,6 +162,15 @@ actualiza skilus.lock. skilus.yaml no cambia.`),
 	return cmd
 }
 
+// sourceLabel writes a locked source as skilus.yaml would, with a short
+// path for local directories.
+func sourceLabel(source, requested string) string {
+	if requested == "" {
+		return shortPath(source)
+	}
+	return source + "@" + requested
+}
+
 func renderUpdatePlan(w io.Writer, plan app.UpdatePlan, st style, t *i18n.Catalog) {
 	changes := map[string]string{"added": st.green("+"), "removed": st.red("-"), "modified": st.yellow("~")}
 	var n tally
@@ -158,6 +178,10 @@ func renderUpdatePlan(w io.Writer, plan app.UpdatePlan, st style, t *i18n.Catalo
 		e := u.Previous
 		info := short(e.Commit) + " → " + short(u.Commit) + sep + "sha256 " + e.TreeHash.Short() + " → " + u.Package.TreeHash().Short()
 		fmt.Fprintln(w, markSkill+" "+st.bold(e.Skill.String())+"   "+st.dim(info))
+		if u.Moved() {
+			from, to := sourceLabel(e.Source, e.Requested), sourceLabel(u.Source, u.Requested)
+			st.line(w, 2, t.T("origen cambiado en skilus.yaml: %s → %s", clean(from), clean(to)), 0)
+		}
 		switch {
 		case !u.ContentChanged():
 			st.line(w, 2, t.T("sin cambios en los ficheros"), 0)

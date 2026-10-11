@@ -135,7 +135,7 @@ export default {
     code('export EDITOR=nano            # Linux と macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
     note('warn', 'GUI のエディターはファイルを閉じるまで待つ必要があります。`code --wait` や `subl -w` を使ってください。そうしないと、保存する前に skilus がファイルを読んでしまいます。'),
     p('エディターを閉じると、skilus は `skilus verify` と同じ規則でファイルを検査します。有効な YAML、既知のキー、取得元のあるスキル、宣言済みのスキルだけを使うプロファイルです。問題があればエラーを一覧表示し、書いた内容からもう一度編集するか尋ねます。編集しない場合は変更を破棄し、`skilus.yaml` は元のまま、終了コード 2 で終わります。'),
-    note('tip', '`skilus.yaml` を編集しても何もインストールされません。その後 `skilus verify` を実行すると、ロックと合わない点と、それを直すコマンドを示します。新しいスキルには `skilus add`、削除したスキルには `skilus remove`、プロファイルの展開には `skilus profile use` です。'),
+    note('tip', '`skilus.yaml` を編集しても何もインストールされません。その後 `skilus verify` を実行すると、ロックと合わない点と、それを直すコマンドを示します。新しいスキルには `skilus add`、削除したスキルには `skilus remove`、プロファイルの展開には `skilus profile use` です。skill のソースや ref を変更した場合は、`skilus update` で適用されます。'),
   ] },
   inspect: { title: '検査と信頼', lead: 'インストール前に skilus が確認する内容、取得元の制限方法、インストール内容の監査方法。', blocks: [
     h2('rules', '検査項目'),
@@ -170,7 +170,7 @@ export default {
     h2('verify', '`skilus verify`'),
     p('各エージェントの各スキルのハッシュを再計算してロックと比較します。欠落や変更されたファイルがあれば、それを示してコード 6 で終了します。'),
     code('skilus verify\nskilus verify --json'),
-    p('`skilus.yaml` も確認します。ファイルを読めること、`skills:` の各 skill がインストールされていること（有効なプロファイルに含まれないものを除く）、インストール済みの各 skill（依存関係を除く）が `skills:` にあること、プロファイルが宣言済みの skill だけを使うことです。ファイルにエラーがあればコード 2 で、lock と一致しなければコード 6 で終了し、修正するコマンドを示します。'),
+    p('`skilus.yaml` も確認します。ファイルを読めること、`skills:` の各 skill がインストールされていること（有効なプロファイルに含まれないものを除く）、インストール済みの各 skill（依存関係を除く）が `skills:` にあること、プロファイルが宣言済みの skill だけを使うことです。ファイルにエラーがあればコード 2 で、lock と一致しなければコード 6 で終了し、修正するコマンドを示します。`skilus.yaml` の skill のソースや ref が lock と異なる場合は、それを示して `skilus update` を提案します。'),
     h2('sync', '`skilus sync`'),
     p('不足分をストアから、なければ各スキルをそのコミットでダウンロードしてインストールし、ハッシュが一致しなければ失敗します。`skilus.lock` や `skilus.yaml` は変更せず、手動で編集されたスキルは `--force` を付けない限り触りません。'),
     code('skilus sync\nskilus sync --force'),
@@ -182,7 +182,7 @@ export default {
     h2('update', '`skilus update`'),
     p('新しいバージョンをダウンロードし、追加・削除・変更されたファイルと検査結果を表示します。確認後、インストール済みのコピーを置き換え、ロックを更新します。'),
     code('skilus update\nskilus update review --yes --allow-scripts'),
-    ul('スキルが以前から持っていた実行ファイルは再確認されません。新しいものは確認されます。', '`skilus.yaml` は変わりません。コミットではなくブランチやタグを記録しているためです。', '新バージョンが必要とする依存関係がインストールされます。'),
+    ul('スキルが以前から持っていた実行ファイルは再確認されません。新しいものは確認されます。', '`skilus.yaml` は変わりません。コミットではなくブランチやタグを記録しているためです。', '新バージョンが必要とする依存関係がインストールされます。', '`skilus.yaml` で skill のソースや ref を手で変更した場合、そこからダウンロードして lock に記録します。`skilus outdated` では「変更済み」と表示されます。'),
   ] },
   profiles: { title: 'プロファイル', lead: '用途ごとにスキルをまとめ、1 コマンドでセットを切り替えます。', blocks: [
     p('プロファイルは、`skilus.yaml` の `skills:` で宣言済みのスキルと、必要に応じて配置先のエージェントをまとめたものです。`agents:` がなければ検出されたエージェントが使われます。'),

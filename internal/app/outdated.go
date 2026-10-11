@@ -24,21 +24,29 @@ const (
 	FreshPinned   Freshness = "pinned"   // the ref is a commit, which never moves
 	FreshLocal    Freshness = "local"    // local directories have no commits
 	FreshUnknown  Freshness = "unknown"  // the ref could not be resolved; see Err
+	// FreshChanged: skilus.yaml declares another source or ref, which
+	// skilus update will move to.
+	FreshChanged Freshness = "changed"
 )
 
 // SkillFreshness is one skill and where its ref points now.
 type SkillFreshness struct {
-	Scope  agent.Scope
-	Entry  lock.Entry
-	Latest string // commit the requested ref points to now
-	State  Freshness
-	Err    error
+	Scope    agent.Scope
+	Entry    lock.Entry
+	Latest   string // commit the requested ref points to now
+	State    Freshness
+	Declared string // for FreshChanged, the source skilus.yaml declares
+	Err      error
 }
 
 // OutdatedHandler runs Outdated. It reads refs, never content.
 type OutdatedHandler struct {
 	Resolver RefResolver
 	Locks    LockRepository
+	// Manifest reveals skills whose source changed in skilus.yaml; nil
+	// skips that check.
+	Manifest    ManifestReader
+	ProjectRoot string
 }
 
 // Handle checks every Git skill in the scopes. Skills of one repository and
@@ -52,12 +60,21 @@ func (h OutdatedHandler) Handle(ctx context.Context, q Outdated) ([]SkillFreshne
 		if err != nil {
 			return nil, domain.Errorf("cargar el lock del ámbito %s: %w", scope, err)
 		}
+		declared, err := declaredSources(ctx, h.Manifest, scope)
+		if err != nil {
+			return nil, err
+		}
 		for _, e := range lf.Entries() {
 			f := SkillFreshness{Scope: scope, Entry: e}
 			src, err := source.Parse(e.Source)
+			_, changed, cerr := changedSource(declared, e, h.ProjectRoot)
 			switch {
 			case err != nil:
 				f.State, f.Err = FreshUnknown, err
+			case cerr != nil:
+				f.State, f.Err = FreshUnknown, cerr
+			case changed:
+				f.State, f.Declared = FreshChanged, declared[e.Skill]
 			case src.Kind == source.KindLocal || e.Commit == "":
 				f.State = FreshLocal
 			case e.Requested == e.Commit:

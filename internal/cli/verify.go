@@ -31,6 +31,7 @@ type checkJSON struct {
 	Agent   string       `json:"agent,omitempty"`
 	Profile string       `json:"profile,omitempty"`
 	Source  string       `json:"source,omitempty"`
+	Locked  string       `json:"locked,omitempty"`
 	Dir     string       `json:"dir,omitempty"`
 	Status  string       `json:"status"`
 	Detail  string       `json:"detail,omitempty"`
@@ -55,6 +56,9 @@ skilus.lock, y comprueba que skilus.yaml se puede leer y coincide con el
 lock: cada skill de skills: está instalada, salvo las que no pertenecen al
 perfil activo; cada skill instalada, salvo las dependencias, está en
 skills:; y los perfiles solo usan skills declaradas.
+
+También avisa si el origen o la ref de una skill en skilus.yaml no son
+los del lock; skilus update aplica el cambio.
 
 Sale con código 2 si skilus.yaml tiene errores y con código 6 si falta
 alguna skill, si algún fichero ha cambiado o si skilus.yaml no coincide
@@ -135,6 +139,9 @@ func renderManifestCheck(w io.Writer, c app.ManifestCheck, t *i18n.Catalog) {
 	case app.NotDeclared:
 		fmt.Fprint(w, t.T("NO DECLARADA %s (%s) está en skilus.lock pero no en skills: de skilus.yaml\n", c.Skill, c.Scope))
 		fmt.Fprint(w, t.T("  Retírala con skilus remove %s o añádela a skills:.\n", c.Skill))
+	case app.SourceChanged:
+		fmt.Fprint(w, t.T("CAMBIADA %s (%s): skilus.yaml pide %s y skilus.lock tiene %s\n", c.Skill, c.Scope, clean(c.Source), clean(c.Locked)))
+		fmt.Fprint(w, t.T("  Aplica el cambio con skilus update %s.\n", c.Skill))
 	}
 }
 
@@ -154,7 +161,7 @@ func renderChecksJSON(w io.Writer, res app.VerifyResult, t *i18n.Catalog) error 
 		rows = append(rows, row)
 	}
 	for _, c := range res.Manifest {
-		row := checkJSON{Scope: string(c.Scope), Profile: c.Profile, Source: c.Source, Status: string(c.Problem)}
+		row := checkJSON{Scope: string(c.Scope), Profile: c.Profile, Source: c.Source, Locked: c.Locked, Status: string(c.Problem)}
 		if c.Problem != app.ManifestInvalid {
 			row.Skill = c.Skill.String()
 		}

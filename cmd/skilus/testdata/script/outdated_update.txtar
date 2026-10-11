@@ -60,6 +60,25 @@ stdout 'al día$'
 exec skilus update
 stdout 'Todo al día\.'
 
+# Pinning the tag by hand in skilus.yaml: verify and outdated notice it and
+# update moves the skill back to v1.0.0.
+env SKILUS_EDITOR='fakeedit $WORK/pinned.yaml'
+exec skilus edit
+! exec skilus verify --scope project
+stdout '^CAMBIADA review \(project\): skilus.yaml pide file://.*remote@v1.0.0 y skilus.lock tiene file://.*remote$'
+stdout '^  Aplica el cambio con skilus update review\.$'
+exec skilus outdated --scope project
+stdout 'cambiada en skilus.yaml: file://.*remote@v1.0.0$'
+exec skilus update --yes
+stderr '^  origen cambiado en skilus.yaml: file://.*remote → file://.*remote@v1.0.0$'
+stdout 'Actualizada review'
+grep 'Review v1' .claude/skills/review/SKILL.md
+! exists .claude/skills/review/notes.md
+grep 'requested: v1.0.0' skilus.lock
+exec skilus verify --scope project
+exec skilus update
+stdout 'Todo al día\.'
+
 -- remote/skills/review/SKILL.md --
 ---
 name: review
@@ -74,5 +93,10 @@ description: Reviews code.
 Review v2.
 -- notes.md --
 More notes.
+-- pinned.yaml --
+version: 1
+skills:
+  - name: review
+    source: file://$WORK/remote@v1.0.0
 -- no.txt --
 n

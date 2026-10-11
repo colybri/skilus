@@ -71,13 +71,15 @@ type updateFixture struct {
 	prompter *fakePrompter
 	next     skill.Package
 	extra    []app.FetchedSkill // served next to demo
+	ref      string             // the ref served; v1 unless a test moves it
+	commit   string             // the commit served
 }
 
 // newUpdateFixture installs demo with sync and serves a v2 in which run.sh
 // changed and a new script appeared.
 func newUpdateFixture(t *testing.T) *updateFixture {
 	t.Helper()
-	f := &updateFixture{syncFixture: newSyncFixture(t), prompter: &fakePrompter{answer: true}}
+	f := &updateFixture{syncFixture: newSyncFixture(t), prompter: &fakePrompter{answer: true}, ref: "v1", commit: newCommit}
 	if _, err := f.sync.Handle(context.Background(), app.Sync{Scopes: project}); err != nil {
 		t.Fatal(err)
 	}
@@ -100,10 +102,10 @@ func newUpdateFixture(t *testing.T) *updateFixture {
 
 // Fetch serves the next version at the requested ref.
 func (f *updateFixture) Fetch(_ context.Context, src source.Source) (app.Fetched, error) {
-	if src.Ref != "v1" {
-		return app.Fetched{}, fmt.Errorf("fetched ref %q, want the requested one", src.Ref)
+	if src.Ref != f.ref {
+		return app.Fetched{}, fmt.Errorf("fetched ref %q, want %q", src.Ref, f.ref)
 	}
-	return app.Fetched{Source: src.ID, Requested: src.Ref, Commit: newCommit, Skills: append([]app.FetchedSkill{{Path: "skills/demo", Package: f.next}}, f.extra...)}, nil
+	return app.Fetched{Source: src.ID, Requested: src.Ref, Commit: f.commit, Skills: append([]app.FetchedSkill{{Path: "skills/demo", Package: f.next}}, f.extra...)}, nil
 }
 
 func TestUpdateInstallsNewRequirements(t *testing.T) {
@@ -206,5 +208,109 @@ func TestUpdateGuards(t *testing.T) {
 
 	if _, err := f.handler.Handle(ctx, app.Update{Names: []string{"nope"}, Scope: agent.ScopeProject}); !errors.Is(err, domain.ErrNotFound) {
 		t.Fatalf("unknown skill: err = %v", err)
+	}
+}
+
+// declare makes skilus.yaml give demo the source raw.
+func (f *updateFixture) declare(raw string) {
+	f.handler.Manifest = &fakeManifest{app.Manifest{Skills: []app.ManifestEntry{{Name: f.entry.Skill, Source: raw}}}}
+}
+
+func TestUpdateFollowsTheRefInSkilusYaml(t *testing.T) {
+	ctx := context.Background()
+
+	// skilus.yaml asks for v2: update fetches v2 and records it.
+	f := newUpdateFixture(t)
+	f.declare("github.com/o/r@v2")
+	f.ref = "v2"
+	res, err := f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Plan.Skills) != 1 || !res.Plan.Skills[0].Moved() {
+		t.Fatalf("plan = %+v, want demo moving to v2", res.Plan)
+	}
+	// Same repository: run.sh was accepted already, only new.sh is reported.
+	if fs := res.Plan.Skills[0].Report.Findings; len(fs) != 1 || fs[0].Path != "new.sh" {
+		t.Fatalf("findings = %+v", fs)
+	}
+	e, _ := f.locks.lf.Entry(f.entry.Skill)
+	if e.Requested != "v2" || e.Commit != newCommit || e.TreeHash != f.next.TreeHash() {
+		t.Fatalf("lock entry = %+v", e)
+	}
+	res, err = f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject})
+	if err != nil || len(res.Plan.Skills) != 0 {
+		t.Fatalf("second update = %+v, %v", res.Plan, err)
+	}
+
+	// A new ref at the same commit and content is still recorded.
+	f = newUpdateFixture(t)
+	f.declare("github.com/o/r@release")
+	f.ref, f.commit, f.next = "release", f.entry.Commit, f.pkg
+	res, err = f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject, Yes: true})
+	if err != nil || len(res.Updated) != 1 || res.Plan.Skills[0].ContentChanged() {
+		t.Fatalf("update = %+v, %v", res, err)
+	}
+	if e, _ := f.locks.lf.Entry(f.entry.Skill); e.Requested != "release" || e.Commit != f.entry.Commit {
+		t.Fatalf("lock entry = %+v", e)
+	}
+
+	// The same source and ref as the lock changes nothing.
+	f = newUpdateFixture(t)
+	f.declare("github.com/o/r@v1")
+	f.next, f.commit = f.pkg, f.entry.Commit
+	res, err = f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject})
+	if err != nil || len(res.Plan.Skills) != 0 {
+		t.Fatalf("unchanged skilus.yaml: %+v, %v", res.Plan, err)
+	}
+}
+
+func TestUpdateFollowsTheSourceInSkilusYaml(t *testing.T) {
+	ctx := context.Background()
+	f := newUpdateFixture(t)
+	f.declare("github.com/o/fork@v1")
+	// The fork keeps demo elsewhere; it is found by name.
+	f.extra = []app.FetchedSkill{{Path: "demo", Package: f.next}}
+	f.next = pkg(t, "other")
+	res, err := f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject})
+	if err != nil {
+		t.Fatal(err)
+	}
+	u := res.Plan.Skills[0]
+	// Another source: its executables have to be accepted again.
+	if len(u.Report.Findings) != 2 {
+		t.Fatalf("findings = %+v, want run.sh and new.sh", u.Report.Findings)
+	}
+	e, _ := f.locks.lf.Entry(f.entry.Skill)
+	if e.Source != "github.com/o/fork" || e.Path != "demo" {
+		t.Fatalf("lock entry = %+v", e)
+	}
+
+	f = newUpdateFixture(t)
+	f.declare("github.com/o/empty@v1")
+	f.next = pkg(t, "other")
+	if _, err := f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject}); !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("source without the skill: err = %v", err)
+	}
+
+	f = newUpdateFixture(t)
+	f.declare("github.com/o/r@bad..ref")
+	if _, err := f.handler.Handle(ctx, app.Update{Scope: agent.ScopeProject}); !errors.Is(err, domain.ErrInvalid) {
+		t.Fatalf("invalid source in skilus.yaml: err = %v", err)
+	}
+}
+
+func TestOutdatedReportsSourcesChangedInSkilusYaml(t *testing.T) {
+	f := newSyncFixture(t)
+	n, _ := skill.NewName("demo")
+	m := &fakeManifest{app.Manifest{Skills: []app.ManifestEntry{{Name: n, Source: "github.com/o/r@v2"}}}}
+	r := &fakeResolver{}
+	q := app.OutdatedHandler{Resolver: r, Locks: f.locks, Manifest: m}
+	got, err := q.Handle(context.Background(), app.Outdated{Scopes: project})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got) != 1 || got[0].State != app.FreshChanged || got[0].Declared != "github.com/o/r@v2" || r.calls != 0 {
+		t.Fatalf("got %+v, resolver calls %d", got, r.calls)
 	}
 }
