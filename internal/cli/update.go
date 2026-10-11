@@ -11,6 +11,7 @@ import (
 
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/cli/i18n"
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 )
 
@@ -26,80 +27,52 @@ type outdatedJSON struct {
 	Error     string `json:"error,omitempty"`
 }
 
-func newOutdatedCommand(q app.OutdatedHandler, t *i18n.Catalog) *cobra.Command {
-	var (
-		asJSON bool
-		scope  string
-	)
-	cmd := &cobra.Command{
-		Use:   "outdated",
-		Short: t.T("Dice qué skills tienen un commit más nuevo en su rama o tag"),
-		Long: t.T(`Consulta, sin descargar contenido, a qué commit apunta ahora la rama o el
-tag de cada skill y lo compara con el del lock. Las skills fijadas a un
-commit y las locales no se comprueban.
-
-Las skills cuyo origen o ref has cambiado a mano en skilus.yaml salen
-como cambiadas; skilus update aplica el cambio.`),
-		Args: cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
-			scopes, err := parseScopes(scope)
-			if err != nil {
-				return err
+// renderCheck prints what update --check found: a table, or JSON.
+func renderCheck(out io.Writer, res []app.SkillFreshness, asJSON bool, t *i18n.Catalog) error {
+	if asJSON {
+		rows := make([]outdatedJSON, 0, len(res))
+		for _, f := range res {
+			e := f.Entry
+			row := outdatedJSON{Name: e.Skill.String(), Scope: string(f.Scope), Source: e.Source, Requested: e.Requested, Commit: e.Commit, Latest: f.Latest, Declared: f.Declared, State: string(f.State)}
+			if f.Err != nil {
+				row.Error = f.Err.Error()
 			}
-			res, err := q.Handle(cmd.Context(), app.Outdated{Scopes: scopes})
-			if err != nil {
-				return err
-			}
-			out := cmd.OutOrStdout()
-			if asJSON {
-				rows := make([]outdatedJSON, 0, len(res))
-				for _, f := range res {
-					e := f.Entry
-					row := outdatedJSON{Name: e.Skill.String(), Scope: string(f.Scope), Source: e.Source, Requested: e.Requested, Commit: e.Commit, Latest: f.Latest, Declared: f.Declared, State: string(f.State)}
-					if f.Err != nil {
-						row.Error = f.Err.Error()
-					}
-					rows = append(rows, row)
-				}
-				enc := json.NewEncoder(out)
-				enc.SetIndent("", "  ")
-				return enc.Encode(rows)
-			}
-			if len(res) == 0 {
-				fmt.Fprintln(out, t.T("No hay skills instaladas."))
-				return nil
-			}
-			states := map[app.Freshness]string{
-				app.FreshCurrent:  t.T("al día"),
-				app.FreshOutdated: t.T("hay versión nueva"),
-				app.FreshPinned:   t.T("fijada a un commit"),
-				app.FreshLocal:    t.T("local o archivo, sin ref"),
-				app.FreshUnknown:  t.T("no se pudo consultar"),
-				app.FreshChanged:  t.T("cambiada en skilus.yaml"),
-			}
-			tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
-			fmt.Fprintln(tw, t.T("SKILL\tÁMBITO\tREF\tINSTALADO\tÚLTIMO\tESTADO"))
-			for _, f := range res {
-				e := f.Entry
-				ref := e.Requested
-				if ref == "" {
-					ref = t.T("(rama por defecto)")
-				}
-				state := states[f.State]
-				if f.State == app.FreshChanged {
-					state += ": " + f.Declared
-				}
-				if f.Err != nil {
-					state += ": " + f.Err.Error()
-				}
-				fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\n", e.Skill, f.Scope, clean(ref), short(e.Commit), short(f.Latest), clean(state))
-			}
-			return tw.Flush()
-		},
+			rows = append(rows, row)
+		}
+		enc := json.NewEncoder(out)
+		enc.SetIndent("", "  ")
+		return enc.Encode(rows)
 	}
-	cmd.Flags().BoolVar(&asJSON, "json", false, t.T("salida en JSON"))
-	cmd.Flags().StringVar(&scope, "scope", "all", t.T("project, global o all"))
-	return cmd
+	if len(res) == 0 {
+		fmt.Fprintln(out, t.T("No hay skills instaladas."))
+		return nil
+	}
+	states := map[app.Freshness]string{
+		app.FreshCurrent:  t.T("al día"),
+		app.FreshOutdated: t.T("hay versión nueva"),
+		app.FreshPinned:   t.T("fijada a un commit"),
+		app.FreshLocal:    t.T("local o archivo, sin ref"),
+		app.FreshUnknown:  t.T("no se pudo consultar"),
+		app.FreshChanged:  t.T("cambiada en skilus.yaml"),
+	}
+	tw := tabwriter.NewWriter(out, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(tw, t.T("SKILL\tÁMBITO\tREF\tINSTALADO\tÚLTIMO\tESTADO"))
+	for _, f := range res {
+		e := f.Entry
+		ref := e.Requested
+		if ref == "" {
+			ref = t.T("(rama por defecto)")
+		}
+		state := states[f.State]
+		if f.State == app.FreshChanged {
+			state += ": " + f.Declared
+		}
+		if f.Err != nil {
+			state += ": " + f.Err.Error()
+		}
+		fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\n", e.Skill, f.Scope, clean(ref), short(e.Commit), short(f.Latest), clean(state))
+	}
+	return tw.Flush()
 }
 
 func short(commit string) string {
@@ -109,10 +82,11 @@ func short(commit string) string {
 	return commit[:12]
 }
 
-func newUpdateCommand(h app.UpdateHandler, t *i18n.Catalog) *cobra.Command {
+func newUpdateCommand(h app.UpdateHandler, q app.OutdatedHandler, t *i18n.Catalog) *cobra.Command {
 	var (
-		c     app.Update
-		scope string
+		c             app.Update
+		scope         string
+		check, asJSON bool
 	)
 	cmd := &cobra.Command{
 		Use:   "update [skill]...",
@@ -123,14 +97,36 @@ versión nueva y, tras tu confirmación, reemplaza las copias instaladas y
 actualiza skilus.lock. skilus.yaml no cambia.
 
 Si has editado a mano el origen o la ref de una skill en skilus.yaml,
-update la descarga de ahí y registra el cambio en skilus.lock.`),
+update la descarga de ahí y registra el cambio en skilus.lock.
+
+Con --check solo consulta, sin descargar contenido ni cambiar nada, a qué
+commit apunta cada rama o tag y lo compara con el lock, en el proyecto y
+en el ámbito global salvo que indiques --scope. Las skills fijadas a un
+commit y las locales no se comprueban.`),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			out := cmd.OutOrStdout()
+			if check {
+				if !cmd.Flags().Changed("scope") {
+					scope = "all"
+				}
+				scopes, err := parseScopes(scope)
+				if err != nil {
+					return err
+				}
+				res, err := q.Handle(cmd.Context(), app.Outdated{Scopes: scopes, Names: args})
+				if err != nil {
+					return err
+				}
+				return renderCheck(out, res, asJSON, t)
+			}
+			if asJSON {
+				return domain.Errorf("--json solo se usa con --check: %w", domain.ErrInvalid)
+			}
 			s, err := agent.ParseScope(scope)
 			if err != nil {
 				return err
 			}
 			c.Names, c.Scope = args, s
-			out := cmd.OutOrStdout()
 			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t, st: styleFor(cmd, out)}
 			res, err := h.Handle(cmd.Context(), c)
 			if errors.Is(err, app.ErrRejected) || (err == nil && c.Yes) {
@@ -153,7 +149,9 @@ update la descarga de ahí y registra el cambio en skilus.lock.`),
 		},
 	}
 	f := cmd.Flags()
-	f.StringVar(&scope, "scope", string(agent.ScopeProject), t.T("project o global"))
+	f.StringVar(&scope, "scope", string(agent.ScopeProject), t.T("project o global; con --check, también all (por defecto)"))
+	f.BoolVar(&check, "check", false, t.T("solo dice qué skills tienen un commit más nuevo, sin descargar ni cambiar nada"))
+	f.BoolVar(&asJSON, "json", false, t.T("con --check, salida en JSON"))
 	f.BoolVarP(&c.Yes, "yes", "y", false, t.T("no preguntes; los ejecutables nuevos siguen necesitando --allow-scripts"))
 	f.BoolVar(&c.Strict, "strict", false, t.T("trata los avisos de la inspección como bloqueos"))
 	f.BoolVar(&c.AllowScripts, "allow-scripts", false, t.T("acepta ficheros ejecutables nuevos"))

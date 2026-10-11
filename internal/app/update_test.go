@@ -314,3 +314,21 @@ func TestOutdatedReportsSourcesChangedInSkilusYaml(t *testing.T) {
 		t.Fatalf("got %+v, resolver calls %d", got, r.calls)
 	}
 }
+
+func TestOutdatedChecksOnlyTheNamedSkills(t *testing.T) {
+	f := newSyncFixture(t)
+	other := f.entry
+	other.Skill, _ = skill.NewName("other")
+	lf, err := lock.Restore([]lock.Entry{f.entry, other})
+	if err != nil {
+		t.Fatal(err)
+	}
+	q := app.OutdatedHandler{Resolver: &fakeResolver{commits: map[string]string{"github.com/o/r@v1": newCommit}}, Locks: &fakeLocks{lf: lf}}
+	got, err := q.Handle(context.Background(), app.Outdated{Scopes: project, Names: []string{"other"}})
+	if err != nil || len(got) != 1 || got[0].Entry.Skill != other.Skill {
+		t.Fatalf("got %+v, %v; want only other", got, err)
+	}
+	if _, err := q.Handle(context.Background(), app.Outdated{Scopes: project, Names: []string{"nope"}}); !errors.Is(err, domain.ErrNotFound) {
+		t.Fatalf("unknown skill: err = %v", err)
+	}
+}
