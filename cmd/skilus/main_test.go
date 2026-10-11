@@ -46,7 +46,9 @@ func fakeEdit() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	src := srcs[min(n, len(srcs))-1]
+	// testscript does not expand variables inside quotes and Windows runs
+	// the editor without a shell, so $WORK is expanded here.
+	src := os.ExpandEnv(srcs[min(n, len(srcs))-1])
 	switch filepath.Base(src) {
 	case "KEEP":
 		return

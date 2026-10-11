@@ -42,7 +42,7 @@ No hay bus de mensajes, contenedor de inyección ni variables globales. `context
 ## Tests
 
 - Unitarios junto al código (`*_test.go`); e2e con testscript en `cmd/skilus/testdata/script/*.txtar`. Los scripts comprueban los textos en español (`SKILUS_LANG=es`).
-- `cmd/skilus/main_test.go` registra los comandos `skilus` y `fakeedit` (un editor falso para `skilus edit`).
+- `cmd/skilus/main_test.go` registra los comandos `skilus` y `fakeedit` (un editor falso para `skilus edit`). testscript no expande variables entre comillas simples y en Windows el editor se ejecuta sin shell, así que `fakeedit` expande `$WORK` por su cuenta.
 - Los scripts que usan el directorio personal fijan `HOME` y, para Windows, `USERPROFILE`. Las rutas se comprueban con `[/\\]` para que valgan en los tres sistemas.
 - Nunca se desactiva ni se salta un test para que la CI pase.
 
