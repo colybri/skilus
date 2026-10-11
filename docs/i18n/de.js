@@ -56,7 +56,7 @@ export default {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Befehle'),
     table(['Befehl', 'Funktion'], [
-      ['`skilus agents`', 'Unterstützte Agenten, ihre Pfade und ob sie installiert sind.'],
+      ['`skilus agents`', 'Auf deinem Rechner erkannte Agenten und ihre Pfade; mit `--all` alle unterstützten.'],
       ['`skilus add`', 'Installiert Skills aus Git, ZIP/tar.gz oder einem lokalen Verzeichnis.'],
       ['`skilus list`', 'Installierte Skills mit Commit, Hash und Agenten.'],
       ['`skilus remove`', 'Entfernt eine Skill aus den Agenten, dem Lock und `skilus.yaml`.'],
@@ -205,6 +205,9 @@ export default {
     ul('Index-Ergebnisse erscheinen zuerst.', 'Mit einer `trust:`-Liste gibt jedes Ergebnis an, ob seine Quelle vertrauenswürdig ist.', 'Antwortet eine Quelle nicht, gibt es eine Warnung und die übrigen werden angezeigt.', '`--no-registry` behält nur die Indizes; `SKILUS_REGISTRY_URL` verweist auf einen anderen kompatiblen Server (nur https).'),
   ] },
   agents: { title: 'Agenten und Abhängigkeiten', lead: 'Füge Agenten hinzu, die skilus nicht mitbringt, und deklariere Skills, die von anderen abhängen.', blocks: [
+    h2('command', '`skilus agents`'),
+    p('Listet die Agenten auf, die skilus auf deinem Rechner erkennt, mit dem Skills-Ordner jedes Agenten im Projekt und im globalen Bereich. Mit `-a` oder `--all` listet es alle unterstützten Agenten auf, und die letzte Spalte zeigt, welche installiert sind.'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', 'Unterstützte Agenten'),
     p('skilus installiert in diese 74 Agenten. Nutze ihre id mit `--agent` oder in den `agents:` eines Profils. In einem Projekt bekommen Agenten mit gemeinsamem Ordner nur eine Kopie des Skills, und der Lock vermerkt den ersten. Manche globalen Pfade folgen Umgebungsvariablen wie `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR` oder `CODEX_HOME`; `skilus agents` zeigt die auf deinem Rechner.'),
     table(['id', 'Agent', 'Projekt'], AGENT_ROWS),

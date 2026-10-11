@@ -56,7 +56,7 @@ export default {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'コマンド'),
     table(['コマンド', '機能'], [
-      ['`skilus agents`', '対応エージェント、そのパス、インストール状況。'],
+      ['`skilus agents`', 'このマシンで検出されたエージェントとそのパス。`--all` で対応する全エージェント。'],
       ['`skilus add`', 'Git、ZIP/tar.gz、ローカルディレクトリからスキルをインストール。'],
       ['`skilus list`', 'インストール済みスキルとコミット、ハッシュ、エージェント。'],
       ['`skilus remove`', 'エージェント、ロック、`skilus.yaml` からスキルを削除。'],
@@ -205,6 +205,9 @@ export default {
     ul('インデックスの結果が先に表示されます。', '`trust:` リストがあれば、各結果に取得元が信頼できるかが表示されます。', '応答しない取得元があれば警告し、残りを表示します。', '`--no-registry` でインデックスのみに限定。`SKILUS_REGISTRY_URL` で別の互換サーバー（https のみ）を指定できます。'),
   ] },
   agents: { title: 'エージェントと依存関係', lead: 'skilus に含まれないエージェントを追加し、他のスキルに依存するスキルを宣言します。', blocks: [
+    h2('command', '`skilus agents`'),
+    p('skilus がこのマシンで検出したエージェントを、プロジェクトとグローバルスコープでの skills フォルダーとともに一覧表示します。`-a` または `--all` を付けると対応する全エージェントを表示し、最後の列でインストール済みかどうかがわかります。'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', '対応エージェント'),
     p('skilus はこれら 74 個のエージェントにインストールします。id は `--agent` やプロファイルの `agents:` で使います。プロジェクトでは、同じフォルダーを使うエージェントにはスキルのコピーが 1 つだけ置かれ、ロックには最初のエージェントが記録されます。一部のグローバルパスは `XDG_CONFIG_HOME`、`CLAUDE_CONFIG_DIR`、`CODEX_HOME` などの環境変数に従います。実際のパスは `skilus agents` で確認できます。'),
     table(['id', 'エージェント', 'プロジェクト'], AGENT_ROWS),

@@ -127,7 +127,7 @@ const es = {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('comandos', 'Comandos'),
     table(['Comando', 'Qué hace'], [
-      ['`skilus agents`', 'Agentes soportados, sus rutas y si están instalados.'],
+      ['`skilus agents`', 'Agentes detectados en tu equipo y sus rutas; con `--all`, todos los soportados.'],
       ['`skilus add`', 'Instala skills desde Git, ZIP/tar.gz o un directorio local.'],
       ['`skilus list`', 'Skills instaladas con commit, hash y agentes.'],
       ['`skilus remove`', 'Quita una skill de los agentes, del lock y de `skilus.yaml`.'],
@@ -276,6 +276,9 @@ const es = {
     ul('Los resultados de los índices salen primero.', 'Con una lista `trust:`, cada resultado dice si su origen es de confianza.', 'Si un origen no responde se avisa y se muestran los demás.', '`--no-registry` deja solo los índices; `SKILUS_REGISTRY_URL` apunta a otro servidor compatible (solo https).'),
   ] },
   agents: { title: 'Agentes y dependencias', lead: 'Añade agentes que skilus no trae y declara skills que dependen de otras.', blocks: [
+    h2('comando', '`skilus agents`'),
+    p('Lista los agentes que skilus detecta en tu equipo, con la carpeta de skills de cada uno en un proyecto y en el ámbito global. Con `-a` o `--all` lista todos los que soporta y la última columna dice cuáles están instalados.'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('soportados', 'Agentes soportados'),
     p('skilus instala en estos 74 agentes. Usa su id con `--agent` o en los `agents:` de un perfil. En un proyecto, los que comparten carpeta reciben una sola copia de la skill y el lock anota el primero. Algunas rutas globales cambian con variables de entorno como `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR` o `CODEX_HOME`; `skilus agents` muestra las de tu equipo.'),
     table(['id', 'Agente', 'Proyecto'], AGENT_ROWS),
@@ -360,7 +363,7 @@ const en = {
     cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Commands'),
     table(['Command', 'What it does'], [
-      ['`skilus agents`', 'Supported agents, their paths and whether they are installed.'],
+      ['`skilus agents`', 'Agents detected on your machine and their paths; with `--all`, every supported one.'],
       ['`skilus add`', 'Installs skills from Git, ZIP/tar.gz or a local directory.'],
       ['`skilus list`', 'Installed skills with commit, hash and agents.'],
       ['`skilus remove`', 'Removes a skill from agents, the lock and `skilus.yaml`.'],
@@ -509,6 +512,9 @@ const en = {
     ul('Index results come first.', 'With a `trust:` list, each result says whether its source is trusted.', 'If a source does not respond you get a warning and the rest are shown.', '`--no-registry` keeps only the indexes; `SKILUS_REGISTRY_URL` points to another compatible server (https only).'),
   ] },
   agents: { title: 'Agents & dependencies', lead: 'Add agents skilus does not ship with and declare skills that depend on others.', blocks: [
+    h2('command', '`skilus agents`'),
+    p('Lists the agents skilus detects on your machine, with each one’s skills folder in a project and in the global scope. With `-a` or `--all` it lists every agent it supports, and the last column says which ones are installed.'),
+    code('skilus agents\nskilus agents --all\nskilus agents --json'),
     h2('supported', 'Supported agents'),
     p('skilus installs into these 74 agents. Use their id with `--agent` or in a profile\'s `agents:`. In a project, agents that share a directory get a single copy of the skill and the lock records the first one. Some global paths follow environment variables such as `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR` or `CODEX_HOME`; `skilus agents` shows the ones on your machine.'),
     table(['id', 'Agent', 'Project'], AGENT_ROWS),
