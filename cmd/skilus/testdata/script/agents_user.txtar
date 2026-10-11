@@ -1,6 +1,6 @@
 # ~/.skilus/agents.yaml adds agents to the catalog and replaces existing ones.
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -11,8 +11,8 @@ exec skilus agents --all
 
 cp $WORK/agents.yaml $HOME/.skilus/agents.yaml
 exec skilus agents --all
-stdout '^acme +\.acme/skills +.*/home/\.acme/skills +no$'
-stdout '^claude-code +\.claude/skills +.*/home/dotfiles/claude/skills '
+stdout '^acme +\.acme[/\\]skills +.*[/\\]home[/\\]\.acme[/\\]skills +no$'
+stdout '^claude-code +\.claude[/\\]skills +.*[/\\]home[/\\]dotfiles[/\\]claude[/\\]skills '
 
 exec skilus add ./src --agent acme --yes
 exists .acme/skills/review/SKILL.md
@@ -20,7 +20,7 @@ exists .acme/skills/review/SKILL.md
 # A broken file is reported, not ignored.
 cp $WORK/broken.yaml $HOME/.skilus/agents.yaml
 ! exec skilus agents
-stderr 'agents.yaml: el directorio de proyecto del agente x, "\.\./fuera", debe ser una ruta relativa dentro del proyecto'
+stderr 'agents.yaml: el directorio de proyecto del agente x, "\.\.[/\\]fuera", debe ser una ruta relativa dentro del proyecto'
 
 -- home/.skilus/.keep --
 -- agents.yaml --

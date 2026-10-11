@@ -1,8 +1,8 @@
 # metadata.requires in SKILL.md pulls other skills in; they go away when
 # nothing needs them.
 [!exec:git] skip 'git is not installed'
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env GIT_AUTHOR_NAME=t
 env GIT_AUTHOR_EMAIL=t@example.com
@@ -16,10 +16,10 @@ exec git init --quiet --initial-branch=main
 exec git add .
 exec git commit --quiet -m v1
 cd $WORK/project
-exec sh -c 'printf -- "---\nname: report\ndescription: Informes\nmetadata:\n  requires: \"pdf file://%s/remote#docx\"\n---\n" "$WORK" > src/skills/report/SKILL.md'
+exec sh -c 'printf -- "---\nname: report\ndescription: Informes\nmetadata:\n  requires: \"pdf %s/remote#docx\"\n---\n" "$WORKURL" > src/skills/report/SKILL.md'
 
 exec skilus inspect ./src --skill report
-stdout 'necesita pdf, file://.*/remote#docx'
+stdout 'necesita pdf, file://.*[/\\]remote#docx'
 
 exec skilus add ./src --skill report --agent claude-code --yes
 stdout 'Instalada docx'

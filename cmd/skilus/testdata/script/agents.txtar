@@ -1,6 +1,6 @@
 # skilus agents lists the detected agents; --all lists the whole catalog.
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -8,18 +8,18 @@ mkdir home/.claude home/.cursor
 
 exec skilus agents
 stdout '^AGENTE +PROYECTO +GLOBAL +DETECTADO$'
-stdout '^claude-code +\.claude/skills +.*home/\.claude/skills +sí$'
-stdout '^cursor +\.agents/skills +.*home/\.cursor/skills +sí$'
+stdout '^claude-code +\.claude[/\\]skills +.*home[/\\]\.claude[/\\]skills +sí$'
+stdout '^cursor +\.agents[/\\]skills +.*home[/\\]\.cursor[/\\]skills +sí$'
 ! stdout '^codex '
 ! stdout ' no$'
 stderr '^72 agentes soportados más sin detectar; skilus agents --all los lista\.$'
 
 exec skilus agents --all
-stdout '^claude-code +\.claude/skills +.*home/\.claude/skills +sí$'
-stdout '^codex +\.agents/skills +.*home/\.agents/skills +no$'
-stdout '^cursor +\.agents/skills +.*home/\.cursor/skills +sí$'
-stdout '^github-copilot +\.agents/skills +.*home/\.copilot/skills +no$'
-stdout '^windsurf +\.windsurf/skills +.*home/\.codeium/windsurf/skills +no$'
+stdout '^claude-code +\.claude[/\\]skills +.*home[/\\]\.claude[/\\]skills +sí$'
+stdout '^codex +\.agents[/\\]skills +.*home[/\\]\.agents[/\\]skills +no$'
+stdout '^cursor +\.agents[/\\]skills +.*home[/\\]\.cursor[/\\]skills +sí$'
+stdout '^github-copilot +\.agents[/\\]skills +.*home[/\\]\.copilot[/\\]skills +no$'
+stdout '^windsurf +\.windsurf[/\\]skills +.*home[/\\]\.codeium[/\\]windsurf[/\\]skills +no$'
 ! stdout '^universal '
 ! stderr .
 
@@ -33,6 +33,7 @@ stdout '"id": "cursor"'
 
 # With nothing detected there is no table, only the hint.
 env HOME=$WORK/empty
+env USERPROFILE=$WORK/empty
 mkdir $WORK/empty
 exec skilus agents
 ! stdout .

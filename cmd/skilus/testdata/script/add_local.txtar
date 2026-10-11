@@ -1,6 +1,6 @@
 # skilus add installs skills from a local directory after inspecting them.
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -37,24 +37,28 @@ grep 'source: .*src' skilus.yaml
 stderr 'ya está instalada'
 
 # Blocking findings stop the install without asking (exit code 5).
-symlink ../evil/leak -> ../secret
-! exec skilus add ../evil --agent claude-code
-stderr '✗ leak: apunta a \.\./secret.* \[symlink-escape\]'
-stderr '1 skill · 1 bloqueo · 0 avisos'
-stderr 'rechazado por la inspección'
+# Creating symlinks on Windows needs privileges the runner may lack.
+[!windows] symlink ../evil/leak -> ../secret
+[!windows] ! exec skilus add ../evil --agent claude-code
+[!windows] stderr '✗ leak: apunta a \.\./secret.* \[symlink-escape\]'
+[!windows] stderr '1 skill · 1 bloqueo · 0 avisos'
+[!windows] stderr 'rechazado por la inspección'
 ! exists .claude/skills/evil
 
 # Scripts need --allow-scripts under --yes.
+# Windows has no executable bit, so no file counts as a script there.
 chmod 755 ../tools/lint.sh
-! exec skilus add ../tools --agent claude-code --yes
-stderr 'los ficheros ejecutables necesitan --allow-scripts'
+[!windows] ! exec skilus add ../tools --agent claude-code --yes
+[!windows] stderr 'los ficheros ejecutables necesitan --allow-scripts'
 exec skilus add ../tools --agent claude-code --yes --allow-scripts
-grep 'allow: \[scripts\]' skilus.yaml
+[!windows] grep 'allow: \[scripts\]' skilus.yaml
 
-# Global scope links to the store by default.
+# Global scope links to the store by default, except on Windows, where
+# symlinks need privileges.
 exec skilus add ../src --scope global --agent claude-code --yes
 exists $HOME/.skilus/skilus.lock
-grep 'mode: symlink' $HOME/.skilus/skilus.lock
+[!windows] grep 'mode: symlink' $HOME/.skilus/skilus.lock
+[windows] grep 'mode: copy' $HOME/.skilus/skilus.lock
 
 # Missing sources are not found (exit code 3).
 ! exec skilus add ../nope --agent claude-code --yes

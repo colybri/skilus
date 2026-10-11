@@ -1,8 +1,8 @@
 # skilus update --check sees that the requested branch moved; skilus update
 # shows what changes and moves the lock to the new commit.
 [!exec:git] skip 'git is not installed'
-[windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
+env USERPROFILE=$WORK/home
 env CLAUDE_CONFIG_DIR=
 env CODEX_HOME=
 env XDG_CONFIG_HOME=
@@ -20,8 +20,8 @@ exec git commit --quiet -m v1
 exec git tag v1.0.0
 cd $WORK/project
 
-exec skilus add file://$WORK/remote --agent claude-code --yes
-exec skilus add file://$WORK/remote@v1.0.0 --scope global --agent claude-code --yes
+exec skilus add $WORKURL/remote --agent claude-code --yes
+exec skilus add $WORKURL/remote@v1.0.0 --scope global --agent claude-code --yes
 
 exec skilus update --check
 stdout '^review +project +\(rama por defecto\) +[0-9a-f]{12} +[0-9a-f]{12} +al día$'
@@ -106,6 +106,6 @@ More notes.
 version: 1
 skills:
   - name: review
-    source: file://$WORK/remote@v1.0.0
+    source: $WORKURL/remote@v1.0.0
 -- no.txt --
 n
