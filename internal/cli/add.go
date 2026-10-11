@@ -151,7 +151,7 @@ func renderSources(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog,
 }
 
 func renderSource(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog, n *tally) {
-	head := st.bold(clean(plan.Source))
+	head := st.bold(clean(shortPath(plan.Source)))
 	if plan.Commit != "" {
 		head += sep + "commit " + short(plan.Commit)
 	}
@@ -226,9 +226,13 @@ func renderTargets(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog)
 	}
 }
 
-// shortPath shows dir relative to the working directory when it is inside
-// it, or to the home directory as ~.
+// shortPath shows an absolute dir relative to the working directory when it
+// is inside it, or to the home directory as ~. Anything else, such as a
+// repository or a URL, is returned as is.
 func shortPath(dir string) string {
+	if !filepath.IsAbs(dir) {
+		return dir
+	}
 	if wd, err := os.Getwd(); err == nil {
 		if rel, err := filepath.Rel(wd, dir); err == nil && filepath.IsLocal(rel) {
 			return rel
