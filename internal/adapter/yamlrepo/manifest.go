@@ -101,6 +101,10 @@ func (r Repo) Trust(_ context.Context, scope agent.Scope) (policy.Trust, error) 
 	if err != nil {
 		return nil, err
 	}
+	return parseTrust(p, doc)
+}
+
+func parseTrust(p string, doc *yaml.Node) (policy.Trust, error) {
 	node := mappingValue(doc.Content[0], "trust")
 	if node == nil || node.Tag == "!!null" {
 		return nil, nil
@@ -119,6 +123,10 @@ func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, erro
 	if err != nil {
 		return app.Manifest{}, err
 	}
+	return parseManifest(p, doc)
+}
+
+func parseManifest(p string, doc *yaml.Node) (app.Manifest, error) {
 	root := doc.Content[0]
 	var m app.Manifest
 
@@ -203,6 +211,11 @@ func readNode(p string) (*yaml.Node, error) {
 	if err != nil {
 		return nil, err
 	}
+	return decodeNode(p, data)
+}
+
+// decodeNode parses the contents of the skilus.yaml at p.
+func decodeNode(p string, data []byte) (*yaml.Node, error) {
 	// yaml.v3 turns the "\r" of a CRLF file into blank lines after comments
 	// when the tree is written back; writeDoc restores the line endings.
 	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))

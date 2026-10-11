@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: 'نظرة عامة', lead: 'مدير مهارات لوكلاء الذكاء الاصطناعي: مثبّتة على commit، مع بصمة للمحتوى، ومفحوصة قبل التثبيت.', blocks: [
     p('skilus مدير لمهارات (`SKILL.md`) وكلاء الذكاء الاصطناعي، ويُوزَّع كملف تنفيذي واحد مكتوب بلغة Go. يثبّت المهارات من Git أو من أرشيف ZIP أو tar.gz أو من مجلد محلي، وينشرها في الوكلاء المثبّتين لديك.'),
@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'مخزن محتوى مشترك بين المشاريع.'],
     ]),
     p('في المشروع تُثبَّت المهارات كنسخة ليمكن إدارتها بنظام التحكم بالإصدارات؛ وعلى المستوى العام كرابط رمزي إلى المخزن.'),
-    note('info', 'الحالة: المرحلة 3 قيد التطوير. تعمل حاليًا `agents` و`add` و`list` و`remove` و`inspect` و`verify` و`sync` و`outdated` و`update` و`profile` و`search` و`audit`.'),
+    note('info', 'الحالة: المرحلة 3 قيد التطوير. تعمل حاليًا `agents` و`add` و`list` و`remove` و`inspect` و`verify` و`sync` و`outdated` و`update` و`profile` و`edit` و`search` و`audit`.'),
   ] },
   'getting-started': { title: 'البدء', lead: 'ثبّت skilus وتحقّق من التنزيل وأضف مهارتك الأولى في دقائق.', blocks: [
     h2('requirements', 'المتطلبات'),
@@ -53,13 +53,14 @@ export default {
     ul('[إضافة المهارات](add): كل المصادر المدعومة.', '[الفحص والثقة](inspect): ما يفحصه skilus وكيفية تقييد المصادر.', '[الملفات الشخصية](profiles): بدّل مجموعة المهارات بأمر واحد.'),
   ] },
   'user-guide': { title: 'دليل المستخدم', lead: 'مرجع أوامر skilus وكيف تتكامل في العمل اليومي.', blocks: [
-    cards('add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
+    cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'الأوامر'),
     table(['الأمر', 'وظيفته'], [
       ['`skilus agents`', 'الوكلاء المدعومون ومساراتهم وهل هم مثبّتون.'],
       ['`skilus add`', 'يثبّت المهارات من Git أو ZIP/tar.gz أو مجلد محلي.'],
       ['`skilus list`', 'المهارات المثبّتة مع الـ commit والبصمة والوكلاء.'],
       ['`skilus remove`', 'يزيل مهارة من الوكلاء وملف القفل و`skilus.yaml`.'],
+      ['`skilus edit`', 'يفتح `skilus.yaml` في محررك ولا يحفظه إلا إذا كان صالحًا.'],
       ['`skilus inspect`', 'يعرض ما سيراجعه `add` دون تثبيت شيء.'],
       ['`skilus verify`', 'يتحقق من تطابق المثبّت مع ملف القفل.'],
       ['`skilus sync`', 'يجعل الوكلاء مطابقين لملف القفل.'],
@@ -71,6 +72,7 @@ export default {
     ]),
     h2('scopes', 'النطاقات'),
     p('تقبل الأوامر `--scope project|global|all`. افتراضيًا يعمل `sync` على المشروع و`verify` على النطاقين. في النطاق العام يوجد `skilus.yaml` و`skilus.lock` في `~/.skilus/`.'),
+    p('يشرح [ملف skilus.yaml](manifest) ما يحفظه كل نطاق وأين يوجد في كل نظام تشغيل.'),
     h2('exit-codes', 'رموز الخروج'),
     table(['الرمز', 'المعنى'], [['`0`', 'نجاح'], ['`1`', 'خطأ أو إلغاء'], ['`2`', 'استخدام غير صالح'], ['`3`', 'غير موجود'], ['`4`', 'مثبّت مسبقًا أو تعارض'], ['`5`', 'مرفوض من الفحص'], ['`6`', 'المثبّت لا يطابق ملف القفل']]),
   ] },
@@ -94,6 +96,44 @@ export default {
     h2('archives', 'أرشيفات ZIP وtar.gz'),
     p('تُفك في الذاكرة دون الكتابة على القرص، مع حدود لحجم التنزيل (50 MB) والحجم بعد فك الضغط وعدد المدخلات. تُرفض المسارات المطلقة أو التي تحتوي `..`. إذا كان كل شيء داخل مجلد واحد، كما في أرشيفات GitHub، يُزال ذلك المجلد.'),
     note('warn', 'لا تحمل الأرشيفات `@ref` ولا commit: يثبّت ملف القفل محتواها بالبصمة. يُرفض عنوان URL الذي يحتوي `?` لأنه يحمل عادةً رمز وصول.'),
+  ] },
+  manifest: { title: 'ملف skilus.yaml', lead: 'ما يحفظه skilus.yaml، وأين يوجد في كل نطاق، وكيف تحرّره دون أن تفسده.', blocks: [
+    p('يمثّل `skilus.yaml` النية: المهارات التي تريدها، ومن أين تأتي، وكيف تُجمَّع. يحدّثه `skilus add` و`remove` و`profile` دون المساس بتعليقاتك، ويمكنك أيضًا تحريره يدويًا. أما ما ثُبّت فعلًا فموجود في `skilus.lock`، ويشرحه قسم [ملف القفل والمزامنة](lock).'),
+    h2('scopes', 'نطاق المشروع والنطاق العام'),
+    p('لكل نطاق ملفا `skilus.yaml` و`skilus.lock` خاصان به. تعمل الأوامر على المشروع ما لم تمرّر `--scope global`؛ ويفحص `list` و`verify` النطاقين.'),
+    table(['النطاق', 'skilus.yaml وskilus.lock', 'أين تُثبَّت المهارات'], [
+      ['المشروع', 'المجلد الذي تشغّل فيه skilus، وعادةً جذر المستودع.', 'في مجلد المشروع لكل وكيل، مثل `.claude/skills`، كنسخة يمكنك إضافتها إلى المستودع.'],
+      ['العام', '`~/.skilus/` في مجلدك الشخصي.', 'في مجلد المستخدم لكل وكيل، مثل `~/.claude/skills`، كرابط رمزي إلى المخزن (نسخة على Windows).'],
+    ]),
+    p('استخدم نطاق المشروع للمهارات التي يتشاركها الفريق مع الكود، والنطاق العام للمهارات التي تريدها في كل مشاريعك.'),
+    h2('location', 'مكانه في كل نظام'),
+    p('يوجد الملف العام في المجلد `.skilus` داخل مجلدك الشخصي:'),
+    table(['النظام', 'skilus.yaml العام'], [
+      ['Linux', '`/home/<user>/.skilus/skilus.yaml`'],
+      ['macOS', '`/Users/<user>/.skilus/skilus.yaml`'],
+      ['Windows', '`C:\\Users\\<user>\\.skilus\\skilus.yaml`'],
+    ]),
+    p('لا داعي لحفظه: يطبع `skilus edit --path` مسار النطاق الذي تختاره.'),
+    code('skilus edit --path\nskilus edit --path --scope global'),
+    note('info', 'يحتوي `~/.skilus/` أيضًا على `config.yaml` (اللغة المحددة بـ `skilus lang set`) و`agents.yaml` (وكلاؤك الخاصون) و`store/`، مخزن المحتوى الذي تتشاركه كل المشاريع.'),
+    h2('format', 'الصيغة'),
+    code(MANIFEST, 'yaml'),
+    table(['المفتاح', 'المحتوى'], [
+      ['`version`', 'دائمًا `1`.'],
+      ['`skills`', 'المهارات التي تريدها: `name`، و`source` بالصيغة التي يقبلها `skilus add` (مع `@ref` اختياري)، وإن شئت `allow: [scripts]` لقبول الملفات التنفيذية.'],
+      ['`profiles`', 'مجموعات مسمّاة من مهارات `skills:`، ويمكن تحديد وكلائها.'],
+      ['`trust`', 'منظمات أو مستودعات موثوقة.'],
+      ['`indexes`', 'فهارس منتقاة يقرؤها `skilus search`.'],
+    ]),
+    p('لكل قسم صفحته: [إضافة المهارات](add) و[الملفات الشخصية](profiles) و[الفحص والثقة](inspect) و[البحث والفهارس](search).'),
+    p('أي مفتاح آخر في المستوى الأعلى خطأ، فلا يمرّ خطأ إملائي مثل `skils:` دون أن يُلاحَظ.'),
+    h2('edit', 'تحريره بـ `skilus edit`'),
+    code('skilus edit\nskilus edit --scope global'),
+    p('يفتح `skilus edit` الملف في محررك، أو قالبًا فيه تعليقات إن لم يكن موجودًا بعد. يستخدم أول محرر يجده بين `SKILUS_EDITOR` و`VISUAL` و`EDITOR` و`core.editor` في git؛ وإن لم يوجد أي منها فـ `notepad` على Windows و`nano` أو `vi` على غيره.'),
+    code('export EDITOR=nano            # Linux و macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
+    note('warn', 'يجب أن ينتظر المحرر الرسومي حتى تغلق الملف: استخدم `code --wait` أو `subl -w`، وإلا قرأ skilus الملف قبل أن تحفظه.'),
+    p('عند إغلاق المحرر يفحص skilus الملف بقواعد `skilus verify`: YAML صالح، ومفاتيح معروفة، ومهارات لها مصدر، وملفات شخصية لا تستخدم إلا مهارات مُعلنة. إذا كان هناك خطأ يعرض الأخطاء ويسأل هل تريد تحريره مرة أخرى انطلاقًا مما كتبت؛ وإن أجبت بلا يتجاهل التغييرات ويبقى `skilus.yaml` كما كان ويخرج بالرمز 2.'),
+    note('tip', 'تحرير `skilus.yaml` لا يثبّت شيئًا. بعده يخبرك `skilus verify` بما لا يطابق ملف القفل وبالأمر الذي يصلحه: `skilus add` لمهارة جديدة، و`skilus remove` لمهارة حذفتها، و`skilus profile use` لنشر ملف شخصي.'),
   ] },
   inspect: { title: 'الفحص والثقة', lead: 'ما يفحصه skilus قبل التثبيت، وكيف تقيّد المصادر، وكيف تدقّق ما هو مثبّت.', blocks: [
     h2('rules', 'ما الذي يُفحص'),
@@ -180,6 +220,7 @@ export default {
       ['ماذا لو عدّلت مهارة مثبّتة يدويًا؟', 'يكتشف `skilus verify` ذلك ويخرج بالرمز 6. ولا يستبدلها `skilus sync` إلا مع `--force`.'],
       ['كيف أستخدمه في CI؟', 'اجمع بين `skilus inspect --strict --json` و`skilus verify` و`skilus audit --strict --json`. يشير الرمزان 5 و6 إلى الرفض أو عدم التطابق مع ملف القفل.'],
       ['هل يمكنني التثبيت من GitLab أو مضيف آخر؟', 'نعم: أي عنوان Git (`https://` أو `ssh://` أو `file://` أو `git@host:…`) أو `host/owner/repo`.'],
+      ['أين يوجد skilus.yaml وكيف أحرّره؟', 'في جذر المشروع، أو في `~/.skilus/` للنطاق العام (`C:\\Users\\<user>\\.skilus` على Windows). يفتحه `skilus edit` في محررك ولا يحفظه إلا إذا كان صالحًا؛ ويطبع `skilus edit --path` مكانه. راجع [ملف skilus.yaml](manifest).'],
       ['هل يمكنني استخدام skilus تجاريًا؟', 'يُنشر skilus بموجب PolyForm Noncommercial 1.0.0. يتطلب الاستخدام التجاري ترخيصًا: راجع [COMMERCIAL.md](https://github.com/colybri/skilus/blob/main/COMMERCIAL.md).'],
     ),
   ] },

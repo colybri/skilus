@@ -10,6 +10,7 @@ import (
 
 	"github.com/colybri/skilus/internal/adapter/archivesrc"
 	"github.com/colybri/skilus/internal/adapter/catalog"
+	"github.com/colybri/skilus/internal/adapter/editor"
 	"github.com/colybri/skilus/internal/adapter/gitsrc"
 	"github.com/colybri/skilus/internal/adapter/osfs"
 	"github.com/colybri/skilus/internal/adapter/searchsrc"
@@ -116,6 +117,7 @@ func run() int {
 		ListProfiles: app.ListProfilesHandler{Manifest: repo, Locks: repo},
 		UseProfile:   app.UseProfileHandler{Add: add, Sync: sync, Manifest: repo},
 		EditProfile:  app.EditProfileHandler{Manifest: repo, Profiles: repo, Catalog: agents},
+		EditManifest: app.EditManifestHandler{Files: repo, Editor: editor.New(runtime.GOOS == "windows")},
 		Audit: app.AuditHandler{
 			Locks:      repo,
 			Trust:      repo,

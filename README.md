@@ -38,6 +38,9 @@ skilus list                                 # skills instaladas con commit, hash
 skilus list --scope global --json
 skilus remove review                        # la quita de los agentes, del lock y de skilus.yaml,
                                             # con las dependencias que ya nadie necesita
+skilus edit                                 # abre skilus.yaml en tu editor y solo lo guarda si es válido
+skilus edit --scope global                  # el global, en ~/.skilus/skilus.yaml
+skilus edit --path                          # solo imprime dónde está
 
 skilus inspect anthropics/skills --skill pdf # lo que add revisaría, sin instalar nada
 skilus inspect ./mis-skills --strict --json # para CI: código 5 si add lo rechazaría
@@ -87,6 +90,8 @@ trust:
 Con la lista, cualquier otra fuente recibe un aviso `untrusted-source`, que con `--strict` impide instalarla. Sin lista no se comprueba nada, y los directorios locales nunca.
 
 El contenido se guarda en `~/.skilus/store/<sha256>`. En el proyecto se instala como copia (para poder versionarla) y en global como symlink al almacén. El resultado queda en `skilus.lock` (qué contenido exacto hay instalado y dónde) y la intención en `skilus.yaml`; en global, ambos viven en `~/.skilus/`.
+
+El `skilus.yaml` del proyecto está en el directorio donde ejecutas skilus y el global en `~/.skilus/skilus.yaml`: `/home/<usuario>/.skilus/skilus.yaml` en Linux, `/Users/<usuario>/.skilus/skilus.yaml` en macOS y `C:\Users\<usuario>\.skilus\skilus.yaml` en Windows. `skilus edit` lo abre en el editor de `SKILUS_EDITOR`, `VISUAL`, `EDITOR` o el `core.editor` de git (si no hay ninguno, `notepad` en Windows y `nano` o `vi` en el resto; uno gráfico tiene que esperar a que cierres el fichero, como `code --wait`) y, si no existe, empieza con una plantilla comentada. Al cerrar el editor lo comprueba como `verify` y solo lo guarda si es válido; una clave desconocida en el primer nivel, como `skils:`, también es un error. Si hay errores los enumera y pregunta si volver a editarlo; si no, descarta los cambios y sale con código 2. Editarlo no instala nada: después, `skilus verify` dice qué falta por aplicar.
 
 `skilus verify` recalcula el hash de cada skill en cada agente y lo compara con el lock; si falta alguna o ha cambiado un fichero, dice cuál y sale con código 6. También comprueba `skilus.yaml`: que se puede leer, que cada skill de `skills:` está instalada (salvo las que no pertenecen al perfil activo), que cada skill instalada, salvo las dependencias, está en `skills:` y que los perfiles solo usan skills declaradas; si el fichero tiene errores sale con código 2 y, si no coincide con el lock, con código 6, proponiendo el comando que lo arregla. `skilus sync` instala lo que falta desde el almacén o, si no está, descargando cada skill por su commit, y falla si el hash no coincide con el del lock. No cambia `skilus.lock` ni `skilus.yaml` y no toca las skills modificadas a mano salvo con `--force`. `skilus outdated` consulta con `git ls-remote`, sin descargar contenido, a qué commit apunta ahora la rama o el tag de cada skill; las fijadas a un commit no se comprueban. `skilus update` descarga esa versión, enseña los ficheros añadidos, borrados y modificados y la inspección de la versión nueva (los ejecutables que ya tenía no vuelven a preguntarse) y, tras confirmar, reemplaza las copias instaladas y actualiza el lock; `skilus.yaml` no cambia porque guarda la rama o el tag, no el commit.
 

@@ -1,5 +1,5 @@
 // skilus docs content: all 13 languages have full pages (es/en here, the rest in i18n/).
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './i18n/shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './i18n/shared.js';
 import fr from './i18n/fr.js';
 import de from './i18n/de.js';
 import pt from './i18n/pt.js';
@@ -12,11 +12,11 @@ import pl from './i18n/pl.js';
 import ur from './i18n/ur.js';
 import hi from './i18n/hi.js';
 
-export const order = ['overview', 'getting-started', 'user-guide', 'add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents', 'faq'];
+export const order = ['overview', 'getting-started', 'user-guide', 'add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents', 'faq'];
 export const nav = [
   { id: 'overview' },
   { id: 'getting-started' },
-  { id: 'user-guide', children: ['add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'] },
+  { id: 'user-guide', children: ['add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'] },
   { id: 'faq' },
 ];
 
@@ -56,17 +56,17 @@ export const ui = Object.fromEntries(Object.entries(UI).map(([k, arr]) => [k, Ob
 
 // [title, lead] in `order` for languages without full page bodies
 const T = {
-  fr: [['Vue d’ensemble', 'Gestionnaire de skills pour agents d’IA : épinglées, hachées et inspectées.'], ['Prise en main', 'Installez skilus, vérifiez le téléchargement et ajoutez votre première skill.'], ['Guide de l’utilisateur', 'Référence des commandes de skilus et de leur usage quotidien.'], ['Ajouter des skills', 'Depuis GitHub, tout dépôt Git, une archive ou un dossier local.'], ['Inspection et confiance', 'Ce que skilus vérifie avant l’installation et comment restreindre les origines.'], ['Lock et synchronisation', 'Lister, supprimer, vérifier et reconstruire les skills à partir du lock.'], ['Mises à jour', 'Détectez les nouvelles versions et mettez à jour en revoyant chaque changement.'], ['Profils', 'Regroupez les skills par contexte et changez d’ensemble en une commande.'], ['Recherche et index', 'Trouvez des skills sur skills.sh et dans les index de votre équipe.'], ['Agents et dépendances', 'Ajoutez des agents non inclus et déclarez des dépendances entre skills.'], ['FAQ', 'Réponses rapides aux questions les plus courantes.']],
-  de: [['Überblick', 'Skill-Manager für KI-Agenten – fixiert, gehasht und geprüft.'], ['Erste Schritte', 'skilus installieren, Download prüfen und die erste Skill hinzufügen.'], ['Benutzerhandbuch', 'Referenz der skilus-Befehle und ihres Einsatzes im Alltag.'], ['Skills hinzufügen', 'Aus GitHub, jedem Git-Repository, einem Archiv oder einem lokalen Ordner.'], ['Prüfung und Vertrauen', 'Was skilus vor der Installation prüft und wie man Quellen einschränkt.'], ['Lock und Synchronisierung', 'Installierte Skills anhand des Locks auflisten, entfernen, prüfen und wiederherstellen.'], ['Updates', 'Neue Versionen finden und jede Änderung vor dem Update prüfen.'], ['Profile', 'Skills nach Kontext gruppieren und mit einem Befehl wechseln.'], ['Suche und Indizes', 'Skills auf skills.sh und in den Indizes deines Teams finden.'], ['Agenten und Abhängigkeiten', 'Eigene Agenten hinzufügen und Abhängigkeiten zwischen Skills deklarieren.'], ['FAQ', 'Schnelle Antworten auf häufige Fragen.']],
-  pt: [['Visão geral', 'Gerenciador de skills para agentes de IA — fixadas, com hash e inspecionadas.'], ['Primeiros passos', 'Instale o skilus, verifique o download e adicione sua primeira skill.'], ['Guia do usuário', 'Referência dos comandos do skilus e do uso no dia a dia.'], ['Adicionar skills', 'Do GitHub, de qualquer repositório Git, de um arquivo compactado ou de uma pasta local.'], ['Inspeção e confiança', 'O que o skilus verifica antes de instalar e como restringir as origens.'], ['Lock e sincronização', 'Liste, remova, verifique e reconstrua as skills a partir do lock.'], ['Atualizações', 'Descubra novas versões e atualize revisando cada mudança.'], ['Perfis', 'Agrupe skills por contexto e troque de conjunto com um comando.'], ['Busca e índices', 'Encontre skills no skills.sh e nos índices da sua equipe.'], ['Agentes e dependências', 'Adicione agentes não incluídos e declare dependências entre skills.'], ['Perguntas frequentes', 'Respostas rápidas para as dúvidas mais comuns.']],
-  zh: [['概览', '面向 AI 智能体的技能管理器——固定版本、内容哈希、安装前检查。'], ['快速入门', '安装 skilus、验证下载并添加你的第一个技能。'], ['用户指南', 'skilus 命令参考及日常用法。'], ['添加技能', '从 GitHub、任意 Git 仓库、压缩包或本地目录安装。'], ['检查与信任', 'skilus 在安装前检查什么，以及如何限制来源。'], ['锁文件与同步', '基于锁文件列出、删除、校验和重建已安装的技能。'], ['更新', '发现新版本，并在审阅每处更改后更新。'], ['配置档', '按场景分组技能，一条命令即可切换。'], ['搜索与索引', '在 skills.sh 和团队的精选索引中查找技能。'], ['智能体与依赖', '添加未内置的智能体，并声明技能之间的依赖。'], ['常见问题', '常见问题的快速解答。']],
-  ja: [['概要', 'AIエージェント向けスキルマネージャー。コミット固定・ハッシュ・事前検査。'], ['はじめに', 'skilus をインストールし、ダウンロードを検証して最初のスキルを追加します。'], ['ユーザーガイド', 'skilus のコマンドリファレンスと日常的な使い方。'], ['スキルの追加', 'GitHub、任意の Git リポジトリ、アーカイブ、ローカルディレクトリから。'], ['検査と信頼', 'インストール前に skilus が確認する内容と、取得元の制限方法。'], ['ロックと同期', 'ロックファイルをもとにスキルを一覧・削除・検証・再構築します。'], ['アップデート', '新しいバージョンを見つけ、変更を確認してから更新します。'], ['プロファイル', '用途ごとにスキルをまとめ、1コマンドで切り替えます。'], ['検索とインデックス', 'skills.sh とチームのインデックスからスキルを探します。'], ['エージェントと依存関係', '未対応のエージェントを追加し、スキル間の依存関係を宣言します。'], ['よくある質問', 'よくある質問への簡潔な回答。']],
-  id: [['Ikhtisar', 'Pengelola skill untuk agen AI — dipatok, di-hash, dan diperiksa.'], ['Memulai', 'Pasang skilus, verifikasi unduhan, dan tambahkan skill pertama Anda.'], ['Panduan Pengguna', 'Referensi perintah skilus dan penggunaannya sehari-hari.'], ['Menambahkan skill', 'Dari GitHub, repositori Git apa pun, arsip, atau folder lokal.'], ['Pemeriksaan dan kepercayaan', 'Apa yang diperiksa skilus sebelum memasang dan cara membatasi sumber.'], ['Lock dan sinkronisasi', 'Daftar, hapus, verifikasi, dan bangun ulang skill dari lock.'], ['Pembaruan', 'Temukan versi baru dan perbarui setelah meninjau setiap perubahan.'], ['Profil', 'Kelompokkan skill per konteks dan beralih dengan satu perintah.'], ['Pencarian dan indeks', 'Temukan skill di skills.sh dan indeks kurasi tim Anda.'], ['Agen dan dependensi', 'Tambahkan agen yang belum didukung dan deklarasikan dependensi antar-skill.'], ['FAQ', 'Jawaban singkat untuk pertanyaan umum.']],
-  ar: [['نظرة عامة', 'مدير مهارات لوكلاء الذكاء الاصطناعي: مثبّتة على commit، مع بصمة، ومفحوصة.'], ['البدء', 'ثبّت skilus وتحقّق من التنزيل وأضف مهارتك الأولى.'], ['دليل المستخدم', 'مرجع أوامر skilus واستخدامها اليومي.'], ['إضافة المهارات', 'من GitHub أو أي مستودع Git أو ملف مضغوط أو مجلد محلي.'], ['الفحص والثقة', 'ما يفحصه skilus قبل التثبيت وكيفية تقييد المصادر.'], ['ملف القفل والمزامنة', 'اعرض المهارات واحذفها وتحقّق منها وأعد بناءها من ملف القفل.'], ['التحديثات', 'اكتشف الإصدارات الجديدة وحدّث بعد مراجعة كل تغيير.'], ['الملفات الشخصية', 'جمّع المهارات حسب السياق وبدّل بينها بأمر واحد.'], ['البحث والفهارس', 'ابحث عن المهارات في skills.sh وفي فهارس فريقك.'], ['الوكلاء والتبعيات', 'أضف وكلاء غير مدعومين وصرّح بالتبعيات بين المهارات.'], ['الأسئلة الشائعة', 'إجابات سريعة عن الأسئلة الأكثر شيوعًا.']],
-  ru: [['Обзор', 'Менеджер навыков для ИИ-агентов: закреплённых, хешированных и проверенных.'], ['Начало работы', 'Установите skilus, проверьте загрузку и добавьте первый навык.'], ['Руководство пользователя', 'Справочник команд skilus и их повседневное использование.'], ['Добавление навыков', 'Из GitHub, любого Git-репозитория, архива или локальной папки.'], ['Проверка и доверие', 'Что skilus проверяет перед установкой и как ограничить источники.'], ['Lock-файл и синхронизация', 'Просмотр, удаление, проверка и восстановление навыков по lock-файлу.'], ['Обновления', 'Находите новые версии и обновляйтесь, просматривая каждое изменение.'], ['Профили', 'Группируйте навыки по контексту и переключайтесь одной командой.'], ['Поиск и индексы', 'Ищите навыки на skills.sh и в курируемых индексах команды.'], ['Агенты и зависимости', 'Добавляйте неподдерживаемых агентов и объявляйте зависимости между навыками.'], ['Частые вопросы', 'Короткие ответы на распространённые вопросы.']],
-  pl: [['Przegląd', 'Menedżer skilli dla agentów AI — przypiętych, zahashowanych i sprawdzonych.'], ['Pierwsze kroki', 'Zainstaluj skilus, zweryfikuj pobrany plik i dodaj pierwszy skill.'], ['Podręcznik użytkownika', 'Opis poleceń skilus i ich codziennego użycia.'], ['Dodawanie skilli', 'Z GitHuba, dowolnego repozytorium Git, archiwum lub folderu lokalnego.'], ['Inspekcja i zaufanie', 'Co skilus sprawdza przed instalacją i jak ograniczyć źródła.'], ['Lock i synchronizacja', 'Wyświetlaj, usuwaj, weryfikuj i odtwarzaj skille na podstawie locka.'], ['Aktualizacje', 'Wykrywaj nowe wersje i aktualizuj po przejrzeniu każdej zmiany.'], ['Profile', 'Grupuj skille według kontekstu i przełączaj je jednym poleceniem.'], ['Wyszukiwanie i indeksy', 'Znajduj skille w skills.sh i w indeksach swojego zespołu.'], ['Agenci i zależności', 'Dodawaj nieobsługiwanych agentów i deklaruj zależności między skillami.'], ['FAQ', 'Krótkie odpowiedzi na częste pytania.']],
-  ur: [['جائزہ', 'اے آئی ایجنٹس کے لیے اسکل مینیجر — کمٹ پر مقرر، ہیش شدہ اور جانچ شدہ۔'], ['آغاز', 'skilus انسٹال کریں، ڈاؤن لوڈ کی تصدیق کریں اور اپنی پہلی اسکل شامل کریں۔'], ['صارف رہنما', 'skilus کمانڈز کا حوالہ اور روزمرہ استعمال۔'], ['اسکلز شامل کرنا', 'GitHub، کسی بھی Git ریپوزٹری، آرکائیو یا مقامی فولڈر سے۔'], ['جانچ اور اعتماد', 'انسٹال سے پہلے skilus کیا جانچتا ہے اور ذرائع کو کیسے محدود کریں۔'], ['لاک اور ہم آہنگی', 'لاک فائل سے اسکلز کی فہرست، حذف، تصدیق اور دوبارہ تعمیر۔'], ['اپ ڈیٹس', 'نئے ورژن تلاش کریں اور ہر تبدیلی دیکھ کر اپ ڈیٹ کریں۔'], ['پروفائلز', 'سیاق کے مطابق اسکلز کو گروپ کریں اور ایک کمانڈ سے بدلیں۔'], ['تلاش اور انڈیکس', 'skills.sh اور اپنی ٹیم کے انڈیکس میں اسکلز تلاش کریں۔'], ['ایجنٹس اور انحصار', 'غیر معاون ایجنٹس شامل کریں اور اسکلز کے درمیان انحصار ظاہر کریں۔'], ['عمومی سوالات', 'عام سوالات کے مختصر جوابات۔']],
-  hi: [['अवलोकन', 'एआई एजेंटों के लिए स्किल मैनेजर — कमिट पर पिन, हैश और जाँची हुई।'], ['शुरुआत करें', 'skilus इंस्टॉल करें, डाउनलोड सत्यापित करें और अपनी पहली स्किल जोड़ें।'], ['उपयोगकर्ता गाइड', 'skilus कमांड्स का संदर्भ और रोज़मर्रा का उपयोग।'], ['स्किल जोड़ना', 'GitHub, किसी भी Git रिपॉज़िटरी, आर्काइव या लोकल फ़ोल्डर से।'], ['जाँच और भरोसा', 'इंस्टॉल से पहले skilus क्या जाँचता है और स्रोतों को कैसे सीमित करें।'], ['लॉक और सिंक', 'लॉक फ़ाइल से स्किल्स की सूची, हटाना, सत्यापन और पुनर्निर्माण।'], ['अपडेट', 'नए संस्करण खोजें और हर बदलाव देखकर अपडेट करें।'], ['प्रोफ़ाइल', 'संदर्भ के अनुसार स्किल्स समूहित करें और एक कमांड से बदलें।'], ['खोज और इंडेक्स', 'skills.sh और अपनी टीम के इंडेक्स में स्किल्स खोजें।'], ['एजेंट और निर्भरताएँ', 'असमर्थित एजेंट जोड़ें और स्किल्स के बीच निर्भरताएँ घोषित करें।'], ['सामान्य प्रश्न', 'आम सवालों के त्वरित जवाब।']],
+  fr: [['Vue d’ensemble', 'Gestionnaire de skills pour agents d’IA : épinglées, hachées et inspectées.'], ['Prise en main', 'Installez skilus, vérifiez le téléchargement et ajoutez votre première skill.'], ['Guide de l’utilisateur', 'Référence des commandes de skilus et de leur usage quotidien.'], ['Ajouter des skills', 'Depuis GitHub, tout dépôt Git, une archive ou un dossier local.'], ['Le fichier skilus.yaml', 'Ce que contient skilus.yaml, où il se trouve dans chaque portée et comment le modifier sans le casser.'], ['Inspection et confiance', 'Ce que skilus vérifie avant l’installation et comment restreindre les origines.'], ['Lock et synchronisation', 'Lister, supprimer, vérifier et reconstruire les skills à partir du lock.'], ['Mises à jour', 'Détectez les nouvelles versions et mettez à jour en revoyant chaque changement.'], ['Profils', 'Regroupez les skills par contexte et changez d’ensemble en une commande.'], ['Recherche et index', 'Trouvez des skills sur skills.sh et dans les index de votre équipe.'], ['Agents et dépendances', 'Ajoutez des agents non inclus et déclarez des dépendances entre skills.'], ['FAQ', 'Réponses rapides aux questions les plus courantes.']],
+  de: [['Überblick', 'Skill-Manager für KI-Agenten – fixiert, gehasht und geprüft.'], ['Erste Schritte', 'skilus installieren, Download prüfen und die erste Skill hinzufügen.'], ['Benutzerhandbuch', 'Referenz der skilus-Befehle und ihres Einsatzes im Alltag.'], ['Skills hinzufügen', 'Aus GitHub, jedem Git-Repository, einem Archiv oder einem lokalen Ordner.'], ['Die Datei skilus.yaml', 'Was in der skilus.yaml steht, wo sie in jedem Bereich liegt und wie du sie bearbeitest, ohne sie kaputtzumachen.'], ['Prüfung und Vertrauen', 'Was skilus vor der Installation prüft und wie man Quellen einschränkt.'], ['Lock und Synchronisierung', 'Installierte Skills anhand des Locks auflisten, entfernen, prüfen und wiederherstellen.'], ['Updates', 'Neue Versionen finden und jede Änderung vor dem Update prüfen.'], ['Profile', 'Skills nach Kontext gruppieren und mit einem Befehl wechseln.'], ['Suche und Indizes', 'Skills auf skills.sh und in den Indizes deines Teams finden.'], ['Agenten und Abhängigkeiten', 'Eigene Agenten hinzufügen und Abhängigkeiten zwischen Skills deklarieren.'], ['FAQ', 'Schnelle Antworten auf häufige Fragen.']],
+  pt: [['Visão geral', 'Gerenciador de skills para agentes de IA — fixadas, com hash e inspecionadas.'], ['Primeiros passos', 'Instale o skilus, verifique o download e adicione sua primeira skill.'], ['Guia do usuário', 'Referência dos comandos do skilus e do uso no dia a dia.'], ['Adicionar skills', 'Do GitHub, de qualquer repositório Git, de um arquivo compactado ou de uma pasta local.'], ['O arquivo skilus.yaml', 'O que o skilus.yaml guarda, onde fica em cada escopo e como editá-lo sem quebrá-lo.'], ['Inspeção e confiança', 'O que o skilus verifica antes de instalar e como restringir as origens.'], ['Lock e sincronização', 'Liste, remova, verifique e reconstrua as skills a partir do lock.'], ['Atualizações', 'Descubra novas versões e atualize revisando cada mudança.'], ['Perfis', 'Agrupe skills por contexto e troque de conjunto com um comando.'], ['Busca e índices', 'Encontre skills no skills.sh e nos índices da sua equipe.'], ['Agentes e dependências', 'Adicione agentes não incluídos e declare dependências entre skills.'], ['Perguntas frequentes', 'Respostas rápidas para as dúvidas mais comuns.']],
+  zh: [['概览', '面向 AI 智能体的技能管理器——固定版本、内容哈希、安装前检查。'], ['快速入门', '安装 skilus、验证下载并添加你的第一个技能。'], ['用户指南', 'skilus 命令参考及日常用法。'], ['添加技能', '从 GitHub、任意 Git 仓库、压缩包或本地目录安装。'], ['skilus.yaml 文件', 'skilus.yaml 保存什么、在每个范围中位于何处，以及如何安全地编辑它。'], ['检查与信任', 'skilus 在安装前检查什么，以及如何限制来源。'], ['锁文件与同步', '基于锁文件列出、删除、校验和重建已安装的技能。'], ['更新', '发现新版本，并在审阅每处更改后更新。'], ['配置档', '按场景分组技能，一条命令即可切换。'], ['搜索与索引', '在 skills.sh 和团队的精选索引中查找技能。'], ['智能体与依赖', '添加未内置的智能体，并声明技能之间的依赖。'], ['常见问题', '常见问题的快速解答。']],
+  ja: [['概要', 'AIエージェント向けスキルマネージャー。コミット固定・ハッシュ・事前検査。'], ['はじめに', 'skilus をインストールし、ダウンロードを検証して最初のスキルを追加します。'], ['ユーザーガイド', 'skilus のコマンドリファレンスと日常的な使い方。'], ['スキルの追加', 'GitHub、任意の Git リポジトリ、アーカイブ、ローカルディレクトリから。'], ['skilus.yaml ファイル', 'skilus.yaml に何が書かれ、各スコープでどこにあり、壊さずに編集するにはどうするか。'], ['検査と信頼', 'インストール前に skilus が確認する内容と、取得元の制限方法。'], ['ロックと同期', 'ロックファイルをもとにスキルを一覧・削除・検証・再構築します。'], ['アップデート', '新しいバージョンを見つけ、変更を確認してから更新します。'], ['プロファイル', '用途ごとにスキルをまとめ、1コマンドで切り替えます。'], ['検索とインデックス', 'skills.sh とチームのインデックスからスキルを探します。'], ['エージェントと依存関係', '未対応のエージェントを追加し、スキル間の依存関係を宣言します。'], ['よくある質問', 'よくある質問への簡潔な回答。']],
+  id: [['Ikhtisar', 'Pengelola skill untuk agen AI — dipatok, di-hash, dan diperiksa.'], ['Memulai', 'Pasang skilus, verifikasi unduhan, dan tambahkan skill pertama Anda.'], ['Panduan Pengguna', 'Referensi perintah skilus dan penggunaannya sehari-hari.'], ['Menambahkan skill', 'Dari GitHub, repositori Git apa pun, arsip, atau folder lokal.'], ['Berkas skilus.yaml', 'Isi skilus.yaml, lokasinya di setiap cakupan, dan cara mengeditnya tanpa merusaknya.'], ['Pemeriksaan dan kepercayaan', 'Apa yang diperiksa skilus sebelum memasang dan cara membatasi sumber.'], ['Lock dan sinkronisasi', 'Daftar, hapus, verifikasi, dan bangun ulang skill dari lock.'], ['Pembaruan', 'Temukan versi baru dan perbarui setelah meninjau setiap perubahan.'], ['Profil', 'Kelompokkan skill per konteks dan beralih dengan satu perintah.'], ['Pencarian dan indeks', 'Temukan skill di skills.sh dan indeks kurasi tim Anda.'], ['Agen dan dependensi', 'Tambahkan agen yang belum didukung dan deklarasikan dependensi antar-skill.'], ['FAQ', 'Jawaban singkat untuk pertanyaan umum.']],
+  ar: [['نظرة عامة', 'مدير مهارات لوكلاء الذكاء الاصطناعي: مثبّتة على commit، مع بصمة، ومفحوصة.'], ['البدء', 'ثبّت skilus وتحقّق من التنزيل وأضف مهارتك الأولى.'], ['دليل المستخدم', 'مرجع أوامر skilus واستخدامها اليومي.'], ['إضافة المهارات', 'من GitHub أو أي مستودع Git أو ملف مضغوط أو مجلد محلي.'], ['ملف skilus.yaml', 'ما يحفظه skilus.yaml، وأين يوجد في كل نطاق، وكيف تحرّره دون أن تفسده.'], ['الفحص والثقة', 'ما يفحصه skilus قبل التثبيت وكيفية تقييد المصادر.'], ['ملف القفل والمزامنة', 'اعرض المهارات واحذفها وتحقّق منها وأعد بناءها من ملف القفل.'], ['التحديثات', 'اكتشف الإصدارات الجديدة وحدّث بعد مراجعة كل تغيير.'], ['الملفات الشخصية', 'جمّع المهارات حسب السياق وبدّل بينها بأمر واحد.'], ['البحث والفهارس', 'ابحث عن المهارات في skills.sh وفي فهارس فريقك.'], ['الوكلاء والتبعيات', 'أضف وكلاء غير مدعومين وصرّح بالتبعيات بين المهارات.'], ['الأسئلة الشائعة', 'إجابات سريعة عن الأسئلة الأكثر شيوعًا.']],
+  ru: [['Обзор', 'Менеджер навыков для ИИ-агентов: закреплённых, хешированных и проверенных.'], ['Начало работы', 'Установите skilus, проверьте загрузку и добавьте первый навык.'], ['Руководство пользователя', 'Справочник команд skilus и их повседневное использование.'], ['Добавление навыков', 'Из GitHub, любого Git-репозитория, архива или локальной папки.'], ['Файл skilus.yaml', 'Что хранит skilus.yaml, где он лежит в каждой области и как править его, ничего не сломав.'], ['Проверка и доверие', 'Что skilus проверяет перед установкой и как ограничить источники.'], ['Lock-файл и синхронизация', 'Просмотр, удаление, проверка и восстановление навыков по lock-файлу.'], ['Обновления', 'Находите новые версии и обновляйтесь, просматривая каждое изменение.'], ['Профили', 'Группируйте навыки по контексту и переключайтесь одной командой.'], ['Поиск и индексы', 'Ищите навыки на skills.sh и в курируемых индексах команды.'], ['Агенты и зависимости', 'Добавляйте неподдерживаемых агентов и объявляйте зависимости между навыками.'], ['Частые вопросы', 'Короткие ответы на распространённые вопросы.']],
+  pl: [['Przegląd', 'Menedżer skilli dla agentów AI — przypiętych, zahashowanych i sprawdzonych.'], ['Pierwsze kroki', 'Zainstaluj skilus, zweryfikuj pobrany plik i dodaj pierwszy skill.'], ['Podręcznik użytkownika', 'Opis poleceń skilus i ich codziennego użycia.'], ['Dodawanie skilli', 'Z GitHuba, dowolnego repozytorium Git, archiwum lub folderu lokalnego.'], ['Plik skilus.yaml', 'Co zawiera skilus.yaml, gdzie leży w każdym zakresie i jak go edytować, nie psując go.'], ['Inspekcja i zaufanie', 'Co skilus sprawdza przed instalacją i jak ograniczyć źródła.'], ['Lock i synchronizacja', 'Wyświetlaj, usuwaj, weryfikuj i odtwarzaj skille na podstawie locka.'], ['Aktualizacje', 'Wykrywaj nowe wersje i aktualizuj po przejrzeniu każdej zmiany.'], ['Profile', 'Grupuj skille według kontekstu i przełączaj je jednym poleceniem.'], ['Wyszukiwanie i indeksy', 'Znajduj skille w skills.sh i w indeksach swojego zespołu.'], ['Agenci i zależności', 'Dodawaj nieobsługiwanych agentów i deklaruj zależności między skillami.'], ['FAQ', 'Krótkie odpowiedzi na częste pytania.']],
+  ur: [['جائزہ', 'اے آئی ایجنٹس کے لیے اسکل مینیجر — کمٹ پر مقرر، ہیش شدہ اور جانچ شدہ۔'], ['آغاز', 'skilus انسٹال کریں، ڈاؤن لوڈ کی تصدیق کریں اور اپنی پہلی اسکل شامل کریں۔'], ['صارف رہنما', 'skilus کمانڈز کا حوالہ اور روزمرہ استعمال۔'], ['اسکلز شامل کرنا', 'GitHub، کسی بھی Git ریپوزٹری، آرکائیو یا مقامی فولڈر سے۔'], ['skilus.yaml فائل', 'skilus.yaml میں کیا ہوتا ہے، ہر دائرے میں یہ کہاں ہوتی ہے اور اسے خراب کیے بغیر کیسے ترمیم کریں۔'], ['جانچ اور اعتماد', 'انسٹال سے پہلے skilus کیا جانچتا ہے اور ذرائع کو کیسے محدود کریں۔'], ['لاک اور ہم آہنگی', 'لاک فائل سے اسکلز کی فہرست، حذف، تصدیق اور دوبارہ تعمیر۔'], ['اپ ڈیٹس', 'نئے ورژن تلاش کریں اور ہر تبدیلی دیکھ کر اپ ڈیٹ کریں۔'], ['پروفائلز', 'سیاق کے مطابق اسکلز کو گروپ کریں اور ایک کمانڈ سے بدلیں۔'], ['تلاش اور انڈیکس', 'skills.sh اور اپنی ٹیم کے انڈیکس میں اسکلز تلاش کریں۔'], ['ایجنٹس اور انحصار', 'غیر معاون ایجنٹس شامل کریں اور اسکلز کے درمیان انحصار ظاہر کریں۔'], ['عمومی سوالات', 'عام سوالات کے مختصر جوابات۔']],
+  hi: [['अवलोकन', 'एआई एजेंटों के लिए स्किल मैनेजर — कमिट पर पिन, हैश और जाँची हुई।'], ['शुरुआत करें', 'skilus इंस्टॉल करें, डाउनलोड सत्यापित करें और अपनी पहली स्किल जोड़ें।'], ['उपयोगकर्ता गाइड', 'skilus कमांड्स का संदर्भ और रोज़मर्रा का उपयोग।'], ['स्किल जोड़ना', 'GitHub, किसी भी Git रिपॉज़िटरी, आर्काइव या लोकल फ़ोल्डर से।'], ['skilus.yaml फ़ाइल', 'skilus.yaml में क्या रहता है, हर स्कोप में यह कहाँ होती है और इसे बिगाड़े बिना कैसे संपादित करें।'], ['जाँच और भरोसा', 'इंस्टॉल से पहले skilus क्या जाँचता है और स्रोतों को कैसे सीमित करें।'], ['लॉक और सिंक', 'लॉक फ़ाइल से स्किल्स की सूची, हटाना, सत्यापन और पुनर्निर्माण।'], ['अपडेट', 'नए संस्करण खोजें और हर बदलाव देखकर अपडेट करें।'], ['प्रोफ़ाइल', 'संदर्भ के अनुसार स्किल्स समूहित करें और एक कमांड से बदलें।'], ['खोज और इंडेक्स', 'skills.sh और अपनी टीम के इंडेक्स में स्किल्स खोजें।'], ['एजेंट और निर्भरताएँ', 'असमर्थित एजेंट जोड़ें और स्किल्स के बीच निर्भरताएँ घोषित करें।'], ['सामान्य प्रश्न', 'आम सवालों के त्वरित जवाब।']],
 };
 export const titles = Object.fromEntries(Object.entries(T).map(([k, arr]) => [k, Object.fromEntries(order.map((id, i) => [id, arr[i]]))]));
 
@@ -87,7 +87,7 @@ const es = {
       ['`~/.skilus/store/<sha256>`', 'Almacén de contenido compartido entre proyectos.'],
     ]),
     p('En el proyecto, las skills se instalan como copia para poder versionarlas; en el ámbito global, como symlink al almacén.'),
-    note('info', 'Estado: fase 3 en construcción. Ya funcionan `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search` y `audit`.'),
+    note('info', 'Estado: fase 3 en construcción. Ya funcionan `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` y `audit`.'),
   ] },
   'getting-started': { title: 'Primeros pasos', lead: 'Instala skilus, verifica la descarga y añade tu primera skill en unos minutos.', blocks: [
     h2('requisitos', 'Requisitos'),
@@ -124,13 +124,14 @@ const es = {
     ul('[Añadir skills](add): todas las fuentes admitidas.', '[Inspección y confianza](inspect): qué revisa skilus y cómo limitar orígenes.', '[Perfiles](profiles): cambia de conjunto de skills con un comando.'),
   ] },
   'user-guide': { title: 'Guía de usuario', lead: 'Referencia de los comandos de skilus y de cómo se combinan en el día a día.', blocks: [
-    cards('add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
+    cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('comandos', 'Comandos'),
     table(['Comando', 'Qué hace'], [
       ['`skilus agents`', 'Agentes soportados, sus rutas y si están instalados.'],
       ['`skilus add`', 'Instala skills desde Git, ZIP/tar.gz o un directorio local.'],
       ['`skilus list`', 'Skills instaladas con commit, hash y agentes.'],
       ['`skilus remove`', 'Quita una skill de los agentes, del lock y de `skilus.yaml`.'],
+      ['`skilus edit`', 'Abre `skilus.yaml` en tu editor y solo lo guarda si es válido.'],
       ['`skilus inspect`', 'Muestra lo que `add` revisaría, sin instalar nada.'],
       ['`skilus verify`', 'Comprueba que lo instalado coincide con el lock.'],
       ['`skilus sync`', 'Deja los agentes como dice el lock.'],
@@ -142,6 +143,7 @@ const es = {
     ]),
     h2('ambitos', 'Ámbitos'),
     p('Los comandos aceptan `--scope project|global|all`. Por defecto `sync` trabaja en el proyecto y `verify` en ambos ámbitos. En global, `skilus.yaml` y `skilus.lock` viven en `~/.skilus/`.'),
+    p('[El fichero skilus.yaml](manifest) explica qué guarda cada ámbito y dónde está en cada sistema operativo.'),
     h2('codigos', 'Códigos de salida'),
     table(['Código', 'Significado'], [['`0`', 'Correcto'], ['`1`', 'Error o cancelado'], ['`2`', 'Uso inválido'], ['`3`', 'No encontrado'], ['`4`', 'Ya instalado o conflicto'], ['`5`', 'Rechazado por la inspección'], ['`6`', 'Lo instalado no coincide con el lock']]),
   ] },
@@ -165,6 +167,44 @@ const es = {
     h2('archivos', 'Archivos ZIP y tar.gz'),
     p('Se descomprimen en memoria sin escribir en disco, con límites de descarga (50 MB), de tamaño descomprimido y de número de entradas. Se rechazan rutas absolutas o con `..`. Si todo cuelga de un único directorio, como en los archivos de GitHub, se quita.'),
     note('warn', 'Los archivos no llevan `@ref` ni commit: el lock fija su contenido por el hash. Una URL con `?` se rechaza porque suele llevar un token.'),
+  ] },
+  manifest: { title: 'El fichero skilus.yaml', lead: 'Qué guarda skilus.yaml, dónde vive en cada ámbito y cómo editarlo sin romperlo.', blocks: [
+    p('`skilus.yaml` es la intención: qué skills quieres, de dónde salen y cómo se agrupan. `skilus add`, `remove` y `profile` lo mantienen al día sin tocar tus comentarios, y también puedes editarlo a mano. Lo que de verdad se instaló está en `skilus.lock`; lo explica [Lock y sincronización](lock).'),
+    h2('ambitos', 'Ámbitos: proyecto y global'),
+    p('Cada ámbito tiene su propio `skilus.yaml` y su propio `skilus.lock`. Los comandos trabajan en el proyecto salvo que pases `--scope global`; `list` y `verify` miran los dos.'),
+    table(['Ámbito', 'skilus.yaml y skilus.lock', 'Dónde se instalan las skills'], [
+      ['Proyecto', 'El directorio donde ejecutas skilus, normalmente la raíz de tu repositorio.', 'En el directorio de proyecto de cada agente, como `.claude/skills`, como copia que puedes versionar.'],
+      ['Global', '`~/.skilus/`, en tu directorio personal.', 'En el directorio de usuario de cada agente, como `~/.claude/skills`, como symlink al almacén (copia en Windows).'],
+    ]),
+    p('Usa el proyecto para las skills que el equipo comparte junto al código, y el global para las que quieres en todos tus proyectos.'),
+    h2('ubicacion', 'Dónde está en cada sistema'),
+    p('El fichero global está en la carpeta `.skilus` de tu directorio personal:'),
+    table(['Sistema', 'skilus.yaml global'], [
+      ['Linux', '`/home/<usuario>/.skilus/skilus.yaml`'],
+      ['macOS', '`/Users/<usuario>/.skilus/skilus.yaml`'],
+      ['Windows', '`C:\\Users\\<usuario>\\.skilus\\skilus.yaml`'],
+    ]),
+    p('No hace falta recordarlo: `skilus edit --path` imprime la ruta del ámbito que elijas.'),
+    code('skilus edit --path\nskilus edit --path --scope global'),
+    note('info', '`~/.skilus/` guarda además `config.yaml` (el idioma de `skilus lang set`), `agents.yaml` (tus agentes propios) y `store/`, el almacén de contenido que comparten todos los proyectos.'),
+    h2('formato', 'Formato'),
+    code(MANIFEST, 'yaml'),
+    table(['Clave', 'Contenido'], [
+      ['`version`', 'Siempre `1`.'],
+      ['`skills`', 'Las skills que quieres: `name`, `source` tal como lo acepta `skilus add` (con `@ref` opcional) y, si quieres, `allow: [scripts]` para aceptar ejecutables.'],
+      ['`profiles`', 'Conjuntos con nombre de skills de `skills:` y, opcionalmente, sus agentes.'],
+      ['`trust`', 'Organizaciones o repositorios de confianza.'],
+      ['`indexes`', 'Índices curados que consulta `skilus search`.'],
+    ]),
+    p('Cada sección tiene su página: [Añadir skills](add), [Perfiles](profiles), [Inspección y confianza](inspect) y [Búsqueda e índices](search).'),
+    p('Cualquier otra clave en el primer nivel es un error, así que una errata como `skils:` no pasa desapercibida.'),
+    h2('editar', 'Editarlo con `skilus edit`'),
+    code('skilus edit\nskilus edit --scope global'),
+    p('`skilus edit` abre el fichero en tu editor o, si aún no existe, una plantilla comentada. Usa el primero que encuentre entre `SKILUS_EDITOR`, `VISUAL`, `EDITOR` y el `core.editor` de git; si no hay ninguno, `notepad` en Windows y `nano` o `vi` en el resto.'),
+    code('export EDITOR=nano            # Linux y macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
+    note('warn', 'Un editor gráfico tiene que esperar a que cierres el fichero: usa `code --wait` o `subl -w`; si no, skilus lo lee antes de que lo guardes.'),
+    p('Al cerrar el editor, skilus comprueba el fichero con las reglas de `skilus verify`: YAML válido, claves conocidas, skills con origen y perfiles que solo usan skills declaradas. Si algo falla, enumera los errores y pregunta si quieres volver a editarlo, partiendo de lo que escribiste; si dices que no, descarta los cambios, `skilus.yaml` queda como estaba y sale con código 2.'),
+    note('tip', 'Editar `skilus.yaml` no instala nada. Después, `skilus verify` dice qué no coincide con el lock y el comando que lo arregla: `skilus add` para una skill nueva, `skilus remove` para una que borraste y `skilus profile use` para desplegar un perfil.'),
   ] },
   inspect: { title: 'Inspección y confianza', lead: 'Qué revisa skilus antes de instalar, cómo restringir los orígenes y cómo auditar lo instalado.', blocks: [
     h2('reglas', 'Qué se inspecciona'),
@@ -251,6 +291,7 @@ const es = {
       ['¿Qué pasa si edito a mano una skill instalada?', '`skilus verify` lo detecta y sale con código 6. `skilus sync` no la sobrescribe salvo con `--force`.'],
       ['¿Cómo lo uso en CI?', 'Combina `skilus inspect --strict --json`, `skilus verify` y `skilus audit --strict --json`. Los códigos 5 y 6 indican rechazo o discrepancia con el lock.'],
       ['¿Puedo instalar desde GitLab u otro host?', 'Sí: cualquier URL de Git (`https://`, `ssh://`, `file://` o `git@host:…`) o `host/owner/repo`.'],
+      ['¿Dónde está skilus.yaml y cómo lo edito?', 'En la raíz del proyecto, o en `~/.skilus/` para el ámbito global (`C:\\Users\\<usuario>\\.skilus` en Windows). `skilus edit` lo abre en tu editor y solo lo guarda si es válido; `skilus edit --path` imprime dónde está. Ver [El fichero skilus.yaml](manifest).'],
       ['¿Puedo usar skilus comercialmente?', 'skilus se publica bajo PolyForm Noncommercial 1.0.0. El uso comercial requiere una licencia: consulta [COMMERCIAL.md](https://github.com/colybri/skilus/blob/main/COMMERCIAL.md).'],
     ),
   ] },
@@ -273,7 +314,7 @@ const en = {
       ['`~/.skilus/store/<sha256>`', 'Content store shared across projects.'],
     ]),
     p('In a project, skills are installed as copies so you can commit them; in global scope, as symlinks to the store.'),
-    note('info', 'Status: phase 3 in progress. Working today: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `search` and `audit`.'),
+    note('info', 'Status: phase 3 in progress. Working today: `agents`, `add`, `list`, `remove`, `inspect`, `verify`, `sync`, `outdated`, `update`, `profile`, `edit`, `search` and `audit`.'),
   ] },
   'getting-started': { title: 'Getting Started', lead: 'Install skilus, verify the download and add your first skill in a few minutes.', blocks: [
     h2('requirements', 'Requirements'),
@@ -310,13 +351,14 @@ const en = {
     ul('[Adding skills](add): every supported source.', '[Inspection & trust](inspect): what skilus checks and how to restrict sources.', '[Profiles](profiles): switch skill sets with one command.'),
   ] },
   'user-guide': { title: 'User Guide', lead: 'Reference for the skilus commands and how they fit together day to day.', blocks: [
-    cards('add', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
+    cards('add', 'manifest', 'inspect', 'lock', 'update', 'profiles', 'search', 'agents'),
     h2('commands', 'Commands'),
     table(['Command', 'What it does'], [
       ['`skilus agents`', 'Supported agents, their paths and whether they are installed.'],
       ['`skilus add`', 'Installs skills from Git, ZIP/tar.gz or a local directory.'],
       ['`skilus list`', 'Installed skills with commit, hash and agents.'],
       ['`skilus remove`', 'Removes a skill from agents, the lock and `skilus.yaml`.'],
+      ['`skilus edit`', 'Opens `skilus.yaml` in your editor and only saves it if it is valid.'],
       ['`skilus inspect`', 'Shows what `add` would review, without installing.'],
       ['`skilus verify`', 'Checks that what is installed matches the lock.'],
       ['`skilus sync`', 'Makes the agents match the lock.'],
@@ -328,6 +370,7 @@ const en = {
     ]),
     h2('scopes', 'Scopes'),
     p('Commands accept `--scope project|global|all`. By default `sync` works on the project and `verify` on both scopes. In global scope, `skilus.yaml` and `skilus.lock` live in `~/.skilus/`.'),
+    p('[The skilus.yaml file](manifest) explains what each scope holds and where it lives on each operating system.'),
     h2('exit-codes', 'Exit codes'),
     table(['Code', 'Meaning'], [['`0`', 'Success'], ['`1`', 'Error or cancelled'], ['`2`', 'Invalid usage'], ['`3`', 'Not found'], ['`4`', 'Already installed or conflict'], ['`5`', 'Rejected by inspection'], ['`6`', 'Installed content does not match the lock']]),
   ] },
@@ -351,6 +394,44 @@ const en = {
     h2('archives', 'ZIP and tar.gz archives'),
     p('They are extracted in memory without writing to disk, with limits on download size (50 MB), uncompressed size and entry count. Absolute paths and paths with `..` are rejected. If everything sits under a single directory, as in GitHub archives, it is stripped.'),
     note('warn', 'Archives have no `@ref` or commit: the lock pins their content by hash. A URL with `?` is rejected because it usually carries a token.'),
+  ] },
+  manifest: { title: 'The skilus.yaml file', lead: 'What skilus.yaml holds, where it lives in each scope and how to edit it without breaking it.', blocks: [
+    p('`skilus.yaml` is the intent: which skills you want, where they come from and how they are grouped. `skilus add`, `remove` and `profile` keep it up to date without touching your comments, and you can also edit it by hand. What was actually installed is in `skilus.lock`, covered in [Lockfile & sync](lock).'),
+    h2('scopes', 'Project and global scope'),
+    p('Each scope has its own `skilus.yaml` and its own `skilus.lock`. Commands work on the project unless you pass `--scope global`; `list` and `verify` look at both.'),
+    table(['Scope', 'skilus.yaml and skilus.lock', 'Where skills are installed'], [
+      ['Project', 'The directory you run skilus in, usually the root of your repository.', 'In each agent’s project directory, such as `.claude/skills`, as a copy you can commit.'],
+      ['Global', '`~/.skilus/`, in your home directory.', 'In each agent’s user directory, such as `~/.claude/skills`, as a symlink to the store (a copy on Windows).'],
+    ]),
+    p('Use the project scope for skills your team shares alongside the code, and the global scope for the ones you want in every project.'),
+    h2('location', 'Where it lives on each system'),
+    p('The global file is in the `.skilus` folder of your home directory:'),
+    table(['System', 'Global skilus.yaml'], [
+      ['Linux', '`/home/<user>/.skilus/skilus.yaml`'],
+      ['macOS', '`/Users/<user>/.skilus/skilus.yaml`'],
+      ['Windows', '`C:\\Users\\<user>\\.skilus\\skilus.yaml`'],
+    ]),
+    p('No need to remember it: `skilus edit --path` prints the path for the scope you choose.'),
+    code('skilus edit --path\nskilus edit --path --scope global'),
+    note('info', '`~/.skilus/` also holds `config.yaml` (the language set with `skilus lang set`), `agents.yaml` (your own agents) and `store/`, the content store every project shares.'),
+    h2('format', 'Format'),
+    code(MANIFEST, 'yaml'),
+    table(['Key', 'Contents'], [
+      ['`version`', 'Always `1`.'],
+      ['`skills`', 'The skills you want: `name`, `source` as `skilus add` takes it (with an optional `@ref`) and, if you like, `allow: [scripts]` to accept executables.'],
+      ['`profiles`', 'Named sets of skills from `skills:` and, optionally, their agents.'],
+      ['`trust`', 'Trusted organizations or repositories.'],
+      ['`indexes`', 'Curated indexes that `skilus search` reads.'],
+    ]),
+    p('Each section has its own page: [Adding skills](add), [Profiles](profiles), [Inspection & trust](inspect) and [Search & indexes](search).'),
+    p('Any other top-level key is an error, so a typo such as `skils:` does not go unnoticed.'),
+    h2('edit', 'Editing it with `skilus edit`'),
+    code('skilus edit\nskilus edit --scope global'),
+    p('`skilus edit` opens the file in your editor or, if it does not exist yet, a commented template. It uses the first one it finds among `SKILUS_EDITOR`, `VISUAL`, `EDITOR` and git’s `core.editor`; with none set, `notepad` on Windows and `nano` or `vi` elsewhere.'),
+    code('export EDITOR=nano            # Linux and macOS\nexport EDITOR="code --wait"   # VS Code\n$env:EDITOR = "notepad"       # Windows (PowerShell)'),
+    note('warn', 'A graphical editor must wait until you close the file: use `code --wait` or `subl -w`; otherwise skilus reads the file before you save it.'),
+    p('When you close the editor, skilus checks the file with the rules of `skilus verify`: valid YAML, known keys, skills with a source and profiles that only use declared skills. If something is wrong, it lists the errors and asks whether to edit it again, starting from what you wrote; if you say no, it discards the changes, `skilus.yaml` stays as it was and it exits with code 2.'),
+    note('tip', 'Editing `skilus.yaml` installs nothing. Afterwards, `skilus verify` tells you what does not match the lock and the command that fixes it: `skilus add` for a new skill, `skilus remove` for one you deleted and `skilus profile use` to deploy a profile.'),
   ] },
   inspect: { title: 'Inspection & trust', lead: 'What skilus checks before installing, how to restrict sources and how to audit what is installed.', blocks: [
     h2('rules', 'What gets inspected'),
@@ -437,6 +518,7 @@ const en = {
       ['What if I edit an installed skill by hand?', '`skilus verify` detects it and exits with code 6. `skilus sync` will not overwrite it unless you pass `--force`.'],
       ['How do I use it in CI?', 'Combine `skilus inspect --strict --json`, `skilus verify` and `skilus audit --strict --json`. Exit codes 5 and 6 signal a rejection or a mismatch with the lock.'],
       ['Can I install from GitLab or another host?', 'Yes: any Git URL (`https://`, `ssh://`, `file://` or `git@host:…`) or `host/owner/repo`.'],
+      ['Where is skilus.yaml and how do I edit it?', 'In the project root, or in `~/.skilus/` for the global scope (`C:\\Users\\<user>\\.skilus` on Windows). `skilus edit` opens it in your editor and only saves it if it is valid; `skilus edit --path` prints where it is. See [The skilus.yaml file](manifest).'],
       ['Can I use skilus commercially?', 'skilus is released under PolyForm Noncommercial 1.0.0. Commercial use requires a license: see [COMMERCIAL.md](https://github.com/colybri/skilus/blob/main/COMMERCIAL.md).'],
     ),
   ] },

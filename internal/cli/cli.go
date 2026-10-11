@@ -46,6 +46,7 @@ type Deps struct {
 	EditProfile  app.EditProfileHandler
 	Search       app.SearchHandler
 	Audit        app.AuditHandler
+	EditManifest app.EditManifestHandler
 	Language     app.LanguageSetting
 	// Getenv reads the locale variables; SystemLocale is the operating
 	// system's own locale where the variables are not the norm (Windows).
@@ -131,7 +132,7 @@ func newRoot(deps Deps, choice i18n.Choice, t *i18n.Catalog) *cobra.Command {
 	root.SetFlagErrorFunc(func(_ *cobra.Command, err error) error {
 		return domain.Errorf("%w: %w", errUsage, err)
 	})
-	root.AddCommand(newAgentsCommand(deps.ListAgents, t), newAddCommand(deps.AddSkill, t), newListCommand(deps.ListSkills, t), newRemoveCommand(deps.RemoveSkill, t), newVerifyCommand(deps.Verify, t), newSyncCommand(deps.Sync, t), newInspectCommand(deps.Inspect, t), newOutdatedCommand(deps.Outdated, t), newUpdateCommand(deps.Update, t), newProfileCommand(deps.ListProfiles, deps.UseProfile, deps.EditProfile, t), newSearchCommand(deps.Search, t), newAuditCommand(deps.Audit, t), newLangCommand(deps.Language, choice, t))
+	root.AddCommand(newAgentsCommand(deps.ListAgents, t), newAddCommand(deps.AddSkill, t), newListCommand(deps.ListSkills, t), newRemoveCommand(deps.RemoveSkill, t), newVerifyCommand(deps.Verify, t), newSyncCommand(deps.Sync, t), newInspectCommand(deps.Inspect, t), newOutdatedCommand(deps.Outdated, t), newUpdateCommand(deps.Update, t), newProfileCommand(deps.ListProfiles, deps.UseProfile, deps.EditProfile, t), newSearchCommand(deps.Search, t), newAuditCommand(deps.Audit, t), newEditCommand(deps.EditManifest, t), newLangCommand(deps.Language, choice, t))
 	localizeCobra(root, t)
 	return root
 }
