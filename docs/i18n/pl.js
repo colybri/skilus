@@ -172,8 +172,10 @@ export default {
     code('skilus verify\nskilus verify --json'),
     p('Sprawdza też `skilus.yaml`: czy da się go odczytać, czy każdy skill z `skills:` jest zainstalowany (poza tymi spoza aktywnego profilu), czy każdy zainstalowany skill, poza zależnościami, jest w `skills:` i czy profile używają tylko zadeklarowanych skilli. Jeśli plik ma błędy, kończy się kodem 2; jeśli nie zgadza się z lockiem, kodem 6, i podpowiada polecenie, które to naprawi. Jeśli źródło lub ref skilla w `skilus.yaml` nie są tymi z locka, informuje o tym i proponuje `skilus update`.'),
     h2('sync', '`skilus sync`'),
-    p('Instaluje brakujące elementy z magazynu lub, jeśli ich tam nie ma, pobierając każdy skill z jego commita, i kończy się błędem, gdy hash się nie zgadza. Nigdy nie zmienia `skilus.lock` ani `skilus.yaml` i nie rusza skilli zmienionych ręcznie, chyba że użyjesz `--force`.'),
-    code('skilus sync\nskilus sync --force'),
+    p('Doprowadza agentów dokładnie do stanu z `skilus.lock`, tak jak `npm ci` ze swoim lockiem: nie wybiera wersji, tylko instaluje te, które lock już przypiął. Użyj go po sklonowaniu projektu, który ma już `skilus.yaml` i `skilus.lock`, w CI przed testami albo żeby odzyskać skill, który usunięto lub uszkodzono.'),
+    code('skilus sync\nskilus sync --scope all\nskilus sync --force\nskilus sync --json'),
+    ol('Czyta lock projektu; z `--scope global` globalny, a z `--scope all` oba.', 'Szuka każdego skilla w magazynie `~/.skilus/store` po jego hashu. Jeśli go tam nie ma lub jest uszkodzony, pobiera go z dokładnego commita z locka, nie z gałęzi, i kończy się błędem, gdy hash się nie zgadza.', 'W każdym agencie tworzy brakujący folder, zostawia bez zmian zgodny i ostrzega o folderze zmienionym ręcznie. Z `--force` go nadpisuje.', 'Zapisuje w agentach tylko wtedy, gdy wszystko powyżej się powiodło: jeśli nie da się pobrać któregoś skilla albo jest zmieniony bez `--force`, nic się nie zmienia.'),
+    note('info', 'Nie zmienia `skilus.lock` ani `skilus.yaml` i nie szuka nowych wersji: do tego służy `skilus update`. Nie instaluje też tego, co ręcznie dodano do `skilus.yaml`, a czego nie ma jeszcze w locku (użyj `skilus add`), ani nie usuwa folderów skilli, których nie ma w locku. `--json` podaje wynik dla każdego skilla w każdym agencie.'),
   ] },
   update: { title: 'Aktualizacje', lead: 'Sprawdź, które skille mają nowe wersje, i aktualizuj je, przeglądając każdą zmianę.', blocks: [
     h2('check', '`skilus update --check`'),
