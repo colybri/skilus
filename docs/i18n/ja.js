@@ -16,7 +16,7 @@ export default {
       ['`~/.skilus/store/<sha256>`', 'プロジェクト間で共有されるコンテンツストア。'],
     ]),
     p('プロジェクトではバージョン管理できるようコピーとして、グローバルではストアへのシンボリックリンクとしてインストールされます。'),
-    note('info', 'ステータス：フェーズ 3 開発中。現在使えるコマンド：`agents`、`add`、`list`、`remove`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`edit`、`search`、`audit`。'),
+    note('info', 'ステータス：プレリリース（0.x）。`skilus.yaml` と `skilus.lock` の形式は今後変わる可能性があります。使えるコマンド：`agents`、`add`、`list`、`remove`、`edit`、`inspect`、`verify`、`sync`、`outdated`、`update`、`profile`、`search`、`audit`、`lang`。'),
   ] },
   'getting-started': { title: 'はじめに', lead: '数分で skilus をインストールし、ダウンロードを検証して、最初のスキルを追加します。', blocks: [
     h2('requirements', '要件'),
