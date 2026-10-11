@@ -143,7 +143,7 @@ func (n tally) render(w io.Writer, st style, t *i18n.Catalog) {
 func renderPlan(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog) {
 	var n tally
 	renderSources(w, plan, st, t, &n)
-	renderTargets(w, plan, st, t)
+	renderTargets(w, st, t, plan)
 	n.render(w, st, t)
 }
 
@@ -203,11 +203,16 @@ func renderSource(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog, 
 	}
 }
 
-// renderTargets lists where the skills go, on one line when it fits.
-func renderTargets(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog) {
+// renderTargets lists, once, where the skills of plans go, on one line
+// when it fits.
+func renderTargets(w io.Writer, st style, t *i18n.Catalog, plans ...app.InstallPlan) {
+	var all []app.InstallPlan
+	for _, plan := range plans {
+		all = append(all, plan.All()...)
+	}
 	var dirs []string
 	seen := map[string]bool{}
-	for _, p := range plan.All() {
+	for _, p := range all {
 		for _, tg := range p.Targets {
 			ids := []string{tg.Target.Agent.String()}
 			if len(tg.Agents) > 0 {

@@ -175,7 +175,7 @@ func renderUpdatePlan(w io.Writer, plan app.UpdatePlan, st style, t *i18n.Catalo
 	for _, ip := range plan.Dependencies {
 		fmt.Fprintln(w, t.T("Requeridas por las skills actualizadas:"))
 		renderSources(w, ip, st, t, &n)
-		renderTargets(w, ip, st, t)
 	}
+	renderTargets(w, st, t, plan.Dependencies...)
 	n.render(w, st, t)
 }

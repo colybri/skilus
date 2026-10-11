@@ -28,6 +28,8 @@ stdout 'Perfil: backend'
 stdin $WORK/yes.txt
 exec skilus profile use backend
 stdout '¿Cambiar al perfil backend\?'
+# Two sources, one list of targets.
+stdout -count=1 'Destinos:'
 stdout 'Perfil backend desplegado\.'
 exists .claude/skills/debug/SKILL.md
 exists .claude/skills/api/SKILL.md
@@ -78,7 +80,7 @@ skills:
   - name: debug
     source: ./src
   - name: api
-    source: ./src
+    source: ./api
   - name: ui
     source: ./src
   - name: deploy
@@ -100,7 +102,7 @@ profiles:
 name: debug
 description: Depura
 ---
--- project/src/skills/api/SKILL.md --
+-- project/api/skills/api/SKILL.md --
 ---
 name: api
 description: Diseña APIs
