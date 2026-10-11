@@ -35,7 +35,7 @@ export HOME="$work/home" USERPROFILE="$work/home" XDG_CONFIG_HOME= CLAUDE_CONFIG
 cd "$work/project"
 
 add() {
-  "$bin" add "$@" --agent universal --yes --allow-scripts
+  "$bin" add "$@" --agent codex --yes --allow-scripts
 }
 
 add anthropics/skills@dbd4588f9e1033efb41dad4bef2f7947c8993d44 \
@@ -110,7 +110,7 @@ profiles:
     agents: [claude-code]
   web:
     skills: [systematic-debugging, test-driven-development, vercel-react-best-practices, web-design-guidelines, playwright]
-    agents: [universal]
+    agents: [codex]
 YAML
 cp skilus.yaml "$work/team.yaml"
 
@@ -161,7 +161,7 @@ git -C "$work/rogue" add .
 git -C "$work/rogue" -c user.name=gate -c user.email=gate@example.com commit --quiet --no-gpg-sign -m v1
 rogue="$work/rogue"
 if command -v cygpath > /dev/null; then rogue="/$(cygpath -m "$rogue")"; fi
-"$bin" add "file://$rogue" --agent universal --yes
+"$bin" add "file://$rogue" --agent codex --yes
 cat >> skilus.yaml <<'YAML'
 trust:
   - github.com/anthropics

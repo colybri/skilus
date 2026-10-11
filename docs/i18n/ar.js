@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, AGENT_ROWS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: 'نظرة عامة', lead: 'مدير مهارات لوكلاء الذكاء الاصطناعي: مثبّتة على commit، مع بصمة للمحتوى، ومفحوصة قبل التثبيت.', blocks: [
     p('skilus مدير لمهارات (`SKILL.md`) وكلاء الذكاء الاصطناعي، ويُوزَّع كملف تنفيذي واحد مكتوب بلغة Go. يثبّت المهارات من Git أو من أرشيف ZIP أو tar.gz أو من مجلد محلي، وينشرها في الوكلاء المثبّتين لديك.'),
@@ -7,7 +7,7 @@ export default {
     p('المهارة تعليمات ونصوص برمجية سينفّذها وكيلك بصلاحياتك. يضمن skilus أن ما يُثبَّت هو بالضبط ما رُوجع:'),
     ul('**مثبّتة على commit.** تُقفل كل مهارة من Git على الـ commit الدقيق في `skilus.lock`.', '**بصمة المحتوى.** يُحفظ SHA-256 للمحتوى، ويكشف `skilus verify` أي تغيير.', '**الفحص أولًا.** قبل التثبيت يبحث عن الروابط الرمزية التي تخرج من المهارة، والملفات التنفيذية، و`curl … | sh`، والوصول إلى بيانات الاعتماد، والنص غير المرئي.', '**بلا رموز وصول.** يستخدم بيانات اعتماد `git` في النظام ويرفض عناوين URL التي تحتوي على كلمة مرور.'),
     h2('agents', 'الوكلاء المدعومون'),
-    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', '`.agents/skills`'),
+    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', 'Gemini CLI', 'Windsurf', 'و68 غيرها'),
     p('شغّل `skilus agents` لرؤية مساراتهم ومعرفة المثبّت منهم. يمكنك إضافة غيرهم من [الوكلاء والتبعيات](agents).'),
     h2('how', 'كيف يعمل'),
     table(['الملف', 'المحتوى'], [
@@ -88,6 +88,8 @@ export default {
     ]),
     h2('discovery', 'أين يبحث عن المهارات'),
     p('يقرأ `skilus add` مهارة واحدة فيها `SKILL.md` في الجذر، أو مجلدًا يحتوي مهارات في `skills/<الاسم>/` أو `skills/.curated/<الاسم>/` (مثل openai/skills) أو `<الاسم>/`. المهارة غير المقروءة داخل مجموعة تُعرض كمتجاوَزة ولا تمنع تثبيت البقية.'),
+    h2('choose', 'اختيار المهارات والوكلاء'),
+    p('في الطرفية، من دون `--skill` يعرض `add` مهارات المصدر لتحدد ما تثبّته (كلها محددة في البداية). ومن دون `--agent` يعرض الوكلاء المثبّتين على جهازك ويجمع في خيار واحد من يتشاركون مجلدًا: في المشروع يستخدم Codex وCursor وGemini CLI وغيرهم `.agents/skills`. تنقّل بالأسهم، وحدّد بالمسافة، و→ يحدد الكل، و← لا شيء، والكتابة تصفّي، وEnter يقبل وEsc يلغي. مع `-y` أو خارج الطرفية لا يسأل: يثبّت كل المهارات في كل الوكلاء المكتشفين.'),
     h2('options', 'خيارات مفيدة'),
     code('skilus add ./my-skills --skill review -y\nskilus add ./my-skills --agent claude-code --scope global'),
     ul('`--skill` يختار مهارات محددة من مجموعة.', '`--agent` يقيّد الوكلاء المستهدفين.', '`--scope global` يثبّت في `~/.skilus/` كرابط رمزي إلى المخزن.', '`-y` / `--yes` لا يسأل؛ والملفات التنفيذية تحتاج أيضًا إلى `--allow-scripts`.'),
@@ -203,6 +205,9 @@ export default {
     ul('تظهر نتائج الفهارس أولًا.', 'مع قائمة `trust:` تذكر كل نتيجة ما إذا كان مصدرها موثوقًا.', 'إذا لم يستجب مصدر يظهر تحذير وتُعرض البقية.', '`--no-registry` يُبقي الفهارس فقط؛ و`SKILUS_REGISTRY_URL` يشير إلى خادم متوافق آخر (https فقط).'),
   ] },
   agents: { title: 'الوكلاء والتبعيات', lead: 'أضف وكلاء لا يتضمنهم skilus، وصرّح بمهارات تعتمد على غيرها.', blocks: [
+    h2('supported', 'الوكلاء المدعومون'),
+    p('يثبّت skilus في هؤلاء الوكلاء الـ74. استخدم معرّفهم مع `--agent` أو في `agents:` لملف تعريف. في المشروع، يحصل الوكلاء الذين يتشاركون مجلدًا على نسخة واحدة من المهارة ويسجّل ملف القفل أولهم. بعض المسارات العامة تتبع متغيرات بيئة مثل `XDG_CONFIG_HOME` أو `CLAUDE_CONFIG_DIR` أو `CODEX_HOME`؛ ويعرض `skilus agents` المسارات على جهازك.'),
+    table(['المعرّف', 'الوكيل', 'المشروع'], AGENT_ROWS),
     h2('custom-agents', 'وكلاء مخصّصون'),
     p('أنشئ `~/.skilus/agents.yaml` بصيغة الكتالوج المرفق (`internal/adapter/catalog/agents.yaml`). المعرّف الموجود يستبدل ذلك الوكيل؛ والجديد يُضاف في النهاية.'),
     code(AGENTS, 'yaml'),
@@ -214,7 +219,7 @@ export default {
   ] },
   faq: { title: 'الأسئلة الشائعة', lead: 'إجابات سريعة عن الأسئلة الأكثر شيوعًا.', blocks: [
     faq(
-      ['ما الوكلاء المدعومون؟', 'Claude Code وCodex وCursor وGitHub Copilot و`.agents/skills`. يمكنك إضافة غيرهم في `~/.skilus/agents.yaml`.'],
+      ['ما الوكلاء المدعومون؟', '74 وكيلًا، منها Claude Code وCodex وCursor وGitHub Copilot وGemini CLI وWindsurf؛ ويعرضها `skilus agents` كلها. يمكنك إضافة غيرهم في `~/.skilus/agents.yaml`.'],
       ['هل أحتاج إلى git؟', 'فقط لمصادر Git. المجلدات المحلية وأرشيفات ZIP أو tar.gz لا تحتاج إليه.'],
       ['هل يحفظ skilus رموز الوصول الخاصة بي؟', 'لا. يستخدم بيانات اعتماد `git` النظام ومفاتيح SSH والمساعدات، ويرفض عناوين URL التي تحتوي على كلمة مرور.'],
       ['لماذا نسخة في المشروع ورابط رمزي على المستوى العام؟', 'في المشروع تتيح النسخ إدارة المهارات بالإصدارات مع شيفرتك؛ وعلى المستوى العام تمنع الروابط الرمزية إلى المخزن تكرار المحتوى.'],

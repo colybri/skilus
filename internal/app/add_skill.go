@@ -71,6 +71,9 @@ type PlannedSkill struct {
 type PlannedTarget struct {
 	Target agent.Target
 	Dir    string // skills directory of the agent; the skill goes in Dir/<name>
+	// Agents are the agents that read Dir, Target.Agent first: the lock
+	// records only that one, since the directory is the same.
+	Agents []agent.Agent
 }
 
 // AddResult reports what was installed.
@@ -81,14 +84,17 @@ type AddResult struct {
 
 // AddSkillHandler runs AddSkill.
 type AddSkillHandler struct {
-	Catalog     AgentCatalog
-	Detector    AgentDetector
-	Fetchers    map[source.Kind]Fetcher
-	Store       Store
-	Deployer    Deployer
-	Locks       LockRepository
-	Manifests   ManifestRepository
-	Prompter    Prompter
+	Catalog   AgentCatalog
+	Detector  AgentDetector
+	Fetchers  map[source.Kind]Fetcher
+	Store     Store
+	Deployer  Deployer
+	Locks     LockRepository
+	Manifests ManifestRepository
+	Prompter  Prompter
+	// Chooser asks which skills and agents to use when the command names
+	// none; nil takes every skill found and every detected agent.
+	Chooser     Chooser
 	Trust       TrustList // nil skips the trust check
 	ProjectRoot string
 	// DefaultModes gives the mode per scope when the command sets none.
@@ -115,8 +121,15 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 	if err != nil {
 		return AddResult{}, err
 	}
-	selected, err := selectSkills(fetched, cmd.Skills)
+	names, err := h.chooseSkills(ctx, cmd, fetched)
 	if err != nil {
+		return AddResult{}, err
+	}
+	selected, err := selectSkills(fetched, names)
+	if err != nil {
+		return AddResult{}, err
+	}
+	if targets, err = h.chooseTargets(ctx, cmd, targets); err != nil {
 		return AddResult{}, err
 	}
 
@@ -127,7 +140,7 @@ func (h AddSkillHandler) Handle(ctx context.Context, cmd AddSkill) (AddResult, e
 
 	fetched.Source = h.recordedSource(cmd.Scope, fetched.Source)
 	plan := InstallPlan{Source: fetched.Source, Commit: fetched.Commit, Targets: targets}
-	if len(cmd.Skills) == 0 {
+	if len(names) == 0 {
 		plan.Skipped = fetched.Invalid
 	}
 	untrusted, err := trustFindings(ctx, h.Trust, cmd.Source, trustScopes(cmd.Scope)...)
@@ -204,20 +217,23 @@ func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.M
 	if err != nil {
 		return nil, domain.Errorf("cargar el catálogo de agentes: %w", err)
 	}
-	byID := make(map[agent.ID]agent.Agent, len(agents))
 	known := make(map[string]agent.Agent, len(agents))
 	for _, a := range agents {
-		byID[a.ID()] = a
 		known[a.ID().String()] = a
 	}
 
 	var chosen []agent.Agent
 	if len(cmd.Agents) > 0 {
+		seen := map[string]bool{}
 		for _, id := range cmd.Agents {
 			a, ok := known[id]
 			if !ok {
 				return nil, domain.Errorf("agente %q desconocido; consulta skilus agents: %w", id, domain.ErrNotFound)
 			}
+			if seen[id] {
+				continue
+			}
+			seen[id] = true
 			chosen = append(chosen, a)
 		}
 	} else {
@@ -232,18 +248,64 @@ func (h AddSkillHandler) targets(ctx context.Context, cmd AddSkill, mode agent.M
 		}
 	}
 
-	raw := make([]agent.Target, 0, len(chosen))
-	for _, a := range chosen {
-		raw = append(raw, agent.Target{Agent: a.ID(), Scope: cmd.Scope, Mode: mode})
-	}
 	var out []PlannedTarget
-	for _, t := range agent.Dedupe(raw, byID) {
-		out = append(out, PlannedTarget{Target: t, Dir: skillsDir(byID[t.Agent], t.Scope, h.ProjectRoot)})
+	for _, g := range agent.GroupByDir(chosen, cmd.Scope) {
+		first := g.Agents[0]
+		out = append(out, PlannedTarget{
+			Target: agent.Target{Agent: first.ID(), Scope: cmd.Scope, Mode: mode},
+			Dir:    skillsDir(first, cmd.Scope, h.ProjectRoot),
+			Agents: g.Agents,
+		})
 	}
 	if len(out) == 0 {
 		return nil, domain.Errorf("no hay ningún agente elegido ni detectado; usa --agent: %w", domain.ErrInvalid)
 	}
 	return out, nil
+}
+
+// chooseSkills returns the names of the skills to install: those of the
+// command or, when it names none and the source has several, the user's
+// choice. Empty means every skill.
+func (h AddSkillHandler) chooseSkills(ctx context.Context, cmd AddSkill, fetched Fetched) ([]string, error) {
+	if len(cmd.Skills) > 0 || h.Chooser == nil || len(fetched.Skills) < 2 {
+		return cmd.Skills, nil
+	}
+	pkgs := make([]skill.Package, len(fetched.Skills))
+	for i, s := range fetched.Skills {
+		pkgs[i] = s.Package
+	}
+	chosen, err := h.Chooser.ChooseSkills(ctx, fetched.Source, fetched.Commit, pkgs)
+	if err != nil {
+		return nil, err
+	}
+	if len(chosen) == 0 {
+		return nil, domain.Errorf("no has elegido ninguna skill: %w", ErrCancelled)
+	}
+	names := make([]string, len(chosen))
+	for i, n := range chosen {
+		names[i] = n.String()
+	}
+	return names, nil
+}
+
+// chooseTargets lets the user narrow the detected agents when the command
+// names none and there is more than one directory to choose from.
+func (h AddSkillHandler) chooseTargets(ctx context.Context, cmd AddSkill, targets []PlannedTarget) ([]PlannedTarget, error) {
+	if len(cmd.Agents) > 0 || h.Chooser == nil || len(targets) < 2 {
+		return targets, nil
+	}
+	all, err := h.Catalog.Agents(ctx)
+	if err != nil {
+		return nil, domain.Errorf("cargar el catálogo de agentes: %w", err)
+	}
+	chosen, err := h.Chooser.ChooseTargets(ctx, targets, len(all))
+	if err != nil {
+		return nil, err
+	}
+	if len(chosen) == 0 {
+		return nil, domain.Errorf("no has elegido ningún agente: %w", ErrCancelled)
+	}
+	return chosen, nil
 }
 
 // recordedSource keeps project files portable: a local source inside the

@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, AGENT_ROWS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: '概览', lead: '面向 AI 智能体的技能管理器：固定到提交、计算内容哈希，并在安装前检查。', blocks: [
     p('skilus 是面向 AI 智能体的技能（`SKILL.md`）管理器，以单个 Go 二进制文件发布。它可以从 Git、ZIP 或 tar.gz 压缩包或本地目录安装技能，并部署到你已安装的智能体中。'),
@@ -7,7 +7,7 @@ export default {
     p('技能是智能体会以你的权限执行的指令和脚本。skilus 保证安装的内容与审阅过的内容完全一致：'),
     ul('**固定到提交。** 每个 Git 技能都在 `skilus.lock` 中锁定到确切的提交。', '**内容哈希。** 记录内容的 SHA-256，`skilus verify` 可检测任何改动。', '**先检查。** 安装前会查找越界的符号链接、可执行文件、`curl … | sh`、凭据访问和不可见文本。', '**不保存令牌。** 使用系统 `git` 的凭据，并拒绝包含密码的 URL。'),
     h2('agents', '支持的智能体'),
-    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', '`.agents/skills`'),
+    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', 'Gemini CLI', 'Windsurf', '以及其他 68 个'),
     p('运行 `skilus agents` 查看它们的路径以及哪些已安装。你可以在[智能体与依赖](agents)中添加其他智能体。'),
     h2('how', '工作原理'),
     table(['文件', '内容'], [
@@ -88,6 +88,8 @@ export default {
     ]),
     h2('discovery', '在哪里查找技能'),
     p('`skilus add` 会读取根目录含 `SKILL.md` 的单个技能，或在 `skills/<名称>/`、`skills/.curated/<名称>/`（如 openai/skills）或 `<名称>/` 中包含技能的目录。集合中无法读取的技能会显示为已跳过，不影响其余技能的安装。'),
+    h2('choose', '选择技能和智能体'),
+    p('在终端中，如果没有 `--skill`，`add` 会列出来源中的技能，供你勾选要安装的（初始全部勾选）。如果没有 `--agent`，它会列出本机已安装的智能体，并把共用同一目录的合并为一个选项：在项目中，Codex、Cursor、Gemini CLI 等都使用 `.agents/skills`。用方向键移动，空格勾选，→ 全选，← 全不选，输入即可筛选，回车确认，Esc 取消。使用 `-y` 或不在终端中时不会询问：所有技能会安装到所有检测到的智能体。'),
     h2('options', '常用选项'),
     code('skilus add ./my-skills --skill review -y\nskilus add ./my-skills --agent claude-code --scope global'),
     ul('`--skill` 从集合中选择特定技能。', '`--agent` 限定目标智能体。', '`--scope global` 安装到 `~/.skilus/`，以指向存储的符号链接形式。', '`-y` / `--yes` 跳过确认；可执行文件还需要 `--allow-scripts`。'),
@@ -203,6 +205,9 @@ export default {
     ul('索引结果优先显示。', '有 `trust:` 列表时，每个结果会标明其来源是否可信。', '某个来源无响应时会给出警告，并显示其余结果。', '`--no-registry` 只保留索引；`SKILUS_REGISTRY_URL` 指向另一个兼容服务器（仅限 https）。'),
   ] },
   agents: { title: '智能体与依赖', lead: '添加 skilus 未内置的智能体，并声明依赖其他技能的技能。', blocks: [
+    h2('supported', '支持的智能体'),
+    p('skilus 可安装到这 74 个智能体。在 `--agent` 或配置档的 `agents:` 中使用它们的 id。在项目中，共用目录的智能体只会得到一份技能副本，锁文件记录第一个。部分全局路径会随 `XDG_CONFIG_HOME`、`CLAUDE_CONFIG_DIR` 或 `CODEX_HOME` 等环境变量变化；`skilus agents` 会显示你电脑上的实际路径。'),
+    table(['id', '智能体', '项目'], AGENT_ROWS),
     h2('custom-agents', '自定义智能体'),
     p('按照内置目录（`internal/adapter/catalog/agents.yaml`）的格式创建 `~/.skilus/agents.yaml`。已存在的 id 会替换该智能体；新的 id 会追加到末尾。'),
     code(AGENTS, 'yaml'),
@@ -214,7 +219,7 @@ export default {
   ] },
   faq: { title: '常见问题', lead: '常见问题的快速解答。', blocks: [
     faq(
-      ['支持哪些智能体？', 'Claude Code、Codex、Cursor、GitHub Copilot 和 `.agents/skills`。你可以在 `~/.skilus/agents.yaml` 中添加其他智能体。'],
+      ['支持哪些智能体？', '74 个智能体，包括 Claude Code、Codex、Cursor、GitHub Copilot、Gemini CLI 和 Windsurf；`skilus agents` 会全部列出。你可以在 `~/.skilus/agents.yaml` 中添加其他智能体。'],
       ['需要 git 吗？', '仅 Git 来源需要。本地目录和 ZIP 或 tar.gz 压缩包不需要。'],
       ['skilus 会保存我的令牌吗？', '不会。它使用系统 `git` 的凭据、SSH 密钥和 helper，并拒绝包含密码的 URL。'],
       ['为什么项目中用副本，全局用符号链接？', '在项目中，副本可以与代码一起纳入版本控制；在全局范围，指向存储的符号链接可避免内容重复。'],

@@ -32,7 +32,7 @@ func styleFor(cmd *cobra.Command, w io.Writer) style {
 	var st style
 	st.full, _ = cmd.Flags().GetBool("full")
 	f, ok := w.(*os.File)
-	if !ok || !term.IsTerminal(int(f.Fd())) {
+	if !ok || !isTerminal(f) {
 		return st
 	}
 	if width, _, err := term.GetSize(int(f.Fd())); err == nil && width > 0 {
@@ -43,6 +43,9 @@ func styleFor(cmd *cobra.Command, w io.Writer) style {
 	st.color = !noColor && !noColorEnv && os.Getenv("TERM") != "dumb" && enableColor(f)
 	return st
 }
+
+// isTerminal reports whether f is a terminal.
+func isTerminal(f *os.File) bool { return term.IsTerminal(int(f.Fd())) }
 
 func (st style) paint(code, s string) string {
 	if !st.color || s == "" {

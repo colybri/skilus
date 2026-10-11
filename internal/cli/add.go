@@ -45,7 +45,11 @@ una skill (con SKILL.md en su raíz) o skills en skills/<nombre>/ o
 			c.Source, c.Scope, c.Mode, c.AllowScripts = args[0], s, agent.Mode(mode), allowScripts
 
 			out := cmd.OutOrStdout()
-			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t, st: styleFor(cmd, out)}
+			st := styleFor(cmd, out)
+			h.Prompter = prompter{in: cmd.InOrStdin(), out: out, t: t, st: st}
+			if !c.Yes {
+				h.Chooser = newChooser(cmd.InOrStdin(), out, st, t)
+			}
 			res, err := h.Handle(cmd.Context(), c)
 			if errors.Is(err, app.ErrRejected) {
 				renderPlan(cmd.ErrOrStderr(), res.Plan, styleFor(cmd, cmd.ErrOrStderr()), t)
@@ -205,7 +209,14 @@ func renderTargets(w io.Writer, plan app.InstallPlan, st style, t *i18n.Catalog)
 	seen := map[string]bool{}
 	for _, p := range plan.All() {
 		for _, tg := range p.Targets {
-			d := fmt.Sprintf("%s (%s, %s)", clean(shortPath(tg.Dir)), tg.Target.Agent, tg.Target.Mode)
+			ids := []string{tg.Target.Agent.String()}
+			if len(tg.Agents) > 0 {
+				ids = ids[:0]
+				for _, a := range tg.Agents {
+					ids = append(ids, a.ID().String())
+				}
+			}
+			d := fmt.Sprintf("%s (%s, %s)", clean(shortPath(tg.Dir)), strings.Join(ids, ", "), tg.Target.Mode)
 			if !seen[d] {
 				seen[d] = true
 				dirs = append(dirs, d)

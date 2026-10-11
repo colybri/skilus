@@ -7,15 +7,15 @@ env XDG_CONFIG_HOME=
 cd project
 
 exec skilus agents
-! stdout windsurf
+! stdout acme
 
 cp $WORK/agents.yaml $HOME/.skilus/agents.yaml
 exec skilus agents
-stdout '^windsurf +\.windsurf/skills +.*/home/\.codeium/windsurf/skills +no$'
+stdout '^acme +\.acme/skills +.*/home/\.acme/skills +no$'
 stdout '^claude-code +\.claude/skills +.*/home/dotfiles/claude/skills '
 
-exec skilus add ./src --agent windsurf --yes
-exists .windsurf/skills/review/SKILL.md
+exec skilus add ./src --agent acme --yes
+exists .acme/skills/review/SKILL.md
 
 # A broken file is reported, not ignored.
 cp $WORK/broken.yaml $HOME/.skilus/agents.yaml
@@ -30,11 +30,11 @@ agents:
     name: Claude Code
     project_dir: .claude/skills
     global_dir: ~/dotfiles/claude/skills
-  - id: windsurf
-    name: Windsurf
-    project_dir: .windsurf/skills
-    global_dir: ~/.codeium/windsurf/skills
-    detect: ~/.codeium/windsurf
+  - id: acme
+    name: Acme
+    project_dir: .acme/skills
+    global_dir: ~/.acme/skills
+    detect: ~/.acme
 -- broken.yaml --
 version: 1
 agents:
