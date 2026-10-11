@@ -29,11 +29,89 @@ export const PROFILES = `profiles:
     skills: [systematic-debugging, web-design-guidelines]`;
 export const AGENTS = `version: 1
 agents:
-  - id: windsurf
-    name: Windsurf
-    project_dir: .windsurf/skills
-    global_dir: ~/.codeium/windsurf/skills
-    detect: ~/.codeium/windsurf`;
+  - id: acme
+    name: Acme Agent
+    project_dir: .acme/skills
+    global_dir: ~/.acme/skills
+    detect: ~/.acme`;
+// AGENT_ROWS lists the bundled agents (internal/adapter/catalog/agents.yaml);
+// a test in that package keeps both in step.
+export const AGENT_ROWS = [
+  ['`claude-code`', 'Claude Code', '`.claude/skills`'],
+  ['`codex`', 'Codex', '`.agents/skills`'],
+  ['`cursor`', 'Cursor', '`.agents/skills`'],
+  ['`github-copilot`', 'GitHub Copilot', '`.agents/skills`'],
+  ['`adal`', 'AdaL', '`.adal/skills`'],
+  ['`aider-desk`', 'AiderDesk', '`.aider-desk/skills`'],
+  ['`amp`', 'Amp', '`.agents/skills`'],
+  ['`antigravity`', 'Antigravity', '`.agents/skills`'],
+  ['`antigravity-cli`', 'Antigravity CLI', '`.agents/skills`'],
+  ['`augment`', 'Augment', '`.augment/skills`'],
+  ['`autohand-code`', 'Autohand Code CLI', '`.autohand/skills`'],
+  ['`bob`', 'IBM Bob', '`.bob/skills`'],
+  ['`cline`', 'Cline', '`.agents/skills`'],
+  ['`codearts-agent`', 'CodeArts Agent', '`.codeartsdoer/skills`'],
+  ['`codebuddy`', 'CodeBuddy', '`.codebuddy/skills`'],
+  ['`codemaker`', 'Codemaker', '`.codemaker/skills`'],
+  ['`codestudio`', 'Code Studio', '`.codestudio/skills`'],
+  ['`command-code`', 'Command Code', '`.commandcode/skills`'],
+  ['`continue`', 'Continue', '`.continue/skills`'],
+  ['`cortex`', 'Cortex Code', '`.cortex/skills`'],
+  ['`crush`', 'Crush', '`.crush/skills`'],
+  ['`deepagents`', 'Deep Agents', '`.agents/skills`'],
+  ['`devin`', 'Devin for Terminal', '`.devin/skills`'],
+  ['`dexto`', 'Dexto', '`.agents/skills`'],
+  ['`droid`', 'Droid', '`.agents/skills`'],
+  ['`firebender`', 'Firebender', '`.agents/skills`'],
+  ['`forgecode`', 'ForgeCode', '`.forge/skills`'],
+  ['`fx`', 'fx', '`.agents/skills`'],
+  ['`gemini-cli`', 'Gemini CLI', '`.agents/skills`'],
+  ['`goose`', 'Goose', '`.goose/skills`'],
+  ['`grok`', 'Grok Build', '`.grok/skills`'],
+  ['`hermes-agent`', 'Hermes Agent', '`.hermes/skills`'],
+  ['`iflow-cli`', 'iFlow CLI', '`.iflow/skills`'],
+  ['`inference-sh`', 'inference.sh', '`.inferencesh/skills`'],
+  ['`jazz`', 'Jazz', '`.jazz/skills`'],
+  ['`junie`', 'Junie', '`.junie/skills`'],
+  ['`kilo`', 'Kilo Code', '`.agents/skills`'],
+  ['`kimchi`', 'Kimchi', '`.kimchi/skills`'],
+  ['`kimi-code-cli`', 'Kimi Code CLI', '`.agents/skills`'],
+  ['`kiro-cli`', 'Kiro CLI', '`.kiro/skills`'],
+  ['`kode`', 'Kode', '`.kode/skills`'],
+  ['`lingma`', 'Lingma', '`.lingma/skills`'],
+  ['`loaf`', 'Loaf', '`.agents/skills`'],
+  ['`mcpjam`', 'MCPJam', '`.mcpjam/skills`'],
+  ['`minimax-code`', 'MiniMax Code', '`.minimax/skills`'],
+  ['`mistral-vibe`', 'Mistral Vibe', '`.vibe/skills`'],
+  ['`moxby`', 'Moxby', '`.moxby/skills`'],
+  ['`mux`', 'Mux', '`.mux/skills`'],
+  ['`neovate`', 'Neovate', '`.neovate/skills`'],
+  ['`ona`', 'Ona', '`.ona/skills`'],
+  ['`openclaw`', 'OpenClaw', '`skills`'],
+  ['`opencode`', 'OpenCode', '`.agents/skills`'],
+  ['`openhands`', 'OpenHands', '`.openhands/skills`'],
+  ['`pi`', 'Pi', '`.agents/skills`'],
+  ['`pochi`', 'Pochi', '`.pochi/skills`'],
+  ['`posit-assistant`', 'Posit Assistant', '`.posit/assistant/skills`'],
+  ['`qoder`', 'Qoder', '`.qoder/skills`'],
+  ['`qoder-cn`', 'Qoder CN', '`.qoder/skills`'],
+  ['`qwen-code`', 'Qwen Code', '`.qwen/skills`'],
+  ['`reasonix`', 'Reasonix', '`.reasonix/skills`'],
+  ['`roo`', 'Roo Code', '`.roo/skills`'],
+  ['`rovodev`', 'Rovo Dev', '`.rovodev/skills`'],
+  ['`sarvam-code`', 'Sarvam Code', '`.agents/skills`'],
+  ['`tabnine-cli`', 'Tabnine CLI', '`.tabnine/agent/skills`'],
+  ['`terramind`', 'Terramind', '`.terramind/skills`'],
+  ['`tinycloud`', 'Tinycloud', '`.tinycloud/skills`'],
+  ['`trae`', 'Trae', '`.trae/skills`'],
+  ['`trae-cn`', 'Trae CN', '`.trae/skills`'],
+  ['`warp`', 'Warp', '`.agents/skills`'],
+  ['`windsurf`', 'Windsurf', '`.windsurf/skills`'],
+  ['`zcode`', 'ZCode', '`.zcode/skills`'],
+  ['`zed`', 'Zed', '`.agents/skills`'],
+  ['`zencoder`', 'Zencoder', '`.zencoder/skills`'],
+  ['`zenflow`', 'Zenflow', '`.zencoder/skills`'],
+];
 export const REQUIRES = (d) => `---
 name: report
 description: ${d}

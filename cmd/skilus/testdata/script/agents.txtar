@@ -1,4 +1,4 @@
-# skilus agents lists the phase-1 catalog and detects installed agents.
+# skilus agents lists the catalog and detects installed agents.
 [windows] skip 'HOME layout differs on Windows'
 env HOME=$WORK/home
 env CLAUDE_CONFIG_DIR=
@@ -12,7 +12,8 @@ stdout '^claude-code +\.claude/skills +.*home/\.claude/skills +sí$'
 stdout '^codex +\.agents/skills +.*home/\.agents/skills +no$'
 stdout '^cursor +\.agents/skills +.*home/\.cursor/skills +sí$'
 stdout '^github-copilot +\.agents/skills +.*home/\.copilot/skills +no$'
-stdout '^universal +\.agents/skills +.*home/\.config/agents/skills +sí$'
+stdout '^windsurf +\.windsurf/skills +.*home/\.codeium/windsurf/skills +no$'
+! stdout '^universal '
 ! stderr .
 
 exec skilus agents --json

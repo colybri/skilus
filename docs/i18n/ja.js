@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, AGENT_ROWS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: '概要', lead: 'AI エージェント向けのスキルマネージャー。コミットに固定し、内容をハッシュ化し、インストール前に検査します。', blocks: [
     p('skilus は AI エージェント向けスキル（`SKILL.md`）のマネージャーで、単一の Go バイナリとして配布されます。Git、ZIP・tar.gz アーカイブ、ローカルディレクトリからスキルをインストールし、インストール済みのエージェントに配置します。'),
@@ -7,7 +7,7 @@ export default {
     p('スキルは、エージェントがあなたの権限で実行する指示とスクリプトです。skilus は、インストールされるものがレビューしたものと完全に一致することを保証します。'),
     ul('**コミットに固定。** すべての Git スキルは `skilus.lock` で正確なコミットに固定されます。', '**内容ハッシュ。** 内容の SHA-256 を記録し、`skilus verify` があらゆる変更を検出します。', '**事前検査。** インストール前に、外部を指すシンボリックリンク、実行ファイル、`curl … | sh`、認証情報へのアクセス、不可視テキストを調べます。', '**トークンを保存しない。** システムの `git` の認証情報を使い、パスワード付き URL は拒否します。'),
     h2('agents', '対応エージェント'),
-    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', '`.agents/skills`'),
+    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', 'Gemini CLI', 'Windsurf', 'ほか 68 個'),
     p('`skilus agents` を実行すると、各パスとインストール状況を確認できます。他のエージェントは[エージェントと依存関係](agents)で追加できます。'),
     h2('how', '仕組み'),
     table(['ファイル', '内容'], [
@@ -88,6 +88,8 @@ export default {
     ]),
     h2('discovery', 'スキルの探索場所'),
     p('`skilus add` はルートに `SKILL.md` がある単一スキル、または `skills/<名前>/`、`skills/.curated/<名前>/`（openai/skills など）、`<名前>/` にスキルを含むディレクトリを読み込みます。コレクション内の読み取れないスキルはスキップとして表示され、他のスキルのインストールは妨げません。'),
+    h2('choose', 'スキルとエージェントの選択'),
+    p('ターミナルでは、`--skill` を指定しないと `add` がソースのスキルを一覧表示し、インストールするものを選べます（最初はすべて選択済み）。`--agent` を指定しないと、このマシンにインストールされているエージェントを一覧表示し、同じフォルダーを使うものは 1 つの選択肢にまとめます。プロジェクトでは Codex、Cursor、Gemini CLI などが `.agents/skills` を使います。矢印キーで移動、スペースで選択、→ ですべて、← でなし、入力で絞り込み、Enter で決定、Esc で中止します。`-y` を付けたときやターミナル外では質問せず、すべてのスキルを検出されたすべてのエージェントにインストールします。'),
     h2('options', '便利なオプション'),
     code('skilus add ./my-skills --skill review -y\nskilus add ./my-skills --agent claude-code --scope global'),
     ul('`--skill` でコレクションから特定のスキルを選択。', '`--agent` で対象エージェントを限定。', '`--scope global` で `~/.skilus/` にストアへのシンボリックリンクとしてインストール。', '`-y` / `--yes` で確認を省略。実行ファイルには追加で `--allow-scripts` が必要です。'),
@@ -203,6 +205,9 @@ export default {
     ul('インデックスの結果が先に表示されます。', '`trust:` リストがあれば、各結果に取得元が信頼できるかが表示されます。', '応答しない取得元があれば警告し、残りを表示します。', '`--no-registry` でインデックスのみに限定。`SKILUS_REGISTRY_URL` で別の互換サーバー（https のみ）を指定できます。'),
   ] },
   agents: { title: 'エージェントと依存関係', lead: 'skilus に含まれないエージェントを追加し、他のスキルに依存するスキルを宣言します。', blocks: [
+    h2('supported', '対応エージェント'),
+    p('skilus はこれら 74 個のエージェントにインストールします。id は `--agent` やプロファイルの `agents:` で使います。プロジェクトでは、同じフォルダーを使うエージェントにはスキルのコピーが 1 つだけ置かれ、ロックには最初のエージェントが記録されます。一部のグローバルパスは `XDG_CONFIG_HOME`、`CLAUDE_CONFIG_DIR`、`CODEX_HOME` などの環境変数に従います。実際のパスは `skilus agents` で確認できます。'),
+    table(['id', 'エージェント', 'プロジェクト'], AGENT_ROWS),
     h2('custom-agents', 'カスタムエージェント'),
     p('同梱カタログ（`internal/adapter/catalog/agents.yaml`）の形式で `~/.skilus/agents.yaml` を作成します。既存の id はそのエージェントを置き換え、新しい id は末尾に追加されます。'),
     code(AGENTS, 'yaml'),
@@ -214,7 +219,7 @@ export default {
   ] },
   faq: { title: 'よくある質問', lead: 'よくある質問への簡潔な回答。', blocks: [
     faq(
-      ['対応しているエージェントは？', 'Claude Code、Codex、Cursor、GitHub Copilot、`.agents/skills` です。他のエージェントは `~/.skilus/agents.yaml` で追加できます。'],
+      ['対応しているエージェントは？', 'Claude Code、Codex、Cursor、GitHub Copilot、Gemini CLI、Windsurf を含む 74 個のエージェントです。`skilus agents` ですべて表示できます。他のエージェントは `~/.skilus/agents.yaml` で追加できます。'],
       ['git は必要ですか？', 'Git ソースの場合のみです。ローカルディレクトリや ZIP・tar.gz アーカイブには不要です。'],
       ['skilus はトークンを保存しますか？', 'いいえ。システムの `git` の認証情報、SSH 鍵、ヘルパーを使い、パスワード付き URL は拒否します。'],
       ['なぜプロジェクトではコピー、グローバルではシンボリックリンクなのですか？', 'プロジェクトではコピーにすることでコードと一緒にバージョン管理でき、グローバルではストアへのシンボリックリンクで内容の重複を避けられます。'],

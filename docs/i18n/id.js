@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, AGENT_ROWS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: 'Ikhtisar', lead: 'Pengelola skill untuk agen AI: dipatok ke sebuah commit, di-hash isinya, dan diperiksa sebelum dipasang.', blocks: [
     p('skilus adalah pengelola skill (`SKILL.md`) untuk agen AI, didistribusikan sebagai satu biner Go. Ia memasang skill dari Git, dari arsip ZIP atau tar.gz, atau dari direktori lokal, lalu menerapkannya ke agen yang terpasang di komputer Anda.'),
@@ -7,7 +7,7 @@ export default {
     p('Skill adalah instruksi dan skrip yang akan dijalankan agen Anda dengan izin Anda. skilus menjamin bahwa yang terpasang persis sama dengan yang sudah ditinjau:'),
     ul('**Dipatok ke commit.** Setiap skill Git dikunci ke commit persisnya di `skilus.lock`.', '**Hash isi.** SHA-256 dari isinya disimpan dan `skilus verify` mendeteksi setiap perubahan.', '**Diperiksa lebih dulu.** Sebelum memasang, ia mencari symlink yang keluar, file executable, `curl … | sh`, akses ke kredensial, dan teks tak terlihat.', '**Tanpa token.** Ia memakai kredensial `git` sistem dan menolak URL yang berisi kata sandi.'),
     h2('agents', 'Agen yang didukung'),
-    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', '`.agents/skills`'),
+    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', 'Gemini CLI', 'Windsurf', 'dan 68 lainnya'),
     p('Jalankan `skilus agents` untuk melihat path masing-masing dan mana yang terpasang. Anda bisa menambahkan agen lain di [Agen dan dependensi](agents).'),
     h2('how', 'Cara kerjanya'),
     table(['File', 'Isi'], [
@@ -88,6 +88,8 @@ export default {
     ]),
     h2('discovery', 'Tempat mencari skill'),
     p('`skilus add` membaca satu skill dengan `SKILL.md` di root, atau direktori berisi skill di `skills/<nama>/`, `skills/.curated/<nama>/` (seperti openai/skills), atau `<nama>/`. Skill yang tidak terbaca di dalam koleksi ditampilkan sebagai dilewati dan tidak menghalangi yang lain.'),
+    h2('choose', 'Memilih skill dan agen'),
+    p('Di terminal, tanpa `--skill`, `add` menampilkan skill dari sumber agar Anda menandai yang akan dipasang (semua tertanda di awal). Tanpa `--agent`, ia menampilkan agen yang terpasang di komputer Anda dan menggabungkan agen yang berbagi folder menjadi satu opsi: di proyek, Codex, Cursor, Gemini CLI, dan lainnya memakai `.agents/skills`. Bergerak dengan panah, tandai dengan spasi, → menandai semua, ← tidak ada, mengetik memfilter, enter menerima, dan Esc membatalkan. Dengan `-y` atau di luar terminal tidak ada pertanyaan: semua skill dipasang di semua agen yang terdeteksi.'),
     h2('options', 'Opsi berguna'),
     code('skilus add ./my-skills --skill review -y\nskilus add ./my-skills --agent claude-code --scope global'),
     ul('`--skill` memilih skill tertentu dari koleksi.', '`--agent` membatasi agen tujuan.', '`--scope global` memasang ke `~/.skilus/` sebagai symlink ke penyimpanan.', '`-y` / `--yes` tanpa bertanya; executable juga memerlukan `--allow-scripts`.'),
@@ -203,6 +205,9 @@ export default {
     ul('Hasil dari indeks muncul lebih dulu.', 'Dengan daftar `trust:`, setiap hasil menyebutkan apakah sumbernya tepercaya.', 'Jika sebuah sumber tidak merespons, muncul peringatan dan sisanya tetap ditampilkan.', '`--no-registry` hanya menyisakan indeks; `SKILUS_REGISTRY_URL` menunjuk ke server lain yang kompatibel (hanya https).'),
   ] },
   agents: { title: 'Agen dan dependensi', lead: 'Tambahkan agen yang tidak dibawa skilus dan deklarasikan skill yang bergantung pada skill lain.', blocks: [
+    h2('supported', 'Agen yang didukung'),
+    p('skilus memasang ke 74 agen ini. Gunakan id-nya dengan `--agent` atau di `agents:` sebuah profil. Di proyek, agen yang berbagi folder mendapat satu salinan skill dan lock mencatat yang pertama. Beberapa path global mengikuti variabel lingkungan seperti `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR`, atau `CODEX_HOME`; `skilus agents` menampilkan path di komputer Anda.'),
+    table(['id', 'Agen', 'Proyek'], AGENT_ROWS),
     h2('custom-agents', 'Agen kustom'),
     p('Buat `~/.skilus/agents.yaml` dengan format katalog bawaan (`internal/adapter/catalog/agents.yaml`). id yang sudah ada menggantikan agen tersebut; id baru ditambahkan di akhir.'),
     code(AGENTS, 'yaml'),
@@ -214,7 +219,7 @@ export default {
   ] },
   faq: { title: 'FAQ', lead: 'Jawaban singkat untuk pertanyaan yang paling sering muncul.', blocks: [
     faq(
-      ['Agen apa saja yang didukung?', 'Claude Code, Codex, Cursor, GitHub Copilot, dan `.agents/skills`. Anda bisa menambahkan yang lain di `~/.skilus/agents.yaml`.'],
+      ['Agen apa saja yang didukung?', '74 agen, termasuk Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, dan Windsurf; `skilus agents` menampilkan semuanya. Anda bisa menambahkan yang lain di `~/.skilus/agents.yaml`.'],
       ['Apakah saya perlu git?', 'Hanya untuk sumber Git. Direktori lokal serta arsip ZIP atau tar.gz tidak memerlukannya.'],
       ['Apakah skilus menyimpan token saya?', 'Tidak. Ia memakai kredensial, kunci SSH, dan helper `git` sistem, serta menolak URL dengan kata sandi.'],
       ['Mengapa salinan di proyek dan symlink di global?', 'Di proyek, salinan memungkinkan skill diversikan bersama kode Anda; di global, symlink ke penyimpanan menghindari duplikasi isi.'],

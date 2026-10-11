@@ -47,18 +47,25 @@ type Target struct {
 	Mode  Mode
 }
 
-// Dedupe removes targets that resolve to the same directory and scope as an
-// earlier one (several agents share .agents/skills), keeping the first.
-func Dedupe(targets []Target, agents map[ID]Agent) []Target {
-	seen := make(map[string]bool, len(targets))
-	out := make([]Target, 0, len(targets))
-	for _, t := range targets {
-		key := string(t.Scope) + "|" + agents[t.Agent].Dir(t.Scope)
-		if seen[key] {
+// Group is the agents that read one skills directory.
+type Group struct {
+	Dir    string
+	Agents []Agent
+}
+
+// GroupByDir groups the agents that read the same skills directory in
+// scope (several share .agents/skills in a project), keeping their order.
+func GroupByDir(agents []Agent, scope Scope) []Group {
+	var out []Group
+	index := make(map[string]int, len(agents))
+	for _, a := range agents {
+		dir := a.Dir(scope)
+		if i, ok := index[dir]; ok {
+			out[i].Agents = append(out[i].Agents, a)
 			continue
 		}
-		seen[key] = true
-		out = append(out, t)
+		index[dir] = len(out)
+		out = append(out, Group{Dir: dir, Agents: []Agent{a}})
 	}
 	return out
 }

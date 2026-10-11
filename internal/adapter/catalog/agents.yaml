@@ -1,8 +1,10 @@
 # Agents supported by skilus. Paths use ${VAR:-default} and a leading ~ for
 # the user's home directory. project_dir is relative to the project root.
-# Sources checked on 2026-10-08 against vercel-labs/skills src/agents.ts
-# (commit 05bf938). Codex, Cursor and Copilot all read .agents/skills in a
-# project, so a project install writes that directory once.
+# Taken from vercel-labs/skills src/agents.ts (MIT, commit 13e4063). Left
+# out: agents detected only from the current project (AstrBot, Eve,
+# PromptScript, Replit) and the generic .agents/skills entry. Agents that
+# share a directory are installed there once; the first one listed is the
+# one recorded in the lock.
 version: 1
 agents:
   - id: claude-code
@@ -25,8 +27,353 @@ agents:
     project_dir: .agents/skills
     global_dir: ~/.copilot/skills
     detect: ~/.copilot
-  - id: universal
-    name: .agents/skills (universal)
+  - id: adal
+    name: AdaL
+    project_dir: .adal/skills
+    global_dir: ~/.adal/skills
+    detect: ~/.adal
+  - id: aider-desk
+    name: AiderDesk
+    project_dir: .aider-desk/skills
+    global_dir: ~/.aider-desk/skills
+    detect: ~/.aider-desk
+  - id: amp
+    name: Amp
     project_dir: .agents/skills
     global_dir: ${XDG_CONFIG_HOME:-~/.config}/agents/skills
-    detect: ""
+    detect: ${XDG_CONFIG_HOME:-~/.config}/amp
+  - id: antigravity
+    name: Antigravity
+    project_dir: .agents/skills
+    global_dir: ~/.gemini/antigravity/skills
+    detect: ~/.gemini/antigravity
+  - id: antigravity-cli
+    name: Antigravity CLI
+    project_dir: .agents/skills
+    global_dir: ~/.gemini/antigravity-cli/skills
+    detect: ~/.gemini/antigravity-cli
+  - id: augment
+    name: Augment
+    project_dir: .augment/skills
+    global_dir: ~/.augment/skills
+    detect: ~/.augment
+  - id: autohand-code
+    name: Autohand Code CLI
+    project_dir: .autohand/skills
+    global_dir: ${AUTOHAND_HOME:-~/.autohand}/skills
+    detect: ${AUTOHAND_HOME:-~/.autohand}
+  - id: bob
+    name: IBM Bob
+    project_dir: .bob/skills
+    global_dir: ~/.bob/skills
+    detect: ~/.bob
+  - id: cline
+    name: Cline
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ~/.cline
+  - id: codearts-agent
+    name: CodeArts Agent
+    project_dir: .codeartsdoer/skills
+    global_dir: ~/.codeartsdoer/skills
+    detect: ~/.codeartsdoer
+  - id: codebuddy
+    name: CodeBuddy
+    project_dir: .codebuddy/skills
+    global_dir: ~/.codebuddy/skills
+    detect: ~/.codebuddy
+  - id: codemaker
+    name: Codemaker
+    project_dir: .codemaker/skills
+    global_dir: ~/.codemaker/skills
+    detect: ~/.codemaker
+  - id: codestudio
+    name: Code Studio
+    project_dir: .codestudio/skills
+    global_dir: ~/.codestudio/skills
+    detect: ~/.codestudio
+  - id: command-code
+    name: Command Code
+    project_dir: .commandcode/skills
+    global_dir: ~/.commandcode/skills
+    detect: ~/.commandcode
+  - id: continue
+    name: Continue
+    project_dir: .continue/skills
+    global_dir: ~/.continue/skills
+    detect: ~/.continue
+  - id: cortex
+    name: Cortex Code
+    project_dir: .cortex/skills
+    global_dir: ~/.snowflake/cortex/skills
+    detect: ~/.snowflake/cortex
+  - id: crush
+    name: Crush
+    project_dir: .crush/skills
+    global_dir: ~/.config/crush/skills
+    detect: ~/.config/crush
+  - id: deepagents
+    name: Deep Agents
+    project_dir: .agents/skills
+    global_dir: ~/.deepagents/agent/skills
+    detect: ~/.deepagents
+  - id: devin
+    name: Devin for Terminal
+    project_dir: .devin/skills
+    global_dir: ${XDG_CONFIG_HOME:-~/.config}/devin/skills
+    detect: ${XDG_CONFIG_HOME:-~/.config}/devin
+  - id: dexto
+    name: Dexto
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ~/.dexto
+  - id: droid
+    name: Droid
+    project_dir: .agents/skills
+    global_dir: ~/.factory/skills
+    detect: ~/.factory
+  - id: firebender
+    name: Firebender
+    project_dir: .agents/skills
+    global_dir: ~/.firebender/skills
+    detect: ~/.firebender
+  - id: forgecode
+    name: ForgeCode
+    project_dir: .forge/skills
+    global_dir: ~/.forge/skills
+    detect: ~/.forge
+  - id: fx
+    name: fx
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ~/.fx
+  - id: gemini-cli
+    name: Gemini CLI
+    project_dir: .agents/skills
+    global_dir: ~/.gemini/skills
+    detect: ~/.gemini
+  - id: goose
+    name: Goose
+    project_dir: .goose/skills
+    global_dir: ${XDG_CONFIG_HOME:-~/.config}/goose/skills
+    detect: ${XDG_CONFIG_HOME:-~/.config}/goose
+  - id: grok
+    name: Grok Build
+    project_dir: .grok/skills
+    global_dir: ${GROK_HOME:-~/.grok}/skills
+    detect: ${GROK_HOME:-~/.grok}
+  - id: hermes-agent
+    name: Hermes Agent
+    project_dir: .hermes/skills
+    global_dir: ${HERMES_HOME:-~/.hermes}/skills
+    detect: ${HERMES_HOME:-~/.hermes}
+  - id: iflow-cli
+    name: iFlow CLI
+    project_dir: .iflow/skills
+    global_dir: ~/.iflow/skills
+    detect: ~/.iflow
+  - id: inference-sh
+    name: inference.sh
+    project_dir: .inferencesh/skills
+    global_dir: ~/.inferencesh/skills
+    detect: ~/.inferencesh
+  - id: jazz
+    name: Jazz
+    project_dir: .jazz/skills
+    global_dir: ~/.jazz/skills
+    detect: ~/.jazz
+  - id: junie
+    name: Junie
+    project_dir: .junie/skills
+    global_dir: ~/.junie/skills
+    detect: ~/.junie
+  - id: kilo
+    name: Kilo Code
+    project_dir: .agents/skills
+    global_dir: ~/.kilo/skills
+    detect: ~/.kilo
+  - id: kimchi
+    name: Kimchi
+    project_dir: .kimchi/skills
+    global_dir: ~/.config/kimchi/harness/skills
+    detect: ~/.config/kimchi
+  - id: kimi-code-cli
+    name: Kimi Code CLI
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ~/.kimi-code
+  - id: kiro-cli
+    name: Kiro CLI
+    project_dir: .kiro/skills
+    global_dir: ~/.kiro/skills
+    detect: ~/.kiro
+  - id: kode
+    name: Kode
+    project_dir: .kode/skills
+    global_dir: ~/.kode/skills
+    detect: ~/.kode
+  - id: lingma
+    name: Lingma
+    project_dir: .lingma/skills
+    global_dir: ~/.lingma/skills
+    detect: ~/.lingma
+  - id: loaf
+    name: Loaf
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ~/.loaf
+  - id: mcpjam
+    name: MCPJam
+    project_dir: .mcpjam/skills
+    global_dir: ~/.mcpjam/skills
+    detect: ~/.mcpjam
+  - id: minimax-code
+    name: MiniMax Code
+    project_dir: .minimax/skills
+    global_dir: ~/.minimax/skills
+    detect: ~/.minimax
+  - id: mistral-vibe
+    name: Mistral Vibe
+    project_dir: .vibe/skills
+    global_dir: ${VIBE_HOME:-~/.vibe}/skills
+    detect: ${VIBE_HOME:-~/.vibe}
+  - id: moxby
+    name: Moxby
+    project_dir: .moxby/skills
+    global_dir: ~/.moxby/skills
+    detect: ~/.moxby
+  - id: mux
+    name: Mux
+    project_dir: .mux/skills
+    global_dir: ~/.mux/skills
+    detect: ~/.mux
+  - id: neovate
+    name: Neovate
+    project_dir: .neovate/skills
+    global_dir: ~/.neovate/skills
+    detect: ~/.neovate
+  - id: ona
+    name: Ona
+    project_dir: .ona/skills
+    global_dir: ~/.ona/skills
+    detect: ~/.ona
+  - id: openclaw
+    name: OpenClaw
+    project_dir: skills
+    global_dir: ~/.openclaw/skills
+    detect: ~/.openclaw
+  - id: opencode
+    name: OpenCode
+    project_dir: .agents/skills
+    global_dir: ${XDG_CONFIG_HOME:-~/.config}/opencode/skills
+    detect: ${XDG_CONFIG_HOME:-~/.config}/opencode
+  - id: openhands
+    name: OpenHands
+    project_dir: .openhands/skills
+    global_dir: ~/.openhands/skills
+    detect: ~/.openhands
+  - id: pi
+    name: Pi
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ~/.pi/agent
+  - id: pochi
+    name: Pochi
+    project_dir: .pochi/skills
+    global_dir: ~/.pochi/skills
+    detect: ~/.pochi
+  - id: posit-assistant
+    name: Posit Assistant
+    project_dir: .posit/assistant/skills
+    global_dir: ~/.posit/assistant/skills
+    detect: ~/.posit/assistant
+  - id: qoder
+    name: Qoder
+    project_dir: .qoder/skills
+    global_dir: ~/.qoder/skills
+    detect: ~/.qoder
+  - id: qoder-cn
+    name: Qoder CN
+    project_dir: .qoder/skills
+    global_dir: ~/.qoder-cn/skills
+    detect: ~/.qoder-cn
+  - id: qwen-code
+    name: Qwen Code
+    project_dir: .qwen/skills
+    global_dir: ~/.qwen/skills
+    detect: ~/.qwen
+  - id: reasonix
+    name: Reasonix
+    project_dir: .reasonix/skills
+    global_dir: ~/.reasonix/skills
+    detect: ~/.reasonix
+  - id: roo
+    name: Roo Code
+    project_dir: .roo/skills
+    global_dir: ~/.roo/skills
+    detect: ~/.roo
+  - id: rovodev
+    name: Rovo Dev
+    project_dir: .rovodev/skills
+    global_dir: ~/.rovodev/skills
+    detect: ~/.rovodev
+  - id: sarvam-code
+    name: Sarvam Code
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ${SARVAM_HOME:-~/.sarvam}
+  - id: tabnine-cli
+    name: Tabnine CLI
+    project_dir: .tabnine/agent/skills
+    global_dir: ~/.tabnine/agent/skills
+    detect: ~/.tabnine
+  - id: terramind
+    name: Terramind
+    project_dir: .terramind/skills
+    global_dir: ~/.terramind/skills
+    detect: ~/.terramind
+  - id: tinycloud
+    name: Tinycloud
+    project_dir: .tinycloud/skills
+    global_dir: ~/.tinycloud/skills
+    detect: ~/.tinycloud
+  - id: trae
+    name: Trae
+    project_dir: .trae/skills
+    global_dir: ~/.trae/skills
+    detect: ~/.trae
+  - id: trae-cn
+    name: Trae CN
+    project_dir: .trae/skills
+    global_dir: ~/.trae-cn/skills
+    detect: ~/.trae-cn
+  - id: warp
+    name: Warp
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ~/.warp
+  - id: windsurf
+    name: Windsurf
+    project_dir: .windsurf/skills
+    global_dir: ~/.codeium/windsurf/skills
+    detect: ~/.codeium/windsurf
+  - id: zcode
+    name: ZCode
+    project_dir: .zcode/skills
+    global_dir: ~/.zcode/skills
+    detect: ~/.zcode
+  - id: zed
+    name: Zed
+    project_dir: .agents/skills
+    global_dir: ~/.agents/skills
+    detect: ${XDG_CONFIG_HOME:-~/.config}/zed
+  - id: zencoder
+    name: Zencoder
+    project_dir: .zencoder/skills
+    global_dir: ~/.zencoder/skills
+    detect: ~/.zencoder
+  - id: zenflow
+    name: Zenflow
+    project_dir: .zencoder/skills
+    global_dir: ~/.zencoder/skills
+    detect: ~/.zencoder

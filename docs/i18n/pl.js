@@ -1,4 +1,4 @@
-import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
+import { h2, h3, p, code, ul, ol, note, table, cards, faq, COSIGN, TRUST, PROFILES, AGENTS, AGENT_ROWS, REQUIRES, INDEX, MANIFEST, dl, INSTALL_LINUX, INSTALL_MAC, INSTALL_WIN, tabs, only } from './shared.js';
 export default {
   overview: { title: 'Przegląd', lead: 'Menedżer skilli dla agentów AI: przypiętych do commita, z hashem zawartości i sprawdzonych przed instalacją.', blocks: [
     p('skilus to menedżer skilli (`SKILL.md`) dla agentów AI, dostarczany jako pojedynczy plik binarny Go. Instaluje skille z Gita, z archiwum ZIP lub tar.gz albo z lokalnego katalogu i wdraża je w zainstalowanych agentach.'),
@@ -7,7 +7,7 @@ export default {
     p('Skill to instrukcje i skrypty, które agent uruchomi z Twoimi uprawnieniami. skilus gwarantuje, że zainstalowane jest dokładnie to, co zostało przejrzane:'),
     ul('**Przypięty do commita.** Każdy skill z Gita jest zablokowany na dokładnym commicie w `skilus.lock`.', '**Hash zawartości.** Zapisywany jest SHA-256 zawartości, a `skilus verify` wykrywa każdą zmianę.', '**Najpierw inspekcja.** Przed instalacją szuka symlinków wychodzących poza skill, plików wykonywalnych, `curl … | sh`, dostępu do danych uwierzytelniających i niewidocznego tekstu.', '**Bez tokenów.** Korzysta z danych uwierzytelniających systemowego `git` i odrzuca adresy URL z hasłem.'),
     h2('agents', 'Obsługiwani agenci'),
-    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', '`.agents/skills`'),
+    ul('Claude Code', 'Codex', 'Cursor', 'GitHub Copilot', 'Gemini CLI', 'Windsurf', 'i 68 innych'),
     p('Uruchom `skilus agents`, aby zobaczyć ich ścieżki i które są zainstalowane. Kolejnych możesz dodać w [Agenci i zależności](agents).'),
     h2('how', 'Jak to działa'),
     table(['Plik', 'Zawartość'], [
@@ -88,6 +88,8 @@ export default {
     ]),
     h2('discovery', 'Gdzie szuka skilli'),
     p('`skilus add` czyta pojedynczy skill z `SKILL.md` w katalogu głównym albo katalog ze skillami w `skills/<nazwa>/`, `skills/.curated/<nazwa>/` (jak openai/skills) lub `<nazwa>/`. Nieczytelny skill w kolekcji jest pokazywany jako pominięty i nie blokuje pozostałych.'),
+    h2('choose', 'Wybór skilli i agentów'),
+    p('W terminalu, bez `--skill`, `add` pokazuje skille źródła, żebyś zaznaczył, które zainstalować (na początku zaznaczone są wszystkie). Bez `--agent` pokazuje agentów zainstalowanych na twoim komputerze i łączy w jedną opcję tych, którzy dzielą folder: w projekcie Codex, Cursor, Gemini CLI i inni używają `.agents/skills`. Strzałki przesuwają, spacja zaznacza, → zaznacza wszystkie, ← żadne, pisanie filtruje, Enter zatwierdza, a Esc anuluje. Z `-y` lub poza terminalem nie ma pytań: wszystkie skille trafiają do wszystkich wykrytych agentów.'),
     h2('options', 'Przydatne opcje'),
     code('skilus add ./my-skills --skill review -y\nskilus add ./my-skills --agent claude-code --scope global'),
     ul('`--skill` wybiera konkretne skille z kolekcji.', '`--agent` ogranicza docelowych agentów.', '`--scope global` instaluje w `~/.skilus/` jako symlink do magazynu.', '`-y` / `--yes` pomija pytanie; pliki wykonywalne wymagają dodatkowo `--allow-scripts`.'),
@@ -203,6 +205,9 @@ export default {
     ul('Wyniki z indeksów pojawiają się jako pierwsze.', 'Z listą `trust:` każdy wynik informuje, czy jego źródło jest zaufane.', 'Jeśli źródło nie odpowiada, pojawia się ostrzeżenie, a pozostałe wyniki są pokazywane.', '`--no-registry` zostawia tylko indeksy; `SKILUS_REGISTRY_URL` wskazuje inny zgodny serwer (tylko https).'),
   ] },
   agents: { title: 'Agenci i zależności', lead: 'Dodawaj agentów, których skilus nie zawiera, i deklaruj skille zależne od innych.', blocks: [
+    h2('supported', 'Obsługiwani agenci'),
+    p('skilus instaluje w tych agentach (jest ich 74). Używaj ich id w `--agent` lub w `agents:` profilu. W projekcie agenci dzielący folder dostają jedną kopię skilla, a lock zapisuje pierwszego. Niektóre ścieżki globalne zależą od zmiennych środowiskowych, takich jak `XDG_CONFIG_HOME`, `CLAUDE_CONFIG_DIR` czy `CODEX_HOME`; `skilus agents` pokazuje ścieżki na twoim komputerze.'),
+    table(['id', 'Agent', 'Projekt'], AGENT_ROWS),
     h2('custom-agents', 'Własni agenci'),
     p('Utwórz `~/.skilus/agents.yaml` w formacie dołączonego katalogu (`internal/adapter/catalog/agents.yaml`). Istniejące id zastępuje tego agenta; nowe jest dopisywane na końcu.'),
     code(AGENTS, 'yaml'),
@@ -214,7 +219,7 @@ export default {
   ] },
   faq: { title: 'FAQ', lead: 'Krótkie odpowiedzi na najczęstsze pytania.', blocks: [
     faq(
-      ['Którzy agenci są obsługiwani?', 'Claude Code, Codex, Cursor, GitHub Copilot i `.agents/skills`. Innych możesz dodać w `~/.skilus/agents.yaml`.'],
+      ['Którzy agenci są obsługiwani?', 'Agenci w liczbie 74, m.in. Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI i Windsurf; `skilus agents` wyświetla ich wszystkich. Innych możesz dodać w `~/.skilus/agents.yaml`.'],
       ['Czy potrzebuję gita?', 'Tylko dla źródeł Git. Katalogi lokalne i archiwa ZIP lub tar.gz go nie wymagają.'],
       ['Czy skilus przechowuje moje tokeny?', 'Nie. Korzysta z danych uwierzytelniających, kluczy SSH i helperów systemowego `git` i odrzuca adresy URL z hasłem.'],
       ['Dlaczego kopie w projekcie, a symlinki globalnie?', 'W projekcie kopie pozwalają wersjonować skille razem z kodem; globalnie symlinki do magazynu zapobiegają powielaniu zawartości.'],

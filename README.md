@@ -1,6 +1,6 @@
 # skilus
 
-Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en Claude Code, Codex, Cursor, GitHub Copilot y `.agents/skills`, y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
+Gestor de skills (`SKILL.md`) para agentes de IA, en un único binario Go. Instala skills desde Git, URL o un directorio local en 74 agentes (Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf, OpenCode, Cline…), y garantiza que lo instalado es exactamente lo que se revisó: cada skill se fija a un commit, se le calcula un hash de contenido y se inspecciona antes de instalarse.
 
 > Estado: versión preliminar (0.x); el formato de `skilus.yaml` y `skilus.lock` aún puede cambiar. Funcionan `skilus agents`, `skilus add` (desde un directorio local, un repositorio Git o un ZIP o tar.gz), `skilus list`, `skilus remove`, `skilus edit`, `skilus inspect`, `skilus verify`, `skilus sync`, `skilus outdated`, `skilus update`, `skilus profile`, `skilus search`, `skilus audit` y `skilus lang`.
 
@@ -31,6 +31,7 @@ skilus add github.com/o/r@v1.2.0            # un tag, rama o commit
 skilus add git@gitlab.com:g/r.git           # cualquier URL de Git (https, ssh, file)
 skilus add https://example.com/skills.zip   # un ZIP o tar.gz por https
 skilus add ./mis-skills                     # un directorio local: empieza por ./, ../ o /
+                                            # en una terminal, eliges las skills y los agentes
 skilus add ./mis-skills --skill review -y   # sin preguntar
 skilus add ./mis-skills --agent claude-code --scope global
 
@@ -113,16 +114,18 @@ No hace falta editar el YAML a mano: `skilus profile create web --skill systemat
 
 `skilus profile use web` instala las skills del perfil que faltan, desde el origen que registra `skills:` y con la misma inspección que `add` (`allow: [scripts]` en esa entrada cuenta como `--allow-scripts`); mueve a los agentes del perfil las que ya estaban, reutilizando el contenido fijado en el lock; y retira de los agentes y del lock las que el perfil no incluye. Primero instala y solo después retira, y `skilus.yaml` no cambia, así que volver a `backend` reinstala exactamente lo mismo. El perfil activo no se guarda: es aquel cuyas skills coinciden con las del lock.
 
+En una terminal, `skilus add` sin `--skill` te deja marcar qué skills del origen instalar y, sin `--agent`, en qué agentes de los instalados en tu equipo; los que comparten carpeta (en un proyecto, Codex, Cursor, Gemini CLI y otros usan `.agents/skills`) salen como una sola opción y reciben una sola copia. Las flechas mueven, la barra espaciadora marca, → marca todo, ← nada, al escribir se filtra y Esc cancela. Con `-y`, o si la entrada o la salida no son una terminal, no pregunta y usa todas las skills y todos los agentes detectados. `skilus agents` lista los 74 agentes que conoce, con sus rutas y si están instalados; la tabla completa está también en la web.
+
 Para añadir un agente que skilus no trae, o cambiar las rutas de uno, crea `~/.skilus/agents.yaml` con el formato del catálogo incluido (`internal/adapter/catalog/agents.yaml`): un id que ya existe reemplaza a ese agente y uno nuevo se añade al final.
 
 ```yaml
 version: 1
 agents:
-  - id: windsurf
-    name: Windsurf
-    project_dir: .windsurf/skills
-    global_dir: ~/.codeium/windsurf/skills
-    detect: ~/.codeium/windsurf
+  - id: acme
+    name: Acme Agent
+    project_dir: .acme/skills
+    global_dir: ~/.acme/skills
+    detect: ~/.acme
 ```
 
 Solo se lee el de tu directorio personal: un repositorio clonado no puede decidir dónde escribe skilus fuera del proyecto.

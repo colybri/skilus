@@ -356,9 +356,7 @@ func renderProfilePlan(w io.Writer, plan app.ProfilePlan, st style, t *i18n.Cata
 		fmt.Fprintln(w)
 	}
 	if len(plan.Install) > 0 {
-		for _, ip := range plan.Install {
-			renderTargets(w, ip, st, t)
-		}
+		renderTargets(w, st, t, plan.Install...)
 		n.render(w, st, t)
 	}
 }

@@ -39,25 +39,25 @@ func TestNewCleansProjectDir(t *testing.T) {
 	}
 }
 
-func TestDedupeSharedProjectDir(t *testing.T) {
+func TestGroupByDir(t *testing.T) {
 	codex, _ := agent.New(mustID(t, "codex"), "Codex", ".agents/skills", "/h/.agents/skills", "")
+	claude, _ := agent.New(mustID(t, "claude-code"), "Claude Code", ".claude/skills", "/h/.claude/skills", "")
 	cursor, _ := agent.New(mustID(t, "cursor"), "Cursor", ".agents/skills", "/h/.cursor/skills", "")
-	agents := map[agent.ID]agent.Agent{codex.ID(): codex, cursor.ID(): cursor}
+	agents := []agent.Agent{codex, claude, cursor}
 
-	project := agent.Dedupe([]agent.Target{
-		{Agent: codex.ID(), Scope: agent.ScopeProject, Mode: agent.ModeSymlink},
-		{Agent: cursor.ID(), Scope: agent.ScopeProject, Mode: agent.ModeSymlink},
-	}, agents)
-	if len(project) != 1 || project[0].Agent != codex.ID() {
-		t.Fatalf("project targets = %+v, want only codex", project)
+	project := agent.GroupByDir(agents, agent.ScopeProject)
+	if len(project) != 2 || project[0].Dir != ".agents/skills" || project[1].Dir != ".claude/skills" {
+		t.Fatalf("project groups = %+v", project)
+	}
+	if got := project[0].Agents; len(got) != 2 || got[0].ID() != codex.ID() || got[1].ID() != cursor.ID() {
+		t.Fatalf(".agents/skills agents = %+v, want codex then cursor", got)
 	}
 
-	global := agent.Dedupe([]agent.Target{
-		{Agent: codex.ID(), Scope: agent.ScopeGlobal, Mode: agent.ModeSymlink},
-		{Agent: cursor.ID(), Scope: agent.ScopeGlobal, Mode: agent.ModeSymlink},
-	}, agents)
-	if len(global) != 2 {
-		t.Fatalf("global targets = %+v, want both", global)
+	if global := agent.GroupByDir(agents, agent.ScopeGlobal); len(global) != 3 {
+		t.Fatalf("global groups = %+v, want one per agent", global)
+	}
+	if got := agent.GroupByDir(nil, agent.ScopeProject); got != nil {
+		t.Fatalf("GroupByDir(nil) = %+v", got)
 	}
 }
 
