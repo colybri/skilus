@@ -19,7 +19,7 @@ exec git add .
 exec git commit --quiet --no-gpg-sign -m v1
 cd $WORK/project
 
-exec skilus add file://$WORK/remote --agent claude-code --yes
+exec skilus add $WORKURL/remote --agent claude-code --yes
 exec skilus add ./mine --agent claude-code --yes
 
 # Without a trust: list only the missing signature is reported.

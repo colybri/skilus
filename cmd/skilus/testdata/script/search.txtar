@@ -5,7 +5,7 @@ env USERPROFILE=$WORK/home
 env SKILUS_REGISTRY_URL=https://127.0.0.1:1
 mkdir home/.skilus project
 cd project
-exec sh -c 'printf "version: 1\nindexes:\n  - file://%s/index.yaml\ntrust:\n  - github.com/anthropics\n" "$WORK" > skilus.yaml'
+exec sh -c 'printf "version: 1\nindexes:\n  - %s/index.yaml\ntrust:\n  - github.com/anthropics\n" "$WORKURL" > skilus.yaml'
 
 exec skilus search pdf
 stderr 'No se pudo consultar skills.sh'

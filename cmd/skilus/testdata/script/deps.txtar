@@ -16,7 +16,7 @@ exec git init --quiet --initial-branch=main
 exec git add .
 exec git commit --quiet -m v1
 cd $WORK/project
-exec sh -c 'printf -- "---\nname: report\ndescription: Informes\nmetadata:\n  requires: \"pdf file://%s/remote#docx\"\n---\n" "$WORK" > src/skills/report/SKILL.md'
+exec sh -c 'printf -- "---\nname: report\ndescription: Informes\nmetadata:\n  requires: \"pdf %s/remote#docx\"\n---\n" "$WORKURL" > src/skills/report/SKILL.md'
 
 exec skilus inspect ./src --skill report
 stdout 'necesita pdf, file://.*[/\\]remote#docx'

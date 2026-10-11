@@ -22,10 +22,10 @@ exec git archive --format=tar.gz --prefix=src-main/ -o $WORK/skills.tar.gz HEAD
 exec git archive --format=zip --prefix=src-main/ -o $WORK/skills.zip HEAD
 cd $WORK/project
 
-exec skilus inspect file://$WORK/skills.zip
+exec skilus inspect $WORKURL/skills.zip
 stdout '● review   1 fichero · '
 
-exec skilus add file://$WORK/skills.tar.gz --agent claude-code --yes
+exec skilus add $WORKURL/skills.tar.gz --agent claude-code --yes
 stdout 'Instalada review'
 exists .claude/skills/review/SKILL.md
 grep 'source: file://.*[/\\]skills.tar.gz$' skilus.lock
@@ -37,7 +37,7 @@ stdout 'Descargada review'
 exec skilus verify
 
 # Archives take no ref, and URLs with a query are refused.
-! exec skilus add file://$WORK/skills.zip@v1 --agent claude-code --yes
+! exec skilus add $WORKURL/skills.zip@v1 --agent claude-code --yes
 ! exec skilus add 'https://example.com/s.zip?token=x' --agent claude-code --yes
 stderr 'query'
 

@@ -20,9 +20,9 @@ exec git add .
 exec git commit --quiet -m v1
 cd $WORK/project
 
-exec skilus add file://$WORK/remote --agent claude-code --yes --allow-scripts
-grep 'executables:' skilus.lock
+exec skilus add $WORKURL/remote --agent claude-code --yes --allow-scripts
 # Git on Windows does not keep the executable bit.
+[!windows] grep 'executables:' skilus.lock
 [!windows] grep '- run.sh' skilus.lock
 
 exec skilus verify

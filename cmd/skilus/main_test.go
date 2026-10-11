@@ -23,8 +23,8 @@ func TestMain(m *testing.M) {
 // fakeEdit stands in for the user's editor: fakeedit SRC... FILE. The n-th
 // time it runs it copies the n-th SRC (or the last one) over FILE, after
 // saving what FILE held to $WORK/shown-n. A SRC named KEEP leaves FILE as
-// it is and one named FAIL exits with 1. $WORK is expanded in SRC's
-// content too, so a test can write the paths of its work directory.
+// it is and one named FAIL exits with 1. $WORK and $WORKURL are expanded
+// in SRC's content too, so a test can write the paths of its work directory.
 func fakeEdit() {
 	args := os.Args[1:]
 	if len(args) < 2 {
@@ -59,7 +59,8 @@ func fakeEdit() {
 	}
 	data, err := os.ReadFile(src)
 	if err == nil {
-		data = []byte(strings.ReplaceAll(string(data), "$WORK", os.Getenv("WORK")))
+		r := strings.NewReplacer("$WORKURL", os.Getenv("WORKURL"), "$WORK", os.Getenv("WORK"))
+		data = []byte(r.Replace(string(data)))
 		err = os.WriteFile(file, data, 0o644)
 	}
 	if err != nil {
@@ -68,12 +69,24 @@ func fakeEdit() {
 	}
 }
 
+// workURL is the file URL of dir.
+func workURL(dir string) string {
+	p := filepath.ToSlash(dir)
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	return "file://" + p
+}
+
 func TestScripts(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testdata/script",
 		// The scripts check the Spanish texts; lang.txtar unsets it.
 		Setup: func(env *testscript.Env) error {
 			env.Setenv("SKILUS_LANG", "es")
+			// file://$WORK is no URL on Windows (file://C:\...), so the
+			// scripts use $WORKURL: file:///tmp/x or file:///C:/x.
+			env.Setenv("WORKURL", workURL(env.WorkDir))
 			return nil
 		},
 	})

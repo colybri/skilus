@@ -19,7 +19,7 @@ exec git commit --quiet -m v1
 exec git tag v1.0.0
 cd $WORK/project
 
-exec skilus add file://$WORK/remote@v1.0.0 --agent claude-code --yes
+exec skilus add $WORKURL/remote@v1.0.0 --agent claude-code --yes
 stdout 'Instalada review'
 exists .claude/skills/review/SKILL.md
 grep 'source: file://.*[/\\]remote$' skilus.lock
@@ -28,7 +28,7 @@ grep 'commit: [0-9a-f]{40}' skilus.lock
 grep 'source: file://.*[/\\]remote@v1.0.0' skilus.yaml
 
 # A ref that does not exist is not found (exit code 3).
-! exec skilus add file://$WORK/remote@nope --agent claude-code --yes
+! exec skilus add $WORKURL/remote@nope --agent claude-code --yes
 stderr 'no encontrado|couldn.t find remote ref'
 
 # Credentials never go in the source.
