@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
 )
@@ -26,7 +26,7 @@ func (q ListSkills) Handle(ctx context.Context, scopes ...agent.Scope) ([]Instal
 	for _, s := range scopes {
 		lf, err := q.Locks.Load(ctx, s)
 		if err != nil {
-			return nil, fmt.Errorf("load %s lock: %w", s, err)
+			return nil, domain.Errorf("cargar el lock del ámbito %s: %w", s, err)
 		}
 		for _, e := range lf.Entries() {
 			out = append(out, InstalledSkill{Scope: s, Entry: e})

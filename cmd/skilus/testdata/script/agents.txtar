@@ -21,4 +21,4 @@ stdout '"installed": false'
 
 # Unknown flags are usage errors (exit code 2).
 ! exec skilus agents --nope
-stderr 'unknown flag'
+stderr 'opción desconocida'

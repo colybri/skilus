@@ -3,13 +3,11 @@
 // the standard library and this package.
 package domain
 
-import "errors"
-
-// Error kinds. Domain code wraps them with context using fmt.Errorf("...: %w").
+// Error kinds. Code wraps them with context using Errorf("...: %w").
 // Only the cli package translates them into messages and exit codes.
 var (
-	ErrInvalid       = errors.New("invalid value")
-	ErrNotFound      = errors.New("not found")
-	ErrAlreadyExists = errors.New("already exists")
-	ErrConflict      = errors.New("conflict")
+	ErrInvalid       = NewError("valor no válido")
+	ErrNotFound      = NewError("no encontrado")
+	ErrAlreadyExists = NewError("ya existe")
+	ErrConflict      = NewError("conflicto")
 )

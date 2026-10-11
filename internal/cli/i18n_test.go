@@ -1,56 +1,88 @@
 package cli
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"io/fs"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
 	"testing"
+	"unicode"
 
 	"github.com/colybri/skilus/internal/cli/i18n"
 )
 
-// messageIDs returns every literal passed as the first argument of a T call
-// in this package: the texts the catalogs must translate.
+// textFuncs are the functions outside this package whose first argument is
+// a message id: the domain's translatable errors and texts.
+var textFuncs = map[string]bool{"Errorf": true, "NewError": true, "Msg": true}
+
+// messageIDs returns every literal message id the catalogs must translate:
+// the first argument of T calls in this package and of domain.Errorf,
+// domain.NewError and domain.Msg anywhere under internal/. Ids without
+// letters, such as "%s: %w", need no translation.
 func messageIDs(t *testing.T) []string {
 	t.Helper()
-	files, err := filepath.Glob("*.go")
+	var files []string
+	err := filepath.WalkDir("..", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() && strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, "_test.go") {
+			files = append(files, path)
+		}
+		return nil
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	fset := token.NewFileSet()
 	seen := map[string]bool{}
 	for _, name := range files {
-		if strings.HasSuffix(name, "_test.go") {
-			continue
-		}
 		f, err := parser.ParseFile(fset, name, nil, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
+		inCLI := filepath.Dir(name) == filepath.Join("..", "cli")
+		// message.go defines Errorf, NewError and Msg in terms of each other.
+		inDomain := f.Name.Name == "domain" && filepath.Base(name) != "message.go"
 		ast.Inspect(f, func(n ast.Node) bool {
 			call, ok := n.(*ast.CallExpr)
 			if !ok || len(call.Args) == 0 {
 				return true
 			}
-			sel, ok := call.Fun.(*ast.SelectorExpr)
-			if !ok || sel.Sel.Name != "T" {
+			var fn string
+			switch fun := call.Fun.(type) {
+			case *ast.SelectorExpr:
+				if x, ok := fun.X.(*ast.Ident); ok && x.Name == "domain" && textFuncs[fun.Sel.Name] {
+					fn = fun.Sel.Name
+				} else if inCLI && fun.Sel.Name == "T" {
+					fn = "T"
+				}
+			case *ast.Ident:
+				if inDomain && textFuncs[fun.Name] {
+					fn = fun.Name
+				}
+			}
+			if fn == "" {
 				return true
 			}
 			lit, ok := call.Args[0].(*ast.BasicLit)
 			if !ok || lit.Kind != token.STRING {
-				t.Errorf("%s: T needs a literal message id", fset.Position(call.Pos()))
+				t.Errorf("%s: %s needs a literal message id", fset.Position(call.Pos()), fn)
 				return true
 			}
 			s, err := strconv.Unquote(lit.Value)
 			if err != nil {
 				t.Fatal(err)
 			}
-			seen[s] = true
+			if strings.IndexFunc(verb.ReplaceAllString(s, ""), unicode.IsLetter) >= 0 {
+				seen[s] = true
+			}
 			return true
 		})
 	}
@@ -101,7 +133,8 @@ func TestCatalogsTranslateEveryMessage(t *testing.T) {
 				continue
 			}
 			args := sample(id)
-			got := c.T(id, args...)
+			// Errors format %w like %v once translated.
+			got := fmt.Sprintf(wrapVerb.ReplaceAllString(c.T(id), "%${1}v"), args...)
 			if len(args) > 0 && strings.Contains(got, "%!") {
 				t.Errorf("%s: %q -> %q does not take the same arguments", l.Code, id, got)
 			}

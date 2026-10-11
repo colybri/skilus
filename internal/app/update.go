@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -82,7 +81,7 @@ type UpdateHandler struct {
 func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, error) {
 	lf, err := h.Locks.Load(ctx, cmd.Scope)
 	if err != nil {
-		return UpdateResult{}, fmt.Errorf("load lock: %w", err)
+		return UpdateResult{}, domain.Errorf("cargar el lock: %w", err)
 	}
 	entries, err := pickEntries(lf, cmd.Names, cmd.Scope)
 	if err != nil {
@@ -94,7 +93,7 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 	for _, e := range entries {
 		u, err := h.plan(ctx, e, cmd, sources)
 		if err != nil {
-			return UpdateResult{Plan: plan}, fmt.Errorf("skill %s: %w", e.Skill, err)
+			return UpdateResult{Plan: plan}, domain.Errorf("skill %s: %w", e.Skill, err)
 		}
 		if u == nil {
 			plan.Current = append(plan.Current, e)
@@ -143,14 +142,14 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 		if u.ContentChanged() {
 			storeDir, err := h.Store.Put(ctx, u.Package)
 			if err != nil {
-				return UpdateResult{Plan: plan}, fmt.Errorf("store %s: %w", u.Previous.Skill, err)
+				return UpdateResult{Plan: plan}, domain.Errorf("guardar %s en el almacén: %w", u.Previous.Skill, err)
 			}
 			for _, t := range dests[i] {
 				if err := h.Deployer.Remove(ctx, t.dir); err != nil {
-					return UpdateResult{Plan: plan}, fmt.Errorf("remove %s: %w; run skilus sync to restore the locked version", t.dir, err)
+					return UpdateResult{Plan: plan}, domain.Errorf("borrar %s: %w; ejecuta skilus sync para restaurar la versión del lock", t.dir, err)
 				}
 				if err := h.Deployer.Deploy(ctx, storeDir, t.dir, t.mode); err != nil {
-					return UpdateResult{Plan: plan}, fmt.Errorf("deploy %s: %w; run skilus sync to restore the locked version", t.dir, err)
+					return UpdateResult{Plan: plan}, domain.Errorf("desplegar %s: %w; ejecuta skilus sync para restaurar la versión del lock", t.dir, err)
 				}
 			}
 		}
@@ -163,7 +162,7 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd Update) (UpdateResult, er
 		updated = append(updated, e)
 	}
 	if err := h.Locks.Save(ctx, cmd.Scope, lf); err != nil {
-		return UpdateResult{Plan: plan}, fmt.Errorf("save lock: %w", err)
+		return UpdateResult{Plan: plan}, domain.Errorf("guardar el lock: %w", err)
 	}
 	lf.PullEvents()
 	return UpdateResult{Plan: plan, Updated: updated, Installed: installed}, nil
@@ -261,7 +260,7 @@ func pickEntries(lf *lock.Lockfile, names []string, scope agent.Scope) ([]lock.E
 		}
 		e, ok := lf.Entry(n)
 		if !ok {
-			return nil, fmt.Errorf("skill %s is not installed in the %s scope: %w", n, scope, domain.ErrNotFound)
+			return nil, domain.Errorf("la skill %s no está instalada en el ámbito %s: %w", n, scope, domain.ErrNotFound)
 		}
 		out = append(out, e)
 	}
@@ -281,10 +280,10 @@ func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, sourc
 	if !ok {
 		fetcher, ok := h.Fetchers[src.Kind]
 		if !ok {
-			return nil, fmt.Errorf("%s sources are not supported yet: %w", src.Kind, domain.ErrInvalid)
+			return nil, domain.Errorf("los orígenes %s aún no están soportados: %w", src.Kind, domain.ErrInvalid)
 		}
 		if fetched, err = fetcher.Fetch(ctx, src); err != nil {
-			return nil, fmt.Errorf("read source %s: %w", src, err)
+			return nil, domain.Errorf("leer el origen %s: %w", src, err)
 		}
 		sources[src.String()] = fetched
 	}
@@ -298,14 +297,14 @@ func (h UpdateHandler) plan(ctx context.Context, e lock.Entry, cmd Update, sourc
 	if found == nil {
 		for _, bad := range fetched.Invalid {
 			if bad.Path == e.Path {
-				return nil, fmt.Errorf("the new version in %s cannot be read: %w", bad.Path, bad.Err)
+				return nil, domain.Errorf("no se puede leer la nueva versión en %s: %w", bad.Path, bad.Err)
 			}
 		}
-		return nil, fmt.Errorf("%s no longer has a skill in %s: %w", e.Source, e.Path, domain.ErrNotFound)
+		return nil, domain.Errorf("%s ya no tiene ninguna skill en %s: %w", e.Source, e.Path, domain.ErrNotFound)
 	}
 	p := found.Package
 	if p.Name() != e.Skill {
-		return nil, fmt.Errorf("%s/%s is now named %s; remove it and add the new name: %w", e.Source, e.Path, p.Name(), domain.ErrConflict)
+		return nil, domain.Errorf("%s/%s ahora se llama %s; quítala y añade el nuevo nombre: %w", e.Source, e.Path, p.Name(), domain.ErrConflict)
 	}
 	if p.TreeHash() == e.TreeHash && fetched.Commit == e.Commit {
 		return nil, nil
@@ -353,10 +352,10 @@ func (h UpdateHandler) stored(ctx context.Context, e lock.Entry) []skill.File {
 // updateGate is gate for updates: under --yes only executables the skill
 // did not have before need --allow-scripts.
 func updateGate(plan UpdatePlan, cmd Update) error {
-	var reasons []string
+	var reasons domain.Errors
 	for _, ip := range plan.Dependencies {
 		if err := gate(ip, AddSkill{Yes: cmd.Yes, Strict: cmd.Strict, AllowScripts: cmd.AllowScripts}); err != nil {
-			reasons = append(reasons, strings.TrimSuffix(err.Error(), ": "+ErrRejected.Error()))
+			reasons = append(reasons, err)
 		}
 	}
 	for _, u := range plan.Skills {
@@ -367,15 +366,15 @@ func updateGate(plan UpdatePlan, cmd Update) error {
 		}
 		switch {
 		case r.Blocking():
-			reasons = append(reasons, fmt.Sprintf("%s: blocking findings", name))
+			reasons = append(reasons, domain.Errorf("%s: hallazgos que bloquean", name))
 		case cmd.Strict && r.Warnings() > 0:
-			reasons = append(reasons, fmt.Sprintf("%s: %d warnings under --strict", name, r.Warnings()))
+			reasons = append(reasons, domain.Errorf("%s: %d avisos con --strict", name, r.Warnings()))
 		case cmd.Yes && newScripts && !cmd.AllowScripts:
-			reasons = append(reasons, fmt.Sprintf("%s: new executable files need --allow-scripts", name))
+			reasons = append(reasons, domain.Errorf("%s: los ficheros ejecutables nuevos necesitan --allow-scripts", name))
 		}
 	}
 	if len(reasons) > 0 {
-		return fmt.Errorf("%s: %w", strings.Join(reasons, "; "), ErrRejected)
+		return domain.Errorf("%w: %w", reasons, ErrRejected)
 	}
 	return nil
 }
@@ -402,7 +401,7 @@ func (h UpdateHandler) checkTargets(ctx context.Context, plan UpdatePlan, force 
 		for _, t := range e.Targets {
 			a, ok := byID[t.Agent]
 			if !ok {
-				return nil, fmt.Errorf("skill %s targets agent %s, which is no longer in the catalog: %w", e.Skill, t.Agent, domain.ErrConflict)
+				return nil, domain.Errorf("la skill %s apunta al agente %s, que ya no está en el catálogo: %w", e.Skill, t.Agent, domain.ErrConflict)
 			}
 			dir := filepath.Join(skillsDir(a, t.Scope, h.ProjectRoot), e.Skill.String())
 			_, got, err := readInstalled(ctx, h.Trees, dir, e)
@@ -413,7 +412,7 @@ func (h UpdateHandler) checkTargets(ctx context.Context, plan UpdatePlan, force 
 		}
 	}
 	if len(modified) > 0 {
-		return nil, fmt.Errorf("modified by hand, use --force to replace: %s: %w", strings.Join(modified, ", "), domain.ErrConflict)
+		return nil, domain.Errorf("modificadas a mano, usa --force para reemplazarlas: %s: %w", strings.Join(modified, ", "), domain.ErrConflict)
 	}
 	return out, nil
 }

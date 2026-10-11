@@ -61,9 +61,9 @@ func (f Fetcher) Fetch(ctx context.Context, src source.Source) (app.Fetched, err
 	}
 	if _, err := f.git(ctx, dir, nil, "fetch", "--quiet", "--depth=1", "--no-tags", "--end-of-options", src.URL, ref); err != nil {
 		if notFound(err) {
-			return app.Fetched{}, fmt.Errorf("fetch %s: %w: %w", src, err, domain.ErrNotFound)
+			return app.Fetched{}, domain.Errorf("descargar %s: %w: %w", src, err, domain.ErrNotFound)
 		}
-		return app.Fetched{}, fmt.Errorf("fetch %s: %w", src, err)
+		return app.Fetched{}, domain.Errorf("descargar %s: %w", src, err)
 	}
 	commit, err := f.git(ctx, dir, nil, "rev-parse", "--verify", "--end-of-options", "FETCH_HEAD^{commit}")
 	if err != nil {
@@ -88,7 +88,7 @@ func (f Fetcher) Fetch(ctx context.Context, src source.Source) (app.Fetched, err
 			continue
 		}
 		if err != nil {
-			return app.Fetched{}, fmt.Errorf("skill in %s: %w", dirPath, err)
+			return app.Fetched{}, domain.Errorf("skill en %s: %w", dirPath, err)
 		}
 		p, err := skillsrc.Build(files)
 		if err != nil {
@@ -113,12 +113,12 @@ func (f Fetcher) lsTree(ctx context.Context, dir, commit string) ([]entry, error
 		meta, path, ok := bytes.Cut(rec, []byte{'\t'})
 		fields := strings.Fields(string(meta))
 		if !ok || len(fields) != 4 {
-			return nil, fmt.Errorf("unexpected ls-tree output %q", rec)
+			return nil, domain.Errorf("salida inesperada de ls-tree: %q", rec)
 		}
 		var size int64
 		if fields[3] != "-" {
 			if size, err = strconv.ParseInt(fields[3], 10, 64); err != nil {
-				return nil, fmt.Errorf("unexpected ls-tree size %q", fields[3])
+				return nil, domain.Errorf("tamaño inesperado en ls-tree: %q", fields[3])
 			}
 		}
 		out = append(out, entry{mode: fields[0], kind: fields[1], object: fields[2], size: size, path: string(path)})
@@ -147,13 +147,13 @@ func (f Fetcher) readSkill(ctx context.Context, dir, dirPath string, entries []e
 		case "120000":
 			kind = skill.KindSymlink
 		case "160000":
-			return nil, fmt.Errorf("%s is a Git submodule, which skills cannot contain: %w", rel, domain.ErrInvalid)
+			return nil, domain.Errorf("%s es un submódulo de Git, y las skills no pueden contenerlos: %w", rel, domain.ErrInvalid)
 		default:
-			return nil, fmt.Errorf("%s has unsupported mode %s: %w", rel, e.mode, domain.ErrInvalid)
+			return nil, domain.Errorf("%s tiene un modo no soportado %s: %w", rel, e.mode, domain.ErrInvalid)
 		}
 		total += e.size
 		if f.MaxSkillBytes > 0 && total > f.MaxSkillBytes {
-			return nil, fmt.Errorf("larger than %d bytes; not downloading it: %w", f.MaxSkillBytes, domain.ErrInvalid)
+			return nil, domain.Errorf("ocupa más de %d bytes; no se descarga: %w", f.MaxSkillBytes, domain.ErrInvalid)
 		}
 		picked = append(picked, e)
 		files = append(files, skill.File{Path: rel, Kind: kind})
@@ -171,16 +171,16 @@ func (f Fetcher) readSkill(ctx context.Context, dir, dirPath string, entries []e
 	for i, e := range picked {
 		header, err := r.ReadString('\n')
 		if err != nil {
-			return nil, fmt.Errorf("read %s: %w", e.path, err)
+			return nil, domain.Errorf("leer %s: %w", e.path, err)
 		}
 		var obj, typ string
 		var size int64
 		if _, err := fmt.Sscanf(header, "%s %s %d", &obj, &typ, &size); err != nil || obj != e.object || typ != "blob" {
-			return nil, fmt.Errorf("unexpected cat-file header %q for %s", strings.TrimSpace(header), e.path)
+			return nil, domain.Errorf("cabecera inesperada de cat-file %q para %s", strings.TrimSpace(header), e.path)
 		}
 		data := make([]byte, size+1) // content plus the trailing newline
 		if _, err := io.ReadFull(r, data); err != nil {
-			return nil, fmt.Errorf("read %s: %w", e.path, err)
+			return nil, domain.Errorf("leer %s: %w", e.path, err)
 		}
 		data = data[:size]
 		if files[i].Kind == skill.KindSymlink {
@@ -228,14 +228,14 @@ func (f Fetcher) git(ctx context.Context, dir string, stdin io.Reader, args ...s
 	if err := cmd.Run(); err != nil {
 		var exitErr *exec.ExitError
 		if errors.Is(err, exec.ErrNotFound) || errors.Is(err, fs.ErrNotExist) {
-			return nil, fmt.Errorf("skilus needs git installed: %w", err)
+			return nil, domain.Errorf("skilus necesita tener git instalado: %w", err)
 		}
 		if errors.As(err, &exitErr) {
 			msg := strings.TrimSpace(stderr.String())
 			if msg == "" {
 				msg = exitErr.Error()
 			}
-			return nil, fmt.Errorf("git %s: %s", args[0], msg)
+			return nil, domain.Errorf("git %s: %s", args[0], msg)
 		}
 		return nil, err
 	}
@@ -262,9 +262,9 @@ func (f Fetcher) Resolve(ctx context.Context, src source.Source) (string, error)
 	raw, err := f.git(ctx, os.TempDir(), nil, args...)
 	if err != nil {
 		if notFound(err) {
-			return "", fmt.Errorf("resolve %s: %w: %w", src, err, domain.ErrNotFound)
+			return "", domain.Errorf("resolver %s: %w: %w", src, err, domain.ErrNotFound)
 		}
-		return "", fmt.Errorf("resolve %s: %w", src, err)
+		return "", domain.Errorf("resolver %s: %w", src, err)
 	}
 	refs := map[string]string{}
 	for _, line := range strings.Split(string(raw), "\n") {
@@ -277,7 +277,7 @@ func (f Fetcher) Resolve(ctx context.Context, src source.Source) (string, error)
 			return sha, nil
 		}
 	}
-	return "", fmt.Errorf("%s has no ref %s: %w", src.URL, patterns[0], domain.ErrNotFound)
+	return "", domain.Errorf("%s no tiene la referencia %s: %w", src.URL, patterns[0], domain.ErrNotFound)
 }
 
 // isCommit reports whether ref is a full commit id, which never moves.

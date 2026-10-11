@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/hex"
-	"fmt"
 	"path"
 	"strings"
 	"unicode/utf8"
@@ -59,7 +58,7 @@ type Package struct {
 func (p Package) WithRequires(reqs []Requirement) (Package, error) {
 	for _, r := range reqs {
 		if r.Name == p.name && r.Source == "" {
-			return Package{}, fmt.Errorf("skill %s requires itself: %w", p.name, domain.ErrInvalid)
+			return Package{}, domain.Errorf("la skill %s se requiere a sí misma: %w", p.name, domain.ErrInvalid)
 		}
 	}
 	p.requires = append([]Requirement(nil), reqs...)
@@ -73,19 +72,19 @@ func (p Package) Requires() []Requirement { return append([]Requirement(nil), p.
 // hash. Files are sorted by path.
 func NewPackage(name Name, description string, files []File) (Package, error) {
 	if name.IsZero() {
-		return Package{}, fmt.Errorf("skill package has no name: %w", domain.ErrInvalid)
+		return Package{}, domain.Errorf("el paquete de la skill no tiene nombre: %w", domain.ErrInvalid)
 	}
 	description = strings.TrimSpace(description)
 	switch {
 	case description == "":
-		return Package{}, fmt.Errorf("skill %s has no description: %w", name, domain.ErrInvalid)
+		return Package{}, domain.Errorf("la skill %s no tiene descripción: %w", name, domain.ErrInvalid)
 	case utf8.RuneCountInString(description) > maxDescriptionLen:
-		return Package{}, fmt.Errorf("skill %s description is longer than %d characters: %w", name, maxDescriptionLen, domain.ErrInvalid)
+		return Package{}, domain.Errorf("la descripción de la skill %s supera los %d caracteres: %w", name, maxDescriptionLen, domain.ErrInvalid)
 	}
 
 	sorted, err := sortedFiles(files)
 	if err != nil {
-		return Package{}, fmt.Errorf("skill %s: %w", name, err)
+		return Package{}, domain.Errorf("skill %s: %w", name, err)
 	}
 	hasManifest := false
 	for _, f := range sorted {
@@ -94,7 +93,7 @@ func NewPackage(name Name, description string, files []File) (Package, error) {
 		}
 	}
 	if !hasManifest {
-		return Package{}, fmt.Errorf("skill %s has no regular %s at its root: %w", name, ManifestFile, domain.ErrInvalid)
+		return Package{}, domain.Errorf("la skill %s no tiene un %s regular en su raíz: %w", name, ManifestFile, domain.ErrInvalid)
 	}
 
 	return Package{name: name, description: description, files: sorted, hash: hashTree(sorted)}, nil
@@ -125,11 +124,11 @@ func validPath(p string) error {
 	clean := path.Clean(p)
 	switch {
 	case p == "" || p == ".":
-		return fmt.Errorf("empty file path: %w", domain.ErrInvalid)
+		return domain.Errorf("ruta de fichero vacía: %w", domain.ErrInvalid)
 	case strings.Contains(p, `\`):
-		return fmt.Errorf("file path %q uses backslashes: %w", p, domain.ErrInvalid)
+		return domain.Errorf("la ruta de fichero %q usa barras invertidas: %w", p, domain.ErrInvalid)
 	case clean != p || path.IsAbs(p) || clean == ".." || strings.HasPrefix(clean, "../"):
-		return fmt.Errorf("file path %q is not a clean relative path inside the skill: %w", p, domain.ErrInvalid)
+		return domain.Errorf("la ruta de fichero %q no es una ruta relativa limpia dentro de la skill: %w", p, domain.ErrInvalid)
 	}
 	return nil
 }

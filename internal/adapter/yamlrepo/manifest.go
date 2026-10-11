@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"strings"
@@ -30,7 +29,7 @@ func (r Repo) AddSkill(_ context.Context, scope agent.Scope, e app.ManifestEntry
 	}
 	root := doc.Content[0]
 	if root.Kind != yaml.MappingNode {
-		return fmt.Errorf("%s: the document must be a mapping: %w", p, domain.ErrInvalid)
+		return domain.Errorf("%s: el documento debe ser un mapa: %w", p, domain.ErrInvalid)
 	}
 
 	skills := mappingValue(root, "skills")
@@ -41,7 +40,7 @@ func (r Repo) AddSkill(_ context.Context, scope agent.Scope, e app.ManifestEntry
 	if skills.Kind != yaml.SequenceNode {
 		// "skills: " with no value parses as null; treat it as empty.
 		if skills.Tag != "!!null" {
-			return fmt.Errorf("%s: skills must be a list: %w", p, domain.ErrInvalid)
+			return domain.Errorf("%s: skills debe ser una lista: %w", p, domain.ErrInvalid)
 		}
 		*skills = yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
 	}
@@ -108,7 +107,7 @@ func (r Repo) Trust(_ context.Context, scope agent.Scope) (policy.Trust, error) 
 	}
 	var trust policy.Trust
 	if err := node.Decode(&trust); err != nil {
-		return nil, fmt.Errorf("%s: trust must be a list of sources: %w", p, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: trust debe ser una lista de orígenes: %w", p, domain.ErrInvalid)
 	}
 	return trust, nil
 }
@@ -130,15 +129,15 @@ func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, erro
 			Allow  []string `yaml:"allow"`
 		}
 		if err := node.Decode(&raw); err != nil {
-			return app.Manifest{}, fmt.Errorf("%s: skills must be a list of name and source: %w", p, domain.ErrInvalid)
+			return app.Manifest{}, domain.Errorf("%s: skills debe ser una lista de name y source: %w", p, domain.ErrInvalid)
 		}
 		for _, s := range raw {
 			n, err := skill.NewName(s.Name)
 			if err != nil {
-				return app.Manifest{}, fmt.Errorf("%s: %w", p, err)
+				return app.Manifest{}, domain.Errorf("%s: %w", p, err)
 			}
 			if s.Source == "" {
-				return app.Manifest{}, fmt.Errorf("%s: skill %s has no source: %w", p, n, domain.ErrInvalid)
+				return app.Manifest{}, domain.Errorf("%s: la skill %s no tiene origen: %w", p, n, domain.ErrInvalid)
 			}
 			m.Skills = append(m.Skills, app.ManifestEntry{Name: n, Source: s.Source, Allow: s.Allow})
 		}
@@ -146,11 +145,11 @@ func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, erro
 
 	if node := mappingValue(root, "indexes"); node != nil && node.Tag != "!!null" {
 		if err := node.Decode(&m.Indexes); err != nil {
-			return app.Manifest{}, fmt.Errorf("%s: indexes must be a list of URLs: %w", p, domain.ErrInvalid)
+			return app.Manifest{}, domain.Errorf("%s: indexes debe ser una lista de URLs: %w", p, domain.ErrInvalid)
 		}
 		for _, u := range m.Indexes {
 			if strings.TrimSpace(u) == "" {
-				return app.Manifest{}, fmt.Errorf("%s: indexes has an empty entry: %w", p, domain.ErrInvalid)
+				return app.Manifest{}, domain.Errorf("%s: indexes tiene una entrada vacía: %w", p, domain.ErrInvalid)
 			}
 		}
 	}
@@ -160,7 +159,7 @@ func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, erro
 		return m, nil
 	}
 	if node.Kind != yaml.MappingNode {
-		return app.Manifest{}, fmt.Errorf("%s: profiles must map names to skills and agents: %w", p, domain.ErrInvalid)
+		return app.Manifest{}, domain.Errorf("%s: profiles debe asociar nombres a skills y agentes: %w", p, domain.ErrInvalid)
 	}
 	for i := 0; i+1 < len(node.Content); i += 2 {
 		name := node.Content[i].Value
@@ -169,13 +168,13 @@ func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, erro
 			Agents []string `yaml:"agents"`
 		}
 		if err := node.Content[i+1].Decode(&raw); err != nil {
-			return app.Manifest{}, fmt.Errorf("%s: profile %s must have skills and, optionally, agents: %w", p, name, domain.ErrInvalid)
+			return app.Manifest{}, domain.Errorf("%s: el perfil %s debe tener skills y, opcionalmente, agents: %w", p, name, domain.ErrInvalid)
 		}
 		var skills []skill.Name
 		for _, s := range raw.Skills {
 			n, err := skill.NewName(s)
 			if err != nil {
-				return app.Manifest{}, fmt.Errorf("%s: profile %s: %w", p, name, err)
+				return app.Manifest{}, domain.Errorf("%s: perfil %s: %w", p, name, err)
 			}
 			skills = append(skills, n)
 		}
@@ -183,13 +182,13 @@ func (r Repo) Manifest(_ context.Context, scope agent.Scope) (app.Manifest, erro
 		for _, a := range raw.Agents {
 			id, err := agent.NewID(a)
 			if err != nil {
-				return app.Manifest{}, fmt.Errorf("%s: profile %s: %w", p, name, err)
+				return app.Manifest{}, domain.Errorf("%s: perfil %s: %w", p, name, err)
 			}
 			agents = append(agents, id)
 		}
 		prof, err := profile.New(name, skills, agents)
 		if err != nil {
-			return app.Manifest{}, fmt.Errorf("%s: %w", p, err)
+			return app.Manifest{}, domain.Errorf("%s: %w", p, err)
 		}
 		m.Profiles = append(m.Profiles, prof)
 	}
@@ -209,7 +208,7 @@ func readNode(p string) (*yaml.Node, error) {
 	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
 	var doc yaml.Node
 	if err := yaml.Unmarshal(data, &doc); err != nil {
-		return nil, fmt.Errorf("%s: %w: %w", p, err, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: %w: %w", p, err, domain.ErrInvalid)
 	}
 	if len(doc.Content) == 0 {
 		return newDoc(), nil // empty file

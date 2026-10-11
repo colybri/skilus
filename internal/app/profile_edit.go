@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 	"slices"
 	"strings"
 
@@ -53,7 +52,7 @@ func (h EditProfileHandler) Create(ctx context.Context, cmd CreateProfile) (prof
 		return profile.Profile{}, err
 	}
 	if slices.ContainsFunc(m.Profiles, func(p profile.Profile) bool { return p.Name() == cmd.Name }) {
-		return profile.Profile{}, fmt.Errorf("profile %q is already in skilus.yaml: %w", cmd.Name, domain.ErrAlreadyExists)
+		return profile.Profile{}, domain.Errorf("el perfil %q ya está en skilus.yaml: %w", cmd.Name, domain.ErrAlreadyExists)
 	}
 	skills, err := declaredSkills(m, cmd.Skills)
 	if err != nil {
@@ -96,7 +95,7 @@ func (h EditProfileHandler) Change(ctx context.Context, cmd ChangeProfile) (prof
 	for _, s := range cmd.RemoveSkills {
 		i := slices.IndexFunc(skills, func(n skill.Name) bool { return n.String() == s })
 		if i < 0 {
-			return profile.Profile{}, fmt.Errorf("profile %s does not include skill %s: %w", p.Name(), s, domain.ErrNotFound)
+			return profile.Profile{}, domain.Errorf("el perfil %s no incluye la skill %s: %w", p.Name(), s, domain.ErrNotFound)
 		}
 		skills = slices.Delete(skills, i, i+1)
 	}
@@ -114,7 +113,7 @@ func (h EditProfileHandler) Change(ctx context.Context, cmd ChangeProfile) (prof
 	for _, a := range cmd.RemoveAgents {
 		i := slices.IndexFunc(agents, func(id agent.ID) bool { return id.String() == a })
 		if i < 0 {
-			return profile.Profile{}, fmt.Errorf("profile %s does not include agent %s: %w", p.Name(), a, domain.ErrNotFound)
+			return profile.Profile{}, domain.Errorf("el perfil %s no incluye el agente %s: %w", p.Name(), a, domain.ErrNotFound)
 		}
 		agents = slices.Delete(agents, i, i+1)
 	}
@@ -148,7 +147,7 @@ func declaredSkills(m Manifest, names []string) ([]skill.Name, error) {
 			return nil, err
 		}
 		if !slices.ContainsFunc(m.Skills, func(e ManifestEntry) bool { return e.Name == n }) {
-			return nil, fmt.Errorf("skill %s is not in skills: of skilus.yaml; add it first with skilus add: %w", n, domain.ErrInvalid)
+			return nil, domain.Errorf("la skill %s no está en skills: de skilus.yaml; añádela antes con skilus add: %w", n, domain.ErrInvalid)
 		}
 		out = append(out, n)
 	}
@@ -174,7 +173,7 @@ func (h EditProfileHandler) knownAgents(ctx context.Context, ids []string) ([]ag
 			for i, a := range known {
 				names[i] = a.ID().String()
 			}
-			return nil, fmt.Errorf("unknown agent %s; agents: %s: %w", id, strings.Join(names, ", "), domain.ErrInvalid)
+			return nil, domain.Errorf("agente %s desconocido; agentes: %s: %w", id, strings.Join(names, ", "), domain.ErrInvalid)
 		}
 		out = append(out, id)
 	}

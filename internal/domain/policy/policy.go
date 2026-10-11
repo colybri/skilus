@@ -4,12 +4,12 @@
 package policy
 
 import (
-	"fmt"
 	"path"
 	"regexp"
 	"strings"
 	"unicode/utf8"
 
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/skill"
 )
 
@@ -48,7 +48,7 @@ type Finding struct {
 	Code     Code
 	Severity Severity
 	Path     string
-	Detail   string
+	Detail   domain.Text
 }
 
 // Limits bounds what a package may contain.
@@ -97,32 +97,32 @@ var (
 // Inspect checks a package against the rules and limits.
 func Inspect(p skill.Package, limits Limits, allow Allow) Report {
 	var r Report
-	add := func(code Code, sev Severity, file, detail string) {
+	add := func(code Code, sev Severity, file string, detail domain.Text) {
 		r.Findings = append(r.Findings, Finding{Code: code, Severity: sev, Path: file, Detail: detail})
 	}
 
 	files := p.Files()
 	if limits.MaxFiles > 0 && len(files) > limits.MaxFiles {
-		add(CodeTooManyFiles, Block, "", fmt.Sprintf("%d files, limit %d", len(files), limits.MaxFiles))
+		add(CodeTooManyFiles, Block, "", domain.Msg("%d ficheros, límite %d", len(files), limits.MaxFiles))
 	}
 	if limits.MaxTotalBytes > 0 && p.Size() > limits.MaxTotalBytes {
-		add(CodeTooLarge, Block, "", fmt.Sprintf("%d bytes, limit %d", p.Size(), limits.MaxTotalBytes))
+		add(CodeTooLarge, Block, "", domain.Msg("%d bytes, límite %d", p.Size(), limits.MaxTotalBytes))
 	}
 
 	for _, f := range files {
 		switch f.Kind {
 		case skill.KindSymlink:
 			if escapes(f.Path, f.LinkTarget) {
-				add(CodeSymlinkEscape, Block, f.Path, "points to "+f.LinkTarget+", outside the skill")
+				add(CodeSymlinkEscape, Block, f.Path, domain.Msg("apunta a %s, fuera de la skill", f.LinkTarget))
 			}
 		case skill.KindExecutable:
 			r.Executables = append(r.Executables, f.Path)
 			if !allow.Scripts {
-				add(CodeExecutable, Warn, f.Path, "executable file; accept it with allow: [scripts]")
+				add(CodeExecutable, Warn, f.Path, domain.Msg("fichero ejecutable; acéptalo con allow: [scripts]"))
 			}
 		}
 		if limits.MaxFileBytes > 0 && f.Size() > limits.MaxFileBytes {
-			add(CodeFileTooLarge, Block, f.Path, fmt.Sprintf("%d bytes, limit %d", f.Size(), limits.MaxFileBytes))
+			add(CodeFileTooLarge, Block, f.Path, domain.Msg("%d bytes, límite %d", f.Size(), limits.MaxFileBytes))
 		}
 		if f.Kind != skill.KindSymlink && utf8.Valid(f.Data) {
 			inspectCode(f, add)
@@ -145,30 +145,30 @@ func escapes(file, target string) bool {
 
 // inspectCode looks in every text file, scripts included, for code that
 // downloads and runs more code or reads the user's credentials.
-func inspectCode(f skill.File, add func(Code, Severity, string, string)) {
+func inspectCode(f skill.File, add func(Code, Severity, string, domain.Text)) {
 	text := string(f.Data)
 	if m := pipeToShellRe.FindString(text); m != "" {
-		add(CodePipeToShell, Warn, f.Path, "downloads and runs code: "+truncate(m, 80))
+		add(CodePipeToShell, Warn, f.Path, domain.Msg("descarga y ejecuta código: %s", truncate(m, 80)))
 	}
 	if m := credentialsRe.FindString(text); m != "" {
-		add(CodeCredentials, Warn, f.Path, "mentions credentials: "+truncate(m, 80))
+		add(CodeCredentials, Warn, f.Path, domain.Msg("menciona credenciales: %s", truncate(m, 80)))
 	}
 }
 
 // inspectText looks in Markdown for text the user would not see.
-func inspectText(f skill.File, add func(Code, Severity, string, string)) {
+func inspectText(f skill.File, add func(Code, Severity, string, domain.Text)) {
 	text := string(f.Data)
 	if r, ok := firstInvisible(text); ok {
-		add(CodeInvisibleText, Warn, f.Path, fmt.Sprintf("contains invisible character U+%04X", r))
+		add(CodeInvisibleText, Warn, f.Path, domain.Msg("contiene el carácter invisible U+%04X", r))
 	}
 	if strings.ContainsRune(text, 0x1b) {
-		add(CodeControlChars, Warn, f.Path, "contains terminal escape sequences")
+		add(CodeControlChars, Warn, f.Path, domain.Msg("contiene secuencias de escape de terminal"))
 	}
 }
 
-func inspectMetadata(p skill.Package, add func(Code, Severity, string, string)) {
+func inspectMetadata(p skill.Package, add func(Code, Severity, string, domain.Text)) {
 	if strings.ContainsFunc(p.Description(), isControl) {
-		add(CodeControlChars, Block, skill.ManifestFile, "description contains control characters")
+		add(CodeControlChars, Block, skill.ManifestFile, domain.Msg("la descripción contiene caracteres de control"))
 	}
 }
 

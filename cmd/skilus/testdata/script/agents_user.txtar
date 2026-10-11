@@ -20,7 +20,7 @@ exists .windsurf/skills/review/SKILL.md
 # A broken file is reported, not ignored.
 cp $WORK/broken.yaml $HOME/.skilus/agents.yaml
 ! exec skilus agents
-stderr 'agents.yaml: agent x project dir "../fuera" must be a relative path inside the project'
+stderr 'agents.yaml: el directorio de proyecto del agente x, "\.\./fuera", debe ser una ruta relativa dentro del proyecto'
 
 -- home/.skilus/.keep --
 -- agents.yaml --

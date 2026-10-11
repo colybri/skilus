@@ -3,7 +3,6 @@ package osfs
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -77,7 +76,7 @@ type Deployer struct{}
 // Deploy implements app.Deployer.
 func (Deployer) Deploy(_ context.Context, storeDir, dest string, mode agent.Mode) error {
 	if _, err := os.Lstat(dest); err == nil {
-		return fmt.Errorf("%s already exists: %w", dest, domain.ErrConflict)
+		return domain.Errorf("%s ya existe: %w", dest, domain.ErrConflict)
 	} else if !errors.Is(err, fs.ErrNotExist) {
 		return err
 	}
@@ -163,7 +162,7 @@ func (s Store) Lookup(_ context.Context, h skill.TreeHash) (string, bool, error)
 	case err != nil:
 		return "", false, err
 	case !info.IsDir():
-		return "", false, fmt.Errorf("%s in the store is not a directory: %w", h.Short(), domain.ErrInvalid)
+		return "", false, domain.Errorf("%s no es un directorio en el almacén: %w", h.Short(), domain.ErrInvalid)
 	}
 	return dir, true, nil
 }

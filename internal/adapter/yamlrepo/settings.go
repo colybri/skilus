@@ -3,12 +3,13 @@ package yamlrepo
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/colybri/skilus/internal/domain"
 )
 
 // SettingsFile holds the user's preferences in GlobalDir.
@@ -53,7 +54,7 @@ func (r Repo) settings() (map[string]any, error) {
 	}
 	doc := map[string]any{}
 	if err := yaml.Unmarshal(raw, &doc); err != nil {
-		return nil, fmt.Errorf("%s: %w", path, err)
+		return nil, domain.Errorf("%s: %w", path, err)
 	}
 	if doc == nil {
 		doc = map[string]any{}

@@ -6,7 +6,6 @@ import (
 	"context"
 	_ "embed"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -97,20 +96,20 @@ func (c *Catalog) Agents(_ context.Context) ([]agent.Agent, error) {
 func (c *Catalog) parse(data []byte, name string) ([]agent.Agent, error) {
 	var f file
 	if err := yaml.Unmarshal(data, &f); err != nil {
-		return nil, fmt.Errorf("parse %s: %w: %w", name, err, domain.ErrInvalid)
+		return nil, domain.Errorf("analizar %s: %w: %w", name, err, domain.ErrInvalid)
 	}
 	if f.Version != 1 {
-		return nil, fmt.Errorf("%s: version %d is not supported: %w", name, f.Version, domain.ErrInvalid)
+		return nil, domain.Errorf("%s: la versión %d no está soportada: %w", name, f.Version, domain.ErrInvalid)
 	}
 	out := make([]agent.Agent, 0, len(f.Agents))
 	seen := map[string]bool{}
 	for _, raw := range f.Agents {
 		id, err := agent.NewID(raw.ID)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", name, err)
+			return nil, domain.Errorf("%s: %w", name, err)
 		}
 		if seen[raw.ID] {
-			return nil, fmt.Errorf("%s: agent %s is listed twice: %w", name, id, domain.ErrInvalid)
+			return nil, domain.Errorf("%s: el agente %s aparece dos veces: %w", name, id, domain.ErrInvalid)
 		}
 		seen[raw.ID] = true
 		detect := ""
@@ -119,7 +118,7 @@ func (c *Catalog) parse(data []byte, name string) ([]agent.Agent, error) {
 		}
 		a, err := agent.New(id, raw.Name, raw.ProjectDir, c.expand(raw.GlobalDir), detect)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", name, err)
+			return nil, domain.Errorf("%s: %w", name, err)
 		}
 		out = append(out, a)
 	}

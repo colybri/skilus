@@ -4,7 +4,6 @@ package skillsrc
 
 import (
 	"bytes"
-	"fmt"
 	"path"
 	"sort"
 	"strings"
@@ -64,7 +63,7 @@ func Build(files []skill.File) (skill.Package, error) {
 		}
 	}
 	if manifest == nil {
-		return skill.Package{}, fmt.Errorf("no regular %s: %w", skill.ManifestFile, domain.ErrInvalid)
+		return skill.Package{}, domain.Errorf("no hay un %s que sea un fichero normal: %w", skill.ManifestFile, domain.ErrInvalid)
 	}
 	meta, err := parseFrontmatter(manifest)
 	if err != nil {
@@ -84,7 +83,7 @@ func Build(files []skill.File) (skill.Package, error) {
 	}
 	reqs, err := skill.ParseRequires(raw)
 	if err != nil {
-		return skill.Package{}, fmt.Errorf("%s metadata.%s: %w", skill.ManifestFile, skill.RequiresKey, err)
+		return skill.Package{}, domain.Errorf("%s metadata.%s: %w", skill.ManifestFile, skill.RequiresKey, err)
 	}
 	return p.WithRequires(reqs)
 }
@@ -125,7 +124,7 @@ func (fm frontmatter) requires() (string, error) {
 	}
 	var list []string
 	if err := node.Decode(&list); err != nil {
-		return "", fmt.Errorf("%s metadata.%s must be a string: %w", skill.ManifestFile, skill.RequiresKey, domain.ErrInvalid)
+		return "", domain.Errorf("%s: metadata.%s debe ser una cadena: %w", skill.ManifestFile, skill.RequiresKey, domain.ErrInvalid)
 	}
 	return strings.Join(list, " "), nil
 }
@@ -135,15 +134,15 @@ func parseFrontmatter(data []byte) (frontmatter, error) {
 	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
 	rest, ok := bytes.CutPrefix(data, []byte("---\n"))
 	if !ok {
-		return frontmatter{}, fmt.Errorf("%s does not start with YAML frontmatter (---): %w", skill.ManifestFile, domain.ErrInvalid)
+		return frontmatter{}, domain.Errorf("%s no empieza con un frontmatter YAML (---): %w", skill.ManifestFile, domain.ErrInvalid)
 	}
 	block, _, ok := bytes.Cut(rest, []byte("\n---"))
 	if !ok {
-		return frontmatter{}, fmt.Errorf("%s frontmatter is not closed with ---: %w", skill.ManifestFile, domain.ErrInvalid)
+		return frontmatter{}, domain.Errorf("el frontmatter de %s no se cierra con ---: %w", skill.ManifestFile, domain.ErrInvalid)
 	}
 	var fm frontmatter
 	if err := yaml.Unmarshal(block, &fm); err != nil {
-		return frontmatter{}, fmt.Errorf("%s frontmatter: %w: %w", skill.ManifestFile, err, domain.ErrInvalid)
+		return frontmatter{}, domain.Errorf("frontmatter de %s: %w: %w", skill.ManifestFile, err, domain.ErrInvalid)
 	}
 	return fm, nil
 }

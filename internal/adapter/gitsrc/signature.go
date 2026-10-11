@@ -3,7 +3,6 @@ package gitsrc
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -35,7 +34,7 @@ type Signatures struct {
 // Signature implements app.SignatureChecker.
 func (s Signatures) Signature(ctx context.Context, src source.Source, commit string) (app.Signature, error) {
 	if !isCommit(commit) {
-		return app.Signature{}, fmt.Errorf("%q is not a commit id: %w", commit, domain.ErrInvalid)
+		return app.Signature{}, domain.Errorf("%q no es un id de commit: %w", commit, domain.ErrInvalid)
 	}
 	f := s.Fetcher
 	dir, err := os.MkdirTemp("", "skilus-sig-")
@@ -49,9 +48,9 @@ func (s Signatures) Signature(ctx context.Context, src source.Source, commit str
 	}
 	if _, err := f.git(ctx, dir, nil, "fetch", "--quiet", "--depth=1", "--filter=blob:none", "--no-tags", "--end-of-options", src.URL, commit); err != nil {
 		if notFound(err) {
-			return app.Signature{}, fmt.Errorf("fetch %s: %w: %w", src, err, domain.ErrNotFound)
+			return app.Signature{}, domain.Errorf("descargar %s: %w: %w", src, err, domain.ErrNotFound)
 		}
-		return app.Signature{}, fmt.Errorf("fetch %s: %w", src, err)
+		return app.Signature{}, domain.Errorf("descargar %s: %w", src, err)
 	}
 	raw, err := f.git(ctx, dir, nil, "cat-file", "commit", commit)
 	if err != nil {
@@ -118,7 +117,7 @@ func (s Signatures) github(ctx context.Context, repo, commit string) (bool, erro
 	}
 	owner, name, ok := strings.Cut(repo, "/")
 	if !ok || strings.Contains(name, "/") {
-		return false, fmt.Errorf("%s is not owner/repo: %w", repo, domain.ErrInvalid)
+		return false, domain.Errorf("%s no tiene la forma owner/repo: %w", repo, domain.ErrInvalid)
 	}
 	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
 	defer cancel()
@@ -141,7 +140,7 @@ func (s Signatures) github(ctx context.Context, repo, commit string) (bool, erro
 	}
 	defer resp.Body.Close() //nolint:errcheck // read-only
 	if resp.StatusCode != http.StatusOK {
-		return false, fmt.Errorf("GitHub API: %s", resp.Status)
+		return false, domain.Errorf("API de GitHub: %s", resp.Status)
 	}
 	var body struct {
 		Commit struct {

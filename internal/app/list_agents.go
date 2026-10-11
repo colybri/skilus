@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 )
 
@@ -23,13 +23,13 @@ type AgentStatus struct {
 func (q ListAgents) Handle(ctx context.Context) ([]AgentStatus, error) {
 	agents, err := q.Catalog.Agents(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("load agent catalog: %w", err)
+		return nil, domain.Errorf("cargar el catálogo de agentes: %w", err)
 	}
 	out := make([]AgentStatus, 0, len(agents))
 	for _, a := range agents {
 		ok, err := q.Detector.Installed(ctx, a)
 		if err != nil {
-			return nil, fmt.Errorf("detect agent %s: %w", a.ID(), err)
+			return nil, domain.Errorf("detectar el agente %s: %w", a.ID(), err)
 		}
 		out = append(out, AgentStatus{Agent: a, Installed: ok})
 	}

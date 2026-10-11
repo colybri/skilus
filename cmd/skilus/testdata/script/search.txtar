@@ -25,7 +25,7 @@ exec skilus search nada --no-registry
 stdout 'Sin resultados\.'
 
 ! exec skilus search --no-registry
-stderr 'requires at least 1 arg'
+stderr 'necesita al menos 1 argumento'
 
 -- index.yaml --
 version: 1

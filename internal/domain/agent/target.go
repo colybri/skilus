@@ -1,8 +1,6 @@
 package agent
 
 import (
-	"fmt"
-
 	"github.com/colybri/skilus/internal/domain"
 )
 
@@ -21,7 +19,7 @@ func ParseScope(s string) (Scope, error) {
 	case ScopeProject, ScopeGlobal:
 		return Scope(s), nil
 	}
-	return "", fmt.Errorf("scope %q must be project or global: %w", s, domain.ErrInvalid)
+	return "", domain.Errorf("el ámbito %q debe ser project o global: %w", s, domain.ErrInvalid)
 }
 
 // Mode says how files reach the agent's directory.
@@ -39,7 +37,7 @@ func ParseMode(s string) (Mode, error) {
 	case ModeSymlink, ModeCopy:
 		return Mode(s), nil
 	}
-	return "", fmt.Errorf("mode %q must be symlink or copy: %w", s, domain.ErrInvalid)
+	return "", domain.Errorf("el modo %q debe ser symlink o copy: %w", s, domain.ErrInvalid)
 }
 
 // Target is one place a skill is deployed to.

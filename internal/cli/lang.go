@@ -42,7 +42,7 @@ o un locale como pt_BR.UTF-8; auto vuelve a seguir al sistema.`),
 			if !strings.EqualFold(args[0], auto) {
 				c, ok := i18n.Match(args[0])
 				if !ok {
-					return fmt.Errorf("%s: %w", t.T("idioma no disponible: %s; elige uno de %s", args[0], languageCodes()), domain.ErrInvalid)
+					return domain.Errorf("%s: %w", t.T("idioma no disponible: %s; elige uno de %s", args[0], languageCodes()), domain.ErrInvalid)
 				}
 				code = c
 			}
