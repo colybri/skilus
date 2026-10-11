@@ -119,7 +119,7 @@ func run() int {
 		Sync:         sync,
 		ListProfiles: app.ListProfilesHandler{Manifest: repo, Locks: repo},
 		UseProfile:   app.UseProfileHandler{Add: add, Sync: sync, Manifest: repo},
-		EditProfile:  app.EditProfileHandler{Manifest: repo, Profiles: repo, Catalog: agents},
+		EditProfile:  app.EditProfileHandler{Manifest: repo, Profiles: repo, Catalog: agents, Detector: detector, Locks: repo, ProjectRoot: cwd},
 		EditManifest: app.EditManifestHandler{Files: repo, Editor: editor.New(runtime.GOOS == "windows")},
 		Audit: app.AuditHandler{
 			Locks:      repo,

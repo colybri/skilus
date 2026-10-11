@@ -186,11 +186,12 @@ export default {
     code('skilus update --check\nskilus update --check --json'),
   ] },
   profiles: { title: 'الملفات الشخصية', lead: 'جمّع المهارات حسب السياق وبدّل المجموعة بأمر واحد.', blocks: [
-    p('يجمع الملف الشخصي مهارات معرّفة مسبقًا في `skills:` داخل `skilus.yaml`، واختياريًا الوكلاء الذين تُوجَّه إليهم. بدون `agents:` يُستخدم الوكلاء المكتشفون.'),
+    p('يجمع الملف الشخصي مهارات معرّفة مسبقًا في `skills:` داخل `skilus.yaml` والوكلاء الذين تُوجَّه إليهم. لا يمكن نشر ملف شخصي بلا `agents:`.'),
     code(PROFILES, 'yaml'),
     h2('edit', 'إنشاء الملفات الشخصية وتعديلها'),
     code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
     p('يُعرِّف `profile create` ملفًا شخصيًا؛ ويجب أن تكون مهاراته مُدرجة مسبقًا في `skills:` (أضفها أولًا باستخدام `skilus add`)، ويحدد `--agent` وكلاءه. يضيف `profile add` و`profile remove` المهارات أو يزيلانها، ومع `--agent` الوكلاء؛ ويحذف `profile delete` الملف الشخصي. لا تعدّل هذه الأوامر سوى `profiles:`، وتحافظ على تعليقات `skilus.yaml` وترتيبه، ولا تثبّت شيئًا ولا تزيله: فذلك عمل `profile use`.'),
+    p('في الطرفية، يتيح لك `profile create` من دون `--skill` تحديد المهارات التي يتضمنها من `skills:`، ومن دون `--agent` الوكلاء المكتشفين الذين يُنشر فيهم، بالمحدِّد نفسه الذي يستخدمه `skilus add`. ومع `-y` أو خارج الطرفية يأخذ كل المهارات وكل الوكلاء المكتشفين. يُكتب الوكلاء المختارون في الملف الشخصي. وعند حذف آخر ملف شخصي تختفي `profiles:` أيضًا.'),
     h2('use', 'استخدام ملف شخصي'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('يعلّم `profile list` الملف الشخصي النشط بـ `*`. يثبّت `profile use` مهارات الملف الناقصة بالفحص نفسه الذي يجريه `add`، وينقل المثبّت منها إلى وكلاء الملف، ويسحب ما لا يتضمنه الملف.'),

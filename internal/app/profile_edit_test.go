@@ -3,12 +3,14 @@ package app_test
 import (
 	"context"
 	"errors"
+	"path/filepath"
 	"slices"
 	"testing"
 
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
+	"github.com/colybri/skilus/internal/domain/lock"
 	"github.com/colybri/skilus/internal/domain/profile"
 	"github.com/colybri/skilus/internal/domain/skill"
 )
@@ -42,7 +44,7 @@ func editFixture(t *testing.T) (app.EditProfileHandler, *memProfiles) {
 	}
 	store.m.Profiles = []profile.Profile{mustProfile(t, "web", []string{"a"}, "codex")}
 	cat := fakeCatalog{agents: []agent.Agent{agentAt(t, "claude-code", ".claude/skills"), agentAt(t, "codex", ".agents/skills")}}
-	return app.EditProfileHandler{Manifest: store, Profiles: store, Catalog: cat}, store
+	return app.EditProfileHandler{Manifest: store, Profiles: store, Catalog: cat, Detector: fakeDetector{"claude-code": true}}, store
 }
 
 func profileNames(p profile.Profile) (skills, agents []string) {
@@ -87,6 +89,54 @@ func TestCreateProfile(t *testing.T) {
 	}
 	if len(store.m.Profiles) != 2 {
 		t.Errorf("failed creates changed the manifest: %d profiles", len(store.m.Profiles))
+	}
+}
+
+func TestCreateProfileLetsTheUserChoose(t *testing.T) {
+	ctx := context.Background()
+	h, _ := editFixture(t)
+	cursor := agentAt(t, "cursor", ".agents/skills")
+	h.Catalog = fakeCatalog{agents: []agent.Agent{agentAt(t, "claude-code", ".claude/skills"), agentAt(t, "codex", ".agents/skills"), cursor}}
+	h.Detector = fakeDetector{"claude-code": true, "codex": true, "cursor": true}
+	h.ProjectRoot = "/repo"
+	installed := lockWith(t, "b")
+	h.Locks = &fakeLocks{lf: installed}
+	c := &fakeChooser{skills: []string{"b", "c"}, dirs: []string{filepath.Join("/repo", ".agents", "skills")}}
+	h.Chooser = c
+
+	p, err := h.Create(ctx, app.CreateProfile{Name: "ops", Scope: agent.ScopeProject})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.profile != "ops" || len(c.declared) != 3 || c.declared[0].Installed || !c.declared[1].Installed || c.declared[2].Source != "./skills" {
+		t.Errorf("offered %q %+v", c.profile, c.declared)
+	}
+	if len(c.targets) != 2 || c.total != 3 {
+		t.Errorf("offered %d directories of %d agents, want 2 of 3", len(c.targets), c.total)
+	}
+	// One option holds codex and cursor, which share .agents/skills: both
+	// are written down.
+	if s, a := profileNames(p); !slices.Equal(s, []string{"b", "c"}) || !slices.Equal(a, []string{"codex", "cursor"}) {
+		t.Errorf("created %v %v", s, a)
+	}
+}
+
+func TestCreateProfileWithoutChooserTakesEverything(t *testing.T) {
+	ctx := context.Background()
+	h, _ := editFixture(t)
+	h.Detector = fakeDetector{"claude-code": true, "codex": true}
+
+	p, err := h.Create(ctx, app.CreateProfile{Name: "ops", Scope: agent.ScopeProject})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s, a := profileNames(p); !slices.Equal(s, []string{"a", "b", "c"}) || !slices.Equal(a, []string{"claude-code", "codex"}) {
+		t.Errorf("created %v %v", s, a)
+	}
+
+	h.Detector = fakeDetector{}
+	if _, err := h.Create(ctx, app.CreateProfile{Name: "none", Scope: agent.ScopeProject}); !errors.Is(err, domain.ErrInvalid) {
+		t.Errorf("no agents detected: err = %v, want ErrInvalid", err)
 	}
 }
 
@@ -138,4 +188,21 @@ func TestDeleteProfile(t *testing.T) {
 	if len(store.m.Profiles) != 0 {
 		t.Errorf("profiles left: %d", len(store.m.Profiles))
 	}
+}
+
+// lockWith returns a lock holding the named skills.
+func lockWith(t *testing.T, names ...string) *lock.Lockfile {
+	t.Helper()
+	base := newSyncFixture(t).entry
+	var entries []lock.Entry
+	for _, n := range names {
+		e := base
+		e.Skill = name(t, n)
+		entries = append(entries, e)
+	}
+	lf, err := lock.Restore(entries)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return lf
 }

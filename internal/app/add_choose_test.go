@@ -19,6 +19,14 @@ type fakeChooser struct {
 	offered []skill.Package
 	targets []app.PlannedTarget
 	total   int
+	// profile and declared record what ChooseProfileSkills offered.
+	profile  string
+	declared []app.ProfileSkill
+}
+
+func (f *fakeChooser) ChooseProfileSkills(_ context.Context, profile string, skills []app.ProfileSkill) ([]skill.Name, error) {
+	f.profile, f.declared = profile, skills
+	return f.ChooseSkills(context.Background(), "", "", nil)
 }
 
 func (f *fakeChooser) ChooseSkills(_ context.Context, _, _ string, skills []skill.Package) ([]skill.Name, error) {

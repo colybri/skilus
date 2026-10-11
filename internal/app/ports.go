@@ -208,14 +208,24 @@ type Prompter interface {
 	ConfirmProfile(ctx context.Context, plan ProfilePlan) (bool, error)
 }
 
-// Chooser lets the user pick what skilus add installs when the command
-// names no skills or no agents.
+// Chooser lets the user pick what skilus add installs, or what a new
+// profile holds, when the command names no skills or no agents.
 type Chooser interface {
 	// ChooseSkills returns the skills to install from those of source.
 	ChooseSkills(ctx context.Context, source, commit string, skills []skill.Package) ([]skill.Name, error)
 	// ChooseTargets returns the destinations to install in, out of those of
 	// the detected agents; total is the number of agents skilus knows.
 	ChooseTargets(ctx context.Context, targets []PlannedTarget, total int) ([]PlannedTarget, error)
+	// ChooseProfileSkills returns the skills of a new profile, out of
+	// those skills: declares.
+	ChooseProfileSkills(ctx context.Context, profile string, skills []ProfileSkill) ([]skill.Name, error)
+}
+
+// ProfileSkill is a skill declared in skills: offered for a profile.
+type ProfileSkill struct {
+	Name      skill.Name
+	Source    string
+	Installed bool
 }
 
 // SettingsRepository keeps the user's own preferences, which belong to the

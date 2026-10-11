@@ -22,8 +22,8 @@ func newProfileCommand(list app.ListProfilesHandler, use app.UseProfileHandler, 
 	cmd := &cobra.Command{
 		Use:   "profile",
 		Short: t.T("Cambia entre los perfiles de skills declarados en skilus.yaml"),
-		Long: t.T(`Un perfil es un conjunto de skills de skilus.yaml y, opcionalmente, los
-agentes donde se despliegan:
+		Long: t.T(`Un perfil es un conjunto de skills de skilus.yaml y los agentes donde se
+despliegan:
 
   profiles:
     backend:
@@ -31,6 +31,7 @@ agentes donde se despliegan:
       agents: [claude-code]
     web:
       skills: [systematic-debugging, web-design-guidelines]
+      agents: [claude-code, cursor]
 
 skilus profile create, add, remove y delete editan esa sección sin tocar
 el resto del fichero. skilus profile use despliega un perfil y retira lo
@@ -73,15 +74,11 @@ func newProfileListCommand(h app.ListProfilesHandler, t *i18n.Catalog) *cobra.Co
 				for _, n := range p.Skills() {
 					skills = append(skills, n.String())
 				}
-				agents := t.T("detectados")
-				if ids := p.Agents(); len(ids) > 0 {
-					names := make([]string, len(ids))
-					for i, id := range ids {
-						names[i] = id.String()
-					}
-					agents = strings.Join(names, ",")
+				agents := make([]string, 0, len(p.Agents()))
+				for _, id := range p.Agents() {
+					agents = append(agents, id.String())
 				}
-				fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", mark, p.Name(), orDash(strings.Join(skills, ",")), agents)
+				fmt.Fprintf(tw, "%s\t%s\t%s\t%s\n", mark, p.Name(), orDash(strings.Join(skills, ",")), orDash(strings.Join(agents, ",")))
 			}
 			if err := tw.Flush(); err != nil {
 				return err
@@ -174,13 +171,16 @@ func newProfileCreateCommand(h app.EditProfileHandler, t *i18n.Catalog) *cobra.C
 	var (
 		c     app.CreateProfile
 		scope string
+		yes   bool
 	)
 	cmd := &cobra.Command{
 		Use:   "create <perfil>",
 		Short: t.T("Declara un perfil nuevo en skilus.yaml"),
 		Long: t.T(`Añade el perfil a profiles: en skilus.yaml. Sus skills tienen que estar ya
-en skills: (instálalas antes con skilus add); sin --agent, el perfil se
-despliega en los agentes detectados. No instala nada: usa skilus profile use.`),
+en skills: (instálalas antes con skilus add). Sin --skill te deja elegir
+entre ellas y sin --agent, entre los agentes detectados; con -y o fuera de
+un terminal toma todas las skills y todos los agentes detectados. Los
+agentes quedan escritos en el perfil. No instala nada: usa skilus profile use.`),
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			s, err := agent.ParseScope(scope)
@@ -188,6 +188,9 @@ despliega en los agentes detectados. No instala nada: usa skilus profile use.`),
 				return err
 			}
 			c.Name, c.Scope = args[0], s
+			if !yes {
+				h.Chooser = newChooser(cmd.InOrStdin(), cmd.OutOrStdout(), styleFor(cmd, cmd.OutOrStdout()), t)
+			}
 			p, err := h.Create(cmd.Context(), c)
 			if err != nil {
 				return err
@@ -202,6 +205,7 @@ despliega en los agentes detectados. No instala nada: usa skilus profile use.`),
 	f.StringVar(&scope, "scope", string(agent.ScopeProject), t.T("project o global"))
 	f.StringSliceVar(&c.Skills, "skill", nil, t.T("skill del perfil; repítela o sepáralas con comas"))
 	f.StringSliceVar(&c.Agents, "agent", nil, t.T("agente donde se despliega el perfil; repítelo o sepáralos con comas"))
+	f.BoolVarP(&yes, "yes", "y", false, t.T("no preguntes; toma todas las skills declaradas y los agentes detectados"))
 	return cmd
 }
 
@@ -237,8 +241,8 @@ func newProfileRemoveCommand(h app.EditProfileHandler, t *i18n.Catalog) *cobra.C
 		Short: t.T("Quita skills o agentes de un perfil"),
 		Long: t.T(`Quita skills y agentes de un perfil. Las skills siguen en skills: de
 skilus.yaml y, si están instaladas, en los agentes: el próximo
-skilus profile use las retira. Si quitas todos los agentes, el perfil se
-despliega en los agentes detectados.`),
+skilus profile use las retira. Un perfil sin agentes no se puede
+desplegar hasta que le añadas alguno.`),
 		Args: cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			c.Name, c.RemoveSkills = args[0], args[1:]
@@ -300,16 +304,12 @@ func renderProfile(w io.Writer, p profile.Profile, t *i18n.Catalog) {
 	for _, n := range p.Skills() {
 		skills = append(skills, n.String())
 	}
-	agents := t.T("detectados")
-	if ids := p.Agents(); len(ids) > 0 {
-		names := make([]string, len(ids))
-		for i, id := range ids {
-			names[i] = id.String()
-		}
-		agents = strings.Join(names, ", ")
+	agents := make([]string, 0, len(p.Agents()))
+	for _, id := range p.Agents() {
+		agents = append(agents, id.String())
 	}
 	fmt.Fprint(w, t.T("  skills: %s\n", orDash(strings.Join(skills, ", "))))
-	fmt.Fprint(w, t.T("  agentes: %s\n", agents))
+	fmt.Fprint(w, t.T("  agentes: %s\n", orDash(strings.Join(agents, ", "))))
 }
 
 func (p prompter) ConfirmProfile(_ context.Context, plan app.ProfilePlan) (bool, error) {

@@ -189,10 +189,24 @@ func TestUseProfileErrors(t *testing.T) {
 	}
 }
 
+func TestUseProfileNeedsAgentsForItsSkills(t *testing.T) {
+	f := newProfileFixture(t)
+	ctx := context.Background()
+	f.manifest.m.Profiles = append(f.manifest.m.Profiles, mustProfile(t, "bare", []string{"a"}), mustProfile(t, "empty", nil))
+
+	if _, err := f.use.Handle(ctx, app.UseProfile{Name: "bare", Scope: agent.ScopeProject, Yes: true}); !errors.Is(err, domain.ErrInvalid) {
+		t.Errorf("profile without agents: err = %v, want ErrInvalid", err)
+	}
+	// Without skills there is nothing to deploy, so no agents are needed.
+	if _, err := f.use.Handle(ctx, app.UseProfile{Name: "empty", Scope: agent.ScopeProject, Yes: true}); err != nil {
+		t.Errorf("profile without skills: %v", err)
+	}
+}
+
 func TestUseProfileScriptsAllowedByManifest(t *testing.T) {
 	script := skill.File{Path: "run.sh", Kind: skill.KindExecutable, Data: []byte("echo hi\n")}
 	f := newProfileFixture(t, app.FetchedSkill{Path: "skills/s", Package: pkg(t, "s", script)})
-	f.manifest.m.Profiles = append(f.manifest.m.Profiles, mustProfile(t, "ops", []string{"s"}))
+	f.manifest.m.Profiles = append(f.manifest.m.Profiles, mustProfile(t, "ops", []string{"s"}, "codex"))
 	ctx := context.Background()
 
 	if _, err := f.use.Handle(ctx, app.UseProfile{Name: "ops", Scope: agent.ScopeProject, Yes: true}); !errors.Is(err, app.ErrRejected) {

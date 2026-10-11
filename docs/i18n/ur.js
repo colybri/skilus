@@ -186,11 +186,12 @@ export default {
     code('skilus update --check\nskilus update --check --json'),
   ] },
   profiles: { title: 'پروفائلز', lead: 'سیاق کے مطابق اسکلز کو گروپ کریں اور ایک ہی کمانڈ سے مجموعہ بدلیں۔', blocks: [
-    p('پروفائل ان اسکلز کو گروپ کرتا ہے جو پہلے سے `skilus.yaml` کے `skills:` میں درج ہیں، اور چاہیں تو وہ ایجنٹس بھی جہاں وہ جاتی ہیں۔ `agents:` کے بغیر پہچانے گئے ایجنٹس استعمال ہوتے ہیں۔'),
+    p('پروفائل ان اسکلز کو گروپ کرتا ہے جو پہلے سے `skilus.yaml` کے `skills:` میں درج ہیں، اور وہ ایجنٹس بھی جہاں وہ جاتی ہیں۔ `agents:` کے بغیر پروفائل تعینات نہیں ہو سکتا۔'),
     code(PROFILES, 'yaml'),
     h2('edit', 'پروفائل بنانا اور تبدیل کرنا'),
     code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
     p('`profile create` ایک پروفائل کا اعلان کرتا ہے؛ اس کی skills پہلے سے `skills:` میں ہونی چاہییں (پہلے انہیں `skilus add` سے شامل کریں) اور `--agent` اس کے ایجنٹ طے کرتا ہے۔ `profile add` اور `profile remove` skills کو، اور `--agent` کے ساتھ ایجنٹوں کو، شامل یا خارج کرتے ہیں؛ `profile delete` پروفائل حذف کرتا ہے۔ یہ کمانڈز صرف `profiles:` میں ترمیم کرتی ہیں، `skilus.yaml` کے تبصرے اور ترتیب برقرار رکھتی ہیں اور کچھ بھی انسٹال یا واپس نہیں لیتیں: یہ کام `profile use` کا ہے۔'),
+    p('ٹرمینل میں `--skill` کے بغیر `profile create` آپ کو چننے دیتا ہے کہ `skills:` کی کون سی اسکلز شامل ہوں، اور `--agent` کے بغیر کن دریافت شدہ ایجنٹس میں یہ تعینات ہو، اسی سلیکٹر سے جو `skilus add` استعمال کرتا ہے۔ `-y` کے ساتھ یا ٹرمینل سے باہر یہ تمام اسکلز اور تمام دریافت شدہ ایجنٹس لیتا ہے۔ منتخب ایجنٹس پروفائل میں لکھے جاتے ہیں۔ آخری پروفائل حذف کرنے پر `profiles:` بھی ہٹ جاتا ہے۔'),
     h2('use', 'پروفائل استعمال کرنا'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` فعال پروفائل پر `*` لگاتا ہے۔ `profile use` پروفائل کی غیر موجود اسکلز `add` جیسی جانچ کے ساتھ انسٹال کرتا ہے، پہلے سے انسٹال شدہ کو پروفائل کے ایجنٹس میں منتقل کرتا ہے، اور جو پروفائل میں شامل نہیں انہیں ہٹاتا ہے۔'),

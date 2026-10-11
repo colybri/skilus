@@ -115,3 +115,37 @@ func (c chooser) run(sel *selector) error {
 	}
 	return nil
 }
+
+func (c chooser) ChooseProfileSkills(_ context.Context, profile string, skills []app.ProfileSkill) ([]skill.Name, error) {
+	t := c.t
+	sel := selector{
+		title: t.T("¿Qué skills incluyo en el perfil %s?", profile),
+		hint:  t.T("↑↓ mover · espacio marcar · → todas · ← ninguna · escribe para filtrar · enter aceptar"),
+		footer: func(shown, checked int) string {
+			if shown < len(skills) {
+				return t.T("%d de %d coinciden · %d marcadas", shown, len(skills), checked)
+			}
+			return t.T("%d de %d marcadas", checked, len(skills))
+		},
+	}
+	for _, s := range skills {
+		detail := clean(shortPath(s.Source))
+		if !s.Installed {
+			detail += sep + t.T("no instalada")
+		}
+		sel.options = append(sel.options, option{
+			label: s.Name.String(), detail: detail, checked: true,
+			match: s.Name.String(),
+		})
+	}
+	if err := c.run(&sel); err != nil {
+		return nil, err
+	}
+	var out []skill.Name
+	for i, o := range sel.options {
+		if o.checked {
+			out = append(out, skills[i].Name)
+		}
+	}
+	return out, nil
+}

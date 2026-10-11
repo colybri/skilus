@@ -86,9 +86,22 @@ func (r Repo) DeleteProfile(_ context.Context, scope agent.Scope, name string) e
 			continue
 		}
 		profiles.Content = append(profiles.Content[:i], profiles.Content[i+2:]...)
+		if len(profiles.Content) == 0 {
+			deleteKey(doc.Content[0], "profiles") // no "profiles: {}" left behind
+		}
 		return writeDoc(p, doc)
 	}
 	return nil
+}
+
+// deleteKey drops key and its value from the mapping m.
+func deleteKey(m *yaml.Node, key string) {
+	for i := 0; i+1 < len(m.Content); i += 2 {
+		if m.Content[i].Value == key {
+			m.Content = append(m.Content[:i], m.Content[i+2:]...)
+			return
+		}
+	}
 }
 
 // setList sets m[key] to values. An existing list keeps its style and the

@@ -186,11 +186,12 @@ export default {
     code('skilus update --check\nskilus update --check --json'),
   ] },
   profiles: { title: 'プロファイル', lead: '用途ごとにスキルをまとめ、1 コマンドでセットを切り替えます。', blocks: [
-    p('プロファイルは、`skilus.yaml` の `skills:` で宣言済みのスキルと、必要に応じて配置先のエージェントをまとめたものです。`agents:` がなければ検出されたエージェントが使われます。'),
+    p('プロファイルは、`skilus.yaml` の `skills:` で宣言済みのスキルと、その配置先のエージェントをまとめたものです。`agents:` のないプロファイルは配置できません。'),
     code(PROFILES, 'yaml'),
     h2('edit', 'プロファイルの作成と編集'),
     code('skilus profile create web --skill debug,ui --agent codex\nskilus profile add web review\nskilus profile remove web ui --agent codex\nskilus profile delete web'),
     p('`profile create` はプロファイルを宣言します。含める skill はあらかじめ `skills:` にある必要があり（先に `skilus add` で追加）、`--agent` でエージェントを指定します。`profile add` と `profile remove` は skill を、`--agent` を付けるとエージェントを追加・削除し、`profile delete` はプロファイルを削除します。これらは `profiles:` だけを編集し、`skilus.yaml` のコメントと順序を保ち、何もインストールも撤去もしません。それは `profile use` の役割です。'),
+    p('端末では、`--skill` なしの `profile create` で `skills:` のどのスキルを含めるかを、`--agent` なしで検出されたどのエージェントに配置するかを、`skilus add` と同じセレクターで選べます。`-y` を付けるか端末の外では、すべてのスキルと検出されたすべてのエージェントを使います。選んだエージェントはプロファイルに書き込まれます。最後のプロファイルを削除すると `profiles:` も消えます。'),
     h2('use', 'プロファイルを使う'),
     code('skilus profile list\nskilus profile use web\nskilus profile use web --dry-run'),
     p('`profile list` はアクティブなプロファイルに `*` を付けます。`profile use` は `add` と同じ検査で不足しているスキルをインストールし、既存のものをプロファイルのエージェントへ移し、含まれないものを外します。'),
