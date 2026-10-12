@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/cli/i18n"
@@ -113,6 +114,11 @@ func localizeCobra(root *cobra.Command, t *i18n.Catalog) {
 	root.InitDefaultHelpCmd()
 	for _, c := range root.Commands() {
 		if c.Name() == "help" {
+			// The command takes the user's word for help; "help" still works.
+			if name := t.T("ayuda"); name != "help" {
+				c.Use = name + " [" + t.T("comando") + "]"
+				c.Aliases = append(c.Aliases, "help")
+			}
 			c.Short = t.T("Ayuda sobre cualquier comando")
 			c.Long = t.T("Muestra la ayuda de cualquier comando de skilus.")
 		}
@@ -125,11 +131,32 @@ func localizeCobra(root *cobra.Command, t *i18n.Catalog) {
 		if c.Flags().Lookup("help") == nil {
 			c.Flags().BoolP("help", "h", false, t.T("ayuda de %s", c.Name()))
 		}
+		// Cobra appends an English "[flags]" to the usage line and pflag an
+		// English "(default …)" to each flag, so both are written here.
+		if c.Runnable() && !c.DisableFlagsInUseLine {
+			c.DisableFlagsInUseLine = true
+			c.Use += " [" + t.T("opciones") + "]"
+		}
+		c.Flags().VisitAll(func(f *pflag.Flag) {
+			if !zeroDefault(f) {
+				f.Usage += " " + t.T("(por defecto: %s)", f.DefValue)
+				f.DefValue = ""
+			}
+		})
 		for _, sub := range c.Commands() {
 			walk(sub)
 		}
 	}
 	walk(root)
+}
+
+// zeroDefault reports whether pflag would print no default for f.
+func zeroDefault(f *pflag.Flag) bool {
+	switch f.DefValue {
+	case "", "false", "0", "[]", "<nil>":
+		return true
+	}
+	return false
 }
 
 // usageTemplate is Cobra's default usage template with its headings
@@ -144,6 +171,7 @@ func usageTemplate(t *i18n.Catalog) string {
 		"«Opciones globales:»", t.T("Opciones globales:"),
 		"«Más ayuda:»", t.T("Más temas de ayuda:"),
 		"«comando»", t.T("comando"),
+		"«ayuda»", t.T("ayuda"),
 		"«Usa…»", t.T(`Usa "%s [comando] --help" para ver la ayuda de un comando.`, "{{.CommandPath}}"),
 	)
 	return r.Replace(`«Uso:»{{if .Runnable}}
@@ -156,7 +184,7 @@ func usageTemplate(t *i18n.Catalog) string {
 «Ejemplos:»
 {{.Example}}{{end}}{{if .HasAvailableSubCommands}}
 
-«Comandos:»{{range .Commands}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
+«Comandos:»{{range .Commands}}{{if (or .IsAvailableCommand (eq .Name "«ayuda»"))}}
   {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
 
 «Opciones:»

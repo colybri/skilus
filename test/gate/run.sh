@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# Phase gates, run by CI on Linux, macOS and Windows.
+# Release gate against real repositories, run by CI on Linux, macOS and
+# Windows. It checks four things:
 #
-# Phase 1: install 12 real skills from four public repositories, pinned to
+# 1. Install 12 real skills from four public repositories, pinned to
 # commits, and check that the lock matches the one committed in this
 # directory, so every OS produces the same lock.
 #
-# Phase 2: with only the lock left, sync rebuilds the agents' directories
+# 2. With only the lock left, sync rebuilds the agents' directories
 # and verify passes; a file changed by hand makes verify fail.
 #
-# Phase 3: a team that only has skilus.yaml, with a backend and a web
+# 3. A team that only has skilus.yaml, with a backend and a web
 # profile, deploys backend and then moves to web with one command.
 #
-# Phase 4: search finds a real skill on skills.sh, and audit verifies the
+# 4. Search finds a real skill on skills.sh, and audit verifies the
 # signatures of the installed ones and fails on an unsigned, untrusted one.
 #
 # Usage: test/gate/run.sh <path to the skilus binary>
@@ -66,7 +67,7 @@ fi
 # The committed lock was produced on Linux; any difference means the hash or
 # the lock depends on the OS.
 diff --strip-trailing-cr "$here/skilus.lock" skilus.lock
-echo "Puerta de la fase 1 superada: 12 skills, mismo lock."
+echo "Instalación superada: 12 skills, mismo lock."
 
 "$bin" verify
 
@@ -96,9 +97,9 @@ from_archive=$("$bin" inspect "$archive" --skill pdf --json | sed -n 's/.*"tree_
 from_lock=$(awk '/^  pdf:/{p=1} p && /tree_sha256:/{print $2; exit}' skilus.lock)
 test -n "$from_archive" && test "$from_archive" = "$from_lock" ||
   { echo "pdf from the archive: $from_archive; from git: $from_lock" >&2; exit 1; }
-echo "Puerta de la fase 2 superada: sync reproduce el entorno, verify detecta el cambio y el tar.gz coincide con git."
+echo "Sincronización superada: sync reproduce el entorno, verify detecta el cambio y el tar.gz coincide con git."
 
-# Phase 3: a new checkout of a team's repository holds only skilus.yaml,
+# Profiles: a new checkout of a team's repository holds only skilus.yaml,
 # with the sources recorded above and two profiles.
 mkdir "$work/team"
 cp skilus.yaml "$work/team/skilus.yaml"
@@ -137,14 +138,14 @@ done
 "$bin" verify
 "$bin" profile list | grep -q '^\* *web ' || { "$bin" profile list; echo "web is not active" >&2; exit 1; }
 diff "$work/team.yaml" skilus.yaml
-echo "Puerta de la fase 3 superada: el equipo pasa del perfil backend al web con un solo comando."
+echo "Perfiles superados: el equipo pasa del perfil backend al web con un solo comando."
 
-# Phase 4: search finds a real skill on skills.sh, which the gate installs.
+# Search finds a real skill on skills.sh, which the gate installs.
 "$bin" search pdf --owner anthropics --limit 5
 "$bin" search pdf --owner anthropics --limit 5 --json | grep -q '"source": "anthropics/skills"' ||
   { echo "skills.sh did not return anthropics/skills for pdf" >&2; exit 1; }
 
-# Phase 4: audit checks the 12 installed skills. Their pinned commits were
+# Audit checks the 12 installed skills. Their pinned commits were
 # signed on GitHub, so every signature verifies.
 cd "$work/project"
 "$bin" audit --scope project
@@ -178,4 +179,4 @@ test "$code" -eq 5 || { echo "audit --strict exited $code, want 5" >&2; exit 1; 
 grep -q 'rogue: 2 avisos con --strict' "$work/audit.out"
 grep -q '^  ! el commit [0-9a-f]\{12\} no está firmado \[unsigned-commit\]$' "$work/audit.out"
 grep -q '^  ! file://.*rogue no está en trust: de skilus.yaml \[untrusted-source\]$' "$work/audit.out"
-echo "Puerta de la fase 4 superada: search encuentra una skill real y audit detecta la que no tiene firma ni confianza."
+echo "Búsqueda y auditoría superadas: search encuentra una skill real y audit detecta la que no tiene firma ni confianza."

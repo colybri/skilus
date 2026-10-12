@@ -39,6 +39,15 @@ var Languages = []Language{
 	{"pl", "Polski"},
 	{"ur", "اردو"},
 	{"hi", "हिन्दी"},
+	{"it", "Italiano"},
+	{"tr", "Türkçe"},
+	{"el", "Ελληνικά"},
+	{"hu", "Magyar"},
+	{"sk", "Slovenčina"},
+	{"nl", "Nederlands"},
+	{"no", "Norsk"},
+	{"sv", "Svenska"},
+	{"fi", "Suomi"},
 }
 
 //go:embed locales/*.json
@@ -112,6 +121,10 @@ func Match(locale string) (string, bool) {
 		s = s[:i]
 	}
 	s = strings.ToLower(s)
+	if s == "nb" || s == "nn" {
+		// Bokmål and Nynorsk locales (nb_NO, nn_NO) share the Norwegian catalog.
+		s = "no"
+	}
 	if _, ok := Lookup(s); ok {
 		return s, true
 	}

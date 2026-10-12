@@ -159,7 +159,7 @@ func TestLanguagesMatchTheDocs(t *testing.T) {
 	for _, l := range i18n.Languages {
 		codes = append(codes, l.Code)
 	}
-	if got := strings.Join(codes, ","); got != "es,en,fr,de,pt,zh,ja,id,ar,ru,pl,ur,hi" {
+	if got := strings.Join(codes, ","); got != "es,en,fr,de,pt,zh,ja,id,ar,ru,pl,ur,hi,it,tr,el,hu,sk,nl,no,sv,fi" {
 		t.Fatalf("languages = %s", got)
 	}
 }
