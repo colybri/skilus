@@ -48,7 +48,7 @@ summary::-webkit-details-marker{display:none}
   <aside style="width:288px; flex-shrink:0; height:100vh; position:{{ asidePos }}; top:0; inset-inline-start:0; z-index:40; transform:{{ asideTransform }}; transition:transform .25s ease; background:var(--side,#1b1d2b); border-inline-end:1px solid var(--line,#2c2f3d); display:flex; flex-direction:column;">
     <div style="padding:20px 18px 14px; display:flex; flex-direction:column; gap:14px;">
       <div style="display:flex; align-items:center; gap:10px;">
-        <a href="#" onClick="{{ goHome }}" style="display:flex; align-items:center; gap:10px; color:var(--ink,#e9e9ed); text-decoration:none; flex:1; min-width:0;">
+        <a href="{{ homeHref }}" onClick="{{ goHome }}" style="display:flex; align-items:center; gap:10px; color:var(--ink,#e9e9ed); text-decoration:none; flex:1; min-width:0;">
           <span style="width:32px; height:32px; border-radius:8px; border:1px solid var(--accLine,#5d5294); background:radial-gradient(circle at 30% 25%, var(--accSoft,#2b2741), transparent 70%); box-shadow:0 0 18px var(--accGlow,rgba(145,132,217,.28)); color:var(--acc,#9184d9); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M21 11 A5 5 0 1 0 16 16 A5 5 0 1 1 11 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"></path><circle cx="21" cy="11" r="2.3" fill="currentColor"></circle><circle cx="11" cy="21" r="2.3" fill="var(--bg,#161826)" stroke="currentColor" stroke-width="1.6"></circle></svg></span>
           <span style="display:flex; align-items:baseline; gap:6px; min-width:0;">
             <span style="font-weight:500; font-size:17px; letter-spacing:-0.015em;">skilus</span>
@@ -59,6 +59,24 @@ summary::-webkit-details-marker{display:none}
           <button onClick="{{ closeDrawer }}" aria-label="Close" style="width:32px; height:32px; border:0; background:transparent; color:var(--mute,#b2b6ca); font-size:22px; line-height:1; cursor:pointer;">×</button>
         </sc-if>
       </div>
+      <sc-if value="{{ hasVersion }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;">
+          <button onClick="{{ toggleVer }}" aria-label="Version" aria-expanded="{{ verOpen }}" style="width:100%; height:34px; padding:0 12px; border-radius:8px; border:1px solid var(--line,#2c2f3d); background:transparent; color:var(--ink,#e9e9ed); font:inherit; font-size:13.5px; display:flex; align-items:center; gap:10px; cursor:pointer;" style-hover="border-color:var(--acc,#9184d9);">
+            <span style="flex:1; text-align:start; font-family:var(--mono,'IBM Plex Mono',monospace);">{{ verLabel }}</span>
+            <span style="font-size:9px; color:var(--mute,#b2b6ca);">▼</span>
+          </button>
+          <sc-if value="{{ verOpen }}">
+            <div style="position:absolute; top:calc(100% + 6px); left:0; right:0; max-height:min(360px, 60vh); overflow:auto; background:var(--card,#232532); border-radius:12px; box-shadow:var(--shadowLg,0 0 0 1px #595d6c, 0 16px 40px rgba(0,0,0,.65)); padding:6px; z-index:60;">
+              <sc-for list="{{ verList }}" as="vo" hint-placeholder-count="2">
+                <a href="{{ vo.href }}" style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border-radius:8px; background:{{ vo.bg }}; color:{{ vo.color }}; font-family:var(--mono,'IBM Plex Mono',monospace); font-size:13.5px; font-weight:{{ vo.weight }}; text-decoration:none;" style-hover="background:var(--hover,#2a2c3a); text-decoration:none;">
+                  <span>{{ vo.v }}</span>
+                  <span style="font-family:var(--font,'Inter',sans-serif); font-size:11px; color:var(--mute,#b2b6ca);">{{ vo.tag }}</span>
+                </a>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
 
     </div>
 
@@ -120,6 +138,13 @@ summary::-webkit-details-marker{display:none}
           </span>
         </sc-for>
       </div>
+
+      <sc-if value="{{ showOld }}">
+        <div role="note" style="display:flex; flex-wrap:wrap; gap:6px 12px; align-items:center; padding:12px 14px; margin-bottom:22px; border-radius:10px; background:var(--warnBg,#2a2620); border:1px solid var(--warnBd,#4a4030); font-size:14px; color:var(--warnFg,#e6c991);">
+          <span>{{ oldText }}</span>
+          <a href="{{ latestHref }}" style="color:var(--warnFg,#e6c991); text-decoration:underline; font-weight:500;">{{ goLatestText }}</a>
+        </div>
+      </sc-if>
 
       <sc-if value="{{ showNotice }}">
         <div style="display:flex; gap:10px; align-items:flex-start; padding:12px 14px; margin-bottom:22px; border-radius:10px; background:var(--side,#1b1d2b); border:1px solid var(--line,#2c2f3d); font-size:14px; color:var(--mute,#b2b6ca);">
@@ -304,37 +329,39 @@ summary::-webkit-details-marker{display:none}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;,&quot;it&quot;,&quot;tr&quot;,&quot;el&quot;,&quot;hu&quot;,&quot;sk&quot;,&quot;nl&quot;,&quot;no&quot;,&quot;sv&quot;,&quot;fi&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
-  state = { docs: null, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {}, osTab: null };
+  state = { docs: null, versions: [], verOpen: false, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {}, osTab: null };
 
   componentDidMount() {
     let saved = {};
     try { saved = JSON.parse(localStorage.getItem('skilus-docs') || '{}'); } catch (e) {}
-    const h = this.parseHash();
+    const h = this.parseRoute();
     this.setState({
       lang: h.lang || saved.lang || this.props.defaultLang || 'en',
       page: h.page || 'overview',
       dark: saved.dark ?? (this.props.defaultTheme !== 'light'),
     });
-    import(new URL('./content.js', location.href).href).then(m => this.setState({ docs: m.default }));
+    import(new URL('content.js', document.baseURI).href).then(m => this.setState({ docs: m.default }));
+    // Every published version, newest first, written by scripts/build-site.mjs.
+    if (this.version()) fetch('/doc/versions.json').then(r => r.ok ? r.json() : []).then(versions => this.setState({ versions })).catch(() => {});
     this.detectPlatform();
     // The newest published release that carries binaries, prereleases included.
     fetch('https://api.github.com/repos/colybri/skilus/releases?per_page=10')
       .then(r => r.ok ? r.json() : [])
-      .then(list => { const r = list.find(r => !r.draft && r.assets.some(a => a.name.startsWith('skilus_'))); if (r) this.setState({ rel: { ver: r.tag_name.replace(/^v/, ''), assets: Object.fromEntries(r.assets.map(a => [a.name, a.browser_download_url])) } }); })
+      .then(list => { const ok = r => !r.draft && r.assets.some(a => a.name.startsWith('skilus_')); const minor = (this.version() || '').replace(/\.\d+$/, '.'); const r = list.find(r => ok(r) && minor && r.tag_name.startsWith(minor)) || list.find(ok); if (r) this.setState({ rel: { ver: r.tag_name.replace(/^v/, ''), assets: Object.fromEntries(r.assets.map(a => [a.name, a.browser_download_url])) } }); })
       .catch(() => {});
     this.onResize = () => this.setState({ w: window.innerWidth });
     this.onScroll = () => this.updateActive();
-    this.onHash = () => { const h = this.parseHash(); if (h.page && (h.page !== this.state.page || h.lang !== this.state.lang)) this.setState({ page: h.page, lang: h.lang || this.state.lang }); };
+    this.onPop = () => { const h = this.parseRoute(); this.setState({ page: h.page || 'overview', lang: h.lang || this.state.lang }); };
     this.onKey = e => {
-      if (e.key === 'Escape') this.setState({ langOpen: false, drawer: false });
+      if (e.key === 'Escape') this.setState({ langOpen: false, verOpen: false, drawer: false });
     };
     this.onDocClick = e => {
-      if (!this.state.langOpen) return;
-      if (!e.target.closest('aside')) this.setState({ langOpen: false });
+      if (!this.state.langOpen && !this.state.verOpen) return;
+      if (!e.target.closest('aside')) this.setState({ langOpen: false, verOpen: false });
     };
     window.addEventListener('resize', this.onResize);
     window.addEventListener('scroll', this.onScroll, { passive: true });
-    window.addEventListener('hashchange', this.onHash);
+    window.addEventListener('popstate', this.onPop);
     window.addEventListener('keydown', this.onKey);
     document.addEventListener('mousedown', this.onDocClick);
     this.applyTheme();
@@ -342,14 +369,20 @@ class Component extends DCLogic {
   componentWillUnmount() {
     window.removeEventListener('resize', this.onResize);
     window.removeEventListener('scroll', this.onScroll);
-    window.removeEventListener('hashchange', this.onHash);
+    window.removeEventListener('popstate', this.onPop);
     window.removeEventListener('keydown', this.onKey);
     document.removeEventListener('mousedown', this.onDocClick);
   }
   componentDidUpdate() { this.applyTheme(); }
 
-  parseHash() {
-    const parts = (location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
+  // Pages live at /doc/<version>/<lang>/<page>/; the build sets <base> to
+  // /doc/<version>/ and names the version in a meta tag.
+  version() { const m = document.querySelector('meta[name="skilus-doc-version"]'); return m ? m.content : ''; }
+  basePath() { return new URL(document.baseURI).pathname; }
+  url(lang, page) { return `${this.basePath()}${lang}/${page}/`; }
+  parseRoute() {
+    const path = location.pathname.startsWith(this.basePath()) ? location.pathname.slice(this.basePath().length) : '';
+    const parts = path.split('/').filter(Boolean);
     const known = ['es','en','fr','de','pt','zh','ja','id','ar','ru','pl','ur','hi','it','tr','el','hu','sk','nl','no','sv','fi'];
     const out = {};
     if (parts[0] && known.includes(parts[0])) { out.lang = parts[0]; out.page = parts[1]; } else if (parts[0]) out.page = parts[0];
@@ -371,7 +404,7 @@ class Component extends DCLogic {
   }
   osTab() { return this.state.osTab || this.state.platform.os || 'linux'; }
   downloads(ui) {
-    const ver = (this.state.rel && this.state.rel.ver) || '0.2.0';
+    const ver = (this.state.rel && this.state.rel.ver) || (this.version() || 'v1.0.0').replace(/^v/, '');
     const assets = (this.state.rel && this.state.rel.assets) || {};
     const base = `https://github.com/colybri/skilus/releases/download/v${ver}/`;
     const { os: myOs, arch: myArch } = this.state.platform;
@@ -419,8 +452,8 @@ class Component extends DCLogic {
   go(page, anchor) {
     const lang = this.state.lang;
     this.setState({ page, drawer: false, langOpen: false, activeH: null });
-    const hash = `#/${lang}/${page}`;
-    if (location.hash !== hash) history.pushState(null, '', hash);
+    const url = this.url(lang, page);
+    if (location.pathname !== url) history.pushState(null, '', url);
     setTimeout(() => {
       const el = anchor && document.getElementById(anchor);
       window.scrollTo({ top: el ? el.getBoundingClientRect().top + window.scrollY - 16 : 0, behavior: el ? 'smooth' : 'auto' });
@@ -429,7 +462,21 @@ class Component extends DCLogic {
   setLang(code) {
     this.persist({ lang: code });
     this.setState({ lang: code, langOpen: false });
-    history.replaceState(null, '', `#/${code}/${this.state.page}`);
+    history.replaceState(null, '', this.url(code, this.state.page));
+  }
+  versionVals(ui, L, page) {
+    const cur = this.version(), list = this.state.versions, latest = list[0];
+    const fill = (t, v) => (t || '').replace('%s', v);
+    return {
+      hasVersion: !!cur, verLabel: cur, verOpen: this.state.verOpen,
+      toggleVer: () => this.setState(s => ({ verOpen: !s.verOpen, langOpen: false })),
+      verList: (list.length ? list : [cur]).map(v => ({
+        v, href: `/doc/${v}/${L}/${page}/`, tag: v === latest ? ui.latest : (v === cur ? '✓' : ''),
+        bg: v === cur ? 'var(--accSoft)' : 'transparent', color: v === cur ? 'var(--accInk)' : 'var(--ink)', weight: v === cur ? 600 : 400,
+      })),
+      showOld: !!(cur && latest && cur !== latest),
+      oldText: fill(fill(ui.oldVersion, cur), latest), goLatestText: fill(ui.goLatest, latest), latestHref: `/doc/${latest}/${L}/${page}/`,
+    };
   }
   updateActive() {
     const ids = this._h2 || [];
@@ -447,7 +494,7 @@ class Component extends DCLogic {
       else if (m[2] != null) out.push({ isBold: true, text: m[2] });
       else {
         const href = m[4], ext = /^https?:/.test(href);
-        out.push({ isLink: true, text: m[3], href: ext ? href : `#/${this.state.lang}/${href}`, target: ext ? '_blank' : '_self', onClick: ext ? undefined : (e) => { e.preventDefault(); this.go(href); } });
+        out.push({ isLink: true, text: m[3], href: ext ? href : this.url(this.state.lang, href), target: ext ? '_blank' : '_self', onClick: ext ? undefined : (e) => { e.preventDefault(); this.go(href); } });
       }
       last = re.lastIndex;
     }
@@ -465,9 +512,9 @@ class Component extends DCLogic {
       mainPad: isMobile ? '76px 20px 40px' : (w < 1200 ? '44px 40px 56px' : '48px 56px 64px'),
       openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
       langCode: L.toUpperCase(), sepChar: rtl ? '‹' : '›', arrow: rtl ? '←' : '→', prevArrow: rtl ? '→' : '←', nextArrow: rtl ? '←' : '→',
-      toggleLang: () => this.setState(s => ({ langOpen: !s.langOpen })),
+      toggleLang: () => this.setState(s => ({ langOpen: !s.langOpen, verOpen: false })),
       toggleTheme: () => { const dark = !this.state.dark; this.persist({ dark }); this.setState({ dark }); },
-      goHome: (e) => { e.preventDefault(); this.go('overview'); },
+      goHome: (e) => { e.preventDefault(); this.go('overview'); }, homeHref: this.url(L, 'overview'),
       langOpen: this.state.langOpen,
     };
     if (!D) return { ...base, ui: {}, showToc: false, blocks: [], navItems: [], langList: [], crumbs: [], toc: [] };
@@ -479,7 +526,7 @@ class Component extends DCLogic {
     const Lead = (id) => full ? D.pages[L][id].lead : ((D.titles[L] && D.titles[L][id]) ? D.titles[L][id][1] : D.pages.en[id].lead);
     const page = D.order.includes(this.state.page) ? this.state.page : 'overview';
     const parent = D.nav.find(n => n.children && n.children.includes(page));
-    const href = (id) => `#/${L}/${id}`;
+    const href = (id) => this.url(L, id);
     const link = (id) => (e) => { e.preventDefault(); this.go(id); };
     const activeStyle = (on) => on ? { bg: 'var(--accSoft)', color: 'var(--accInk)', weight: 500 } : { bg: 'transparent', color: 'var(--ink)', weight: 400 };
 
@@ -523,7 +570,7 @@ class Component extends DCLogic {
     const h2s = raw.filter(b => b.t === 'h2');
     this._h2 = h2s.map(b => b.id);
     const activeH = this.state.activeH || this._h2[0];
-    const toc = h2s.map(b => ({ text: b.text.replace(/`/g, ''), href: '#' + b.id, onClick: (e) => { e.preventDefault(); this.go(page, b.id); }, bd: b.id === activeH ? 'var(--acc)' : 'transparent', color: b.id === activeH ? 'var(--acc)' : 'var(--mute)', weight: b.id === activeH ? 600 : 400 }));
+    const toc = h2s.map(b => ({ text: b.text.replace(/`/g, ''), href: href(page) + '#' + b.id, onClick: (e) => { e.preventDefault(); this.go(page, b.id); }, bd: b.id === activeH ? 'var(--acc)' : 'transparent', color: b.id === activeH ? 'var(--acc)' : 'var(--mute)', weight: b.id === activeH ? 600 : 400 }));
 
     const idx = D.order.indexOf(page);
     const mk = (id) => id && ({ label: T(id), href: href(id), onClick: link(id) });
@@ -537,6 +584,7 @@ class Component extends DCLogic {
       pageTitle: T(page), pageLead: Lead(page), showNotice: !full,
       themeLabel: this.state.dark ? ui.light : ui.dark,
       langNative: (D.langs.find(l => l.code === L) || {}).native,
+      ...this.versionVals(ui, L, page),
       hasPrev: idx > 0, prev: mk(D.order[idx - 1]) || {}, hasNext: idx < D.order.length - 1, next: mk(D.order[idx + 1]) || {},
       showFeedback: this.props.showFeedback !== false, fbPending: !this.state.fb[fbKey], fbDone: !!this.state.fb[fbKey],
       fbYes: () => this.setState(s => ({ fb: { ...s.fb, [fbKey]: 'yes' } })), fbNo: () => this.setState(s => ({ fb: { ...s.fb, [fbKey]: 'no' } })),

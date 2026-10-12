@@ -48,6 +48,18 @@ jobs:
           # every run; when that site is slow, lint fails without linting.
           verify: false
 
+  site:
+    # Builds skilus.com from the working tree, as the pages workflow does
+    # from each release tag.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build-site.mjs --worktree v0.0.0 --out _site
+      - run: test -f _site/doc/v0.0.0/en/overview/index.html && test -f _site/doc/en/faq/index.html
+
   release-snapshot:
     # Builds every release archive without publishing, so a broken
     # .goreleaser.yaml is caught before tagging.
