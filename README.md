@@ -32,7 +32,7 @@ There is no authentication of its own and no server: Git sources use the system 
 - **Search:** `skilus search` queries [skills.sh](https://skills.sh) and team indexes declared in `skilus.yaml`.
 - **Skill dependencies:** a skill can require others through `metadata.requires` in its `SKILL.md` frontmatter.
 - **74 agents** in the bundled catalog, extendable with `~/.skilus/agents.yaml`.
-- **13 languages** for messages, prompts, help and errors.
+- **22 languages** for messages, prompts, help and errors.
 
 ## Architecture
 
@@ -191,7 +191,7 @@ skilus exposes no HTTP, GraphQL, gRPC or WebSocket routes. These are its main en
 
 Exit codes: 0 success, 1 error or cancelled, 2 invalid usage, 3 not found, 4 already installed or conflict, 5 rejected by the inspection, 6 installed content does not match the lock.
 
-The full user guide, in 13 languages, is the static site in [`docs/`](docs/). To preview it, run `python3 -m http.server` in `docs/` and open `http://localhost:8000/#/en/overview`.
+The full user guide, in 22 languages, is the static site in [`docs/`](docs/). To preview it, run `python3 -m http.server` in `docs/` and open `http://localhost:8000/#/en/overview`.
 
 ## Repository structure
 
@@ -206,7 +206,7 @@ The full user guide, in 13 languages, is the static site in [`docs/`](docs/). To
 │   ├── app/                    # Use cases (one handler per command) and ports.go
 │   ├── adapter/                # gitsrc, archivesrc, searchsrc, yamlrepo, osfs, catalog, skillsrc, editor
 │   └── cli/                    # Cobra commands, output rendering and i18n/locales
-├── docs/                       # Documentation website (13 languages)
+├── docs/                       # Documentation website (22 languages)
 ├── test/gate/                  # Release gate against real public repositories
 ├── .github/workflows/          # ci.yml (tests, lint, gate) and release.yml
 ├── .golangci.yml               # Linters, including layer rules (depguard)
@@ -260,7 +260,7 @@ The full list is in [CLAUDE.md](CLAUDE.md). The essentials:
 - **Code comments and identifiers** are in English. Format with `gofmt` and `goimports -local github.com/colybri/skilus`.
 - **End-to-end scripts** must pass on all three systems: set `HOME` and `USERPROFILE`, match paths with `[/\\]`, and build file URLs from `$WORKURL`.
 - **Never skip or disable a test** to make CI pass.
-- **User-visible changes** need the `docs/` website updated in its 13 languages and this README.
+- **User-visible changes** need the `docs/` website updated in its 22 languages and this README.
 
 ### Pull requests
 

@@ -19,7 +19,7 @@ stdout '^  \* en  English$'
 env LANG=fr_FR.UTF-8
 exec skilus lang
 stdout '^Langue : Français \(fr\)'
-env LANG=it_IT.UTF-8
+env LANG=ko_KR.UTF-8
 exec skilus list
 stdout '^No skills installed\.$'
 
@@ -43,8 +43,8 @@ env SKILUS_LANG=
 exec skilus lang set auto
 exec skilus lang
 stdout '^Langue : Français \(fr\)'
-! exec skilus lang set it
-stderr 'it'
+! exec skilus lang set ko
+stderr 'ko'
 stderr 'es, en, fr'
 
 # Help and prompts are translated too.
@@ -52,3 +52,21 @@ env LANG=en_US.UTF-8
 exec skilus --help
 stdout '^Usage:$'
 stdout '^  lang +Show or change the language skilus writes in$'
+stdout '^  help +Help about any command$'
+stdout '^  -h, --help'
+exec skilus update --help
+stdout '^  skilus update \[skill\]\.\.\. \[flags\]$'
+stdout '\(default: project\)$'
+! stdout '\(default "'
+
+# The help command takes the word of each language; help always works.
+env LANG=de_DE.UTF-8
+exec skilus --help
+stdout '^  hilfe +'
+! stdout '^  help '
+stdout '^Verwendung:$'
+exec skilus hilfe lang
+stdout 'skilus lang'
+exec skilus help lang
+stdout 'skilus lang'
+stdout '\[Optionen\]'

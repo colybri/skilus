@@ -91,7 +91,7 @@ summary::-webkit-details-marker{display:none}
         </button>
         <sc-if value="{{ langOpen }}">
           <div style="position:absolute; bottom:calc(100% + 6px); left:0; right:0; max-height:min(440px, 70vh); overflow:auto; background:var(--card,#232532); border-radius:12px; box-shadow:var(--shadowLg,0 0 0 1px #595d6c, 0 16px 40px rgba(0,0,0,.65)); padding:6px; z-index:60;">
-            <sc-for list="{{ langList }}" as="l" hint-placeholder-count="13">
+            <sc-for list="{{ langList }}" as="l" hint-placeholder-count="22">
               <button onClick="{{ l.onClick }}" style="width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px 10px; border:0; border-radius:8px; background:{{ l.bg }}; color:{{ l.color }}; font:inherit; font-size:14px; text-align:start; cursor:pointer;" style-hover="background:var(--hover,#2a2c3a);">
                 <span style="font-weight:{{ l.weight }};">{{ l.native }}</span>
                 <span style="font-size:11px; color:var(--mute,#b2b6ca); font-family:var(--mono,'IBM Plex Mono',monospace); text-transform:uppercase;">{{ l.code }}</span>
@@ -302,7 +302,7 @@ summary::-webkit-details-marker{display:none}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;],&quot;default&quot;:&quot;es&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;,&quot;it&quot;,&quot;tr&quot;,&quot;el&quot;,&quot;hu&quot;,&quot;sk&quot;,&quot;nl&quot;,&quot;no&quot;,&quot;sv&quot;,&quot;fi&quot;],&quot;default&quot;:&quot;es&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
   state = { docs: null, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {}, osTab: null };
 
@@ -350,7 +350,7 @@ class Component extends DCLogic {
 
   parseHash() {
     const parts = (location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
-    const known = ['es','en','fr','de','pt','zh','ja','id','ar','ru','pl','ur','hi'];
+    const known = ['es','en','fr','de','pt','zh','ja','id','ar','ru','pl','ur','hi','it','tr','el','hu','sk','nl','no','sv','fi'];
     const out = {};
     if (parts[0] && known.includes(parts[0])) { out.lang = parts[0]; out.page = parts[1]; } else if (parts[0]) out.page = parts[0];
     return out;

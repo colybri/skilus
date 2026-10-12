@@ -64,8 +64,9 @@ jobs:
           version: "~> v2"
           args: release --snapshot --clean --skip=sign,sbom,publish
 
-  phase1-gate:
-    # Puertas de las fases 1 a 4 (test/gate/run.sh). Necesita red hacia
+  gate:
+    # Instala skills reales y prueba sync, perfiles, search y audit
+    # (test/gate/run.sh). Necesita red hacia
     # github.com y skills.sh.
     strategy:
       fail-fast: false
