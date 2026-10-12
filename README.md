@@ -1,12 +1,23 @@
 # skilus
 
-skilus is a command-line manager for AI agent skills (`SKILL.md`), shipped as a single Go binary. It installs skills from Git, ZIP or tar.gz archives or local folders into the agents on your machine, and guarantees that what gets installed is exactly what was reviewed: every skill is pinned to a commit, content-hashed and inspected before install.
+_Skilus_ is a command-line manager for AI agent skills (`SKILL.md`), shipped as a single Go binary. It installs skills from Git, ZIP or tar.gz archives or local folders into the agents on your machine, and guarantees that what gets installed is exactly what was reviewed: every skill is pinned to a commit, content-hashed and inspected before install.
 
-> Status: pre-release (0.x). The `skilus.yaml` and `skilus.lock` formats may still change.
+> Status: stable since v1.0.0. Releases follow [semantic versioning](https://semver.org).
+
+## Documentation
+
+**Full documentation in 22 languages at [skilus.com](https://skilus.com/doc/), with one version per release.**
+
+| Start here | Day to day | Security and teams |
+| --- | --- | --- |
+| [Overview](https://skilus.com/doc/en/overview/) | [Adding skills](https://skilus.com/doc/en/add/) | [Inspection & trust](https://skilus.com/doc/en/inspect/) |
+| [Getting Started](https://skilus.com/doc/en/getting-started/) | [Updates](https://skilus.com/doc/en/update/) | [Lockfile & sync](https://skilus.com/doc/en/lock/) |
+| [User Guide](https://skilus.com/doc/en/user-guide/) | [Search & indexes](https://skilus.com/doc/en/search/) | [Profiles](https://skilus.com/doc/en/profiles/) |
+| [FAQ](https://skilus.com/doc/en/faq/) | [The skilus.yaml file](https://skilus.com/doc/en/manifest/) | [Agents & dependencies](https://skilus.com/doc/en/agents/) |
 
 ## Functional description
 
-A skill is a folder of instructions and scripts that an AI agent (Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf…) runs with your permissions. skilus manages them the way a package manager manages dependencies:
+A skill is a folder of instructions and scripts that an AI agent (Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf…) runs with your permissions. _Skilus_ manages them the way a package manager manages dependencies:
 
 - `skilus.yaml` holds the **intent**: which skills you want, their source and ref, profiles, trusted sources (`trust:`) and search indexes (`indexes:`).
 - `skilus.lock` holds the **result**: the exact content installed, its commit, its SHA-256 and the agents it went to.
@@ -14,12 +25,12 @@ A skill is a folder of instructions and scripts that an AI agent (Claude Code, C
 
 The main flow is: `skilus add` fetches a skill, inspects it, shows a plan and asks for confirmation; it then stores the content, deploys it to the selected agents and records it in both files. Later, `skilus verify` detects any drift from the lock and `skilus sync` rebuilds the same setup on another machine, like `npm ci`.
 
-skilus works in two scopes:
+_Skilus_ works in two scopes:
 
 - **Project** (default): files in the folder where you run skilus; skills are copied into each agent's project folder (for example `.claude/skills`) so they can be committed and shared with your team.
 - **Global** (`--scope global`): files in `~/.skilus/`; skills go into each agent's user folder (for example `~/.claude/skills`) as symlinks to the store, or copies on Windows.
 
-There is no authentication of its own and no server: Git sources use the system `git` binary and your existing credentials, and skilus never stores tokens.
+There is no authentication of its own and no server: Git sources use the system `git` binary and your existing credentials, and _Skilus_ never stores tokens or passwords.
 
 ## Main features
 
@@ -40,7 +51,7 @@ There is no authentication of its own and no server: Git sources use the system 
 flowchart LR
   user([User or CI]) --> cli
 
-  subgraph skilus [skilus binary]
+  subgraph skilus [Skilus binary]
     cli[CLI commands<br/>internal/cli]
     app[Use cases and ports<br/>internal/app]
     domain[Domain model<br/>internal/domain]
@@ -101,17 +112,17 @@ The code follows a hexagonal (DDD) layout with dependencies pointing inwards, en
 
 ## Prerequisites
 
-- **To use skilus:** Linux, macOS or Windows (amd64 or arm64), and `git` for Git sources.
+- **To use _Skilus_:** Linux, macOS or Windows (amd64 or arm64), and `git` for Git sources.
 - **To build it:** Go 1.25 or later, `git`, `make` and golangci-lint v2 for linting.
 
 ## Configuration
 
-skilus needs no configuration to start. It reads these files, all optional:
+_Skilus_ needs no configuration to start. It reads these files, all optional:
 
 | File | Purpose |
 | --- | --- |
 | `skilus.yaml` (project root or `~/.skilus/`) | Declared skills, `profiles:`, `trust:` and `indexes:`. `skilus edit` opens it and only saves valid content. |
-| `skilus.lock` (next to `skilus.yaml`) | Written by skilus; commit it alongside `skilus.yaml`. |
+| `skilus.lock` (next to `skilus.yaml`) | Written by _Skilus_; commit it alongside `skilus.yaml`. |
 | `~/.skilus/config.yaml` | Language chosen with `skilus lang set`. |
 | `~/.skilus/agents.yaml` | Your own agents, or overrides of the bundled ones, in the format of [`internal/adapter/catalog/agents.yaml`](internal/adapter/catalog/agents.yaml). Only read from your home folder. |
 
@@ -154,13 +165,10 @@ bin/skilus --version
 
 `go run ./cmd/skilus <command>` also works without building.
 
-## Running with Docker
-
-The repository has no `Dockerfile`, `Containerfile` or Compose file: skilus is distributed as a standalone binary and writes into your agents' folders on the host, so it is meant to run directly on your machine.
 
 ## Using the application
 
-skilus is a CLI; there is no URL to open. Typical first steps, from the folder of the project where you want the skills:
+Typical first steps, from the folder of the project where you want the skills:
 
 ```sh
 skilus agents                                  # agents detected on this machine and their paths
@@ -174,7 +182,7 @@ In a terminal, `skilus add` without `--skill` or `--agent` opens interactive sel
 
 ## Main commands
 
-skilus exposes no HTTP, GraphQL, gRPC or WebSocket routes. These are its main entry points:
+These are its main entry points:
 
 | Command | Purpose |
 | --- | --- |
@@ -191,7 +199,7 @@ skilus exposes no HTTP, GraphQL, gRPC or WebSocket routes. These are its main en
 
 Exit codes: 0 success, 1 error or cancelled, 2 invalid usage, 3 not found, 4 already installed or conflict, 5 rejected by the inspection, 6 installed content does not match the lock.
 
-The full user guide, in 22 languages, is the static site in [`docs/`](docs/). To preview it, run `python3 -m http.server` in `docs/` and open `http://localhost:8000/#/en/overview`.
+The full user guide, in 22 languages, is published at [skilus.com](https://skilus.com/doc/) from the static site in [`docs/`](docs/), one version per minor release. To preview the working tree, run `node scripts/build-site.mjs --worktree v1.0.0 --out _site`, then `python3 -m http.server -d _site` and open `http://localhost:8000/doc/v1.0.0/en/overview/`.
 
 ## Repository structure
 
@@ -207,8 +215,9 @@ The full user guide, in 22 languages, is the static site in [`docs/`](docs/). To
 │   ├── adapter/                # gitsrc, archivesrc, searchsrc, yamlrepo, osfs, catalog, skillsrc, editor
 │   └── cli/                    # Cobra commands, output rendering and i18n/locales
 ├── docs/                       # Documentation website (22 languages)
+├── scripts/build-site.mjs      # Builds skilus.com, one docs version per release tag
 ├── test/gate/                  # Release gate against real public repositories
-├── .github/workflows/          # ci.yml (tests, lint, gate) and release.yml
+├── .github/workflows/          # ci.yml (tests, lint, gate), release.yml and pages.yml
 ├── .golangci.yml               # Linters, including layer rules (depguard)
 ├── .goreleaser.yaml            # Release archives, checksums, SBOMs and signing
 ├── Makefile                    # build, test, lint, check
