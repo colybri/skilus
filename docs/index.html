@@ -302,7 +302,7 @@ summary::-webkit-details-marker{display:none}
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;,&quot;it&quot;,&quot;tr&quot;,&quot;el&quot;,&quot;hu&quot;,&quot;sk&quot;,&quot;nl&quot;,&quot;no&quot;,&quot;sv&quot;,&quot;fi&quot;],&quot;default&quot;:&quot;es&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;,&quot;it&quot;,&quot;tr&quot;,&quot;el&quot;,&quot;hu&quot;,&quot;sk&quot;,&quot;nl&quot;,&quot;no&quot;,&quot;sv&quot;,&quot;fi&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
   state = { docs: null, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {}, osTab: null };
 
@@ -311,7 +311,7 @@ class Component extends DCLogic {
     try { saved = JSON.parse(localStorage.getItem('skilus-docs') || '{}'); } catch (e) {}
     const h = this.parseHash();
     this.setState({
-      lang: h.lang || saved.lang || this.props.defaultLang || 'es',
+      lang: h.lang || saved.lang || this.props.defaultLang || 'en',
       page: h.page || 'overview',
       dark: saved.dark ?? (this.props.defaultTheme !== 'light'),
     });
@@ -389,7 +389,7 @@ class Component extends DCLogic {
   }
 
   applyTheme() {
-    const d = this.state.dark, L = this.state.lang || 'es';
+    const d = this.state.dark, L = this.state.lang || 'en';
     const v = d ? {
       bg: '#161826', side: '#1b1d2b', card: '#232532', hover: '#2a2c3a', line: '#2c2f3d',
       ink: '#e9e9ed', mute: '#b2b6ca', code: '#2a2c3a', codeOnNote: 'rgba(233,233,237,.08)',
@@ -456,7 +456,7 @@ class Component extends DCLogic {
   }
 
   renderVals() {
-    const D = this.state.docs, L = this.state.lang || this.props.defaultLang || 'es';
+    const D = this.state.docs, L = this.state.lang || this.props.defaultLang || 'en';
     const rtl = this.isRtl(L), w = this.state.w, isMobile = w < 900;
     const base = {
       dir: rtl ? 'rtl' : 'ltr', lang: L, isMobile, drawer: this.state.drawer,
