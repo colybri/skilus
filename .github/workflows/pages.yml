@@ -1,6 +1,6 @@
 name: pages
 
-# Publishes skilus.com: each minor release's documentation, built from its
+# Publishes skilus.dev: each minor release's documentation, built from its
 # tag by scripts/build-site.mjs. Pages must use "GitHub Actions" as source.
 on:
   push:

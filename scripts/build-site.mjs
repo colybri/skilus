@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Builds skilus.com from the docs/ folder of each release tag.
+// Builds skilus.dev from the docs/ folder of each release tag.
 //
 // Every minor release (v1.0, v1.1…) gets its own copy of the documentation,
 // taken from its newest patch tag and published as /doc/vX.Y.0/. Each page

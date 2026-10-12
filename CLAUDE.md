@@ -54,7 +54,7 @@ Página estática con 22 idiomas: es, en, fr, de, pt, zh, ja, id, ar, ru, pl, ur
 - Una página nueva va en `order` y `nav`, en los arrays de `T` de los 20 idiomas (en la misma posición), en las 22 páginas y en las `cards` de la guía de usuario.
 - Los enlaces internos son `[texto](id-de-página)`. Dentro de celdas de `table` no se muestran, así que van en un párrafo.
 - Las rutas de Windows en cadenas JS llevan la barra invertida escapada (`C:\\Users\\…`).
-- Las URL son `/doc/<versión>/<idioma>/<página>/`. `scripts/build-site.mjs` construye skilus.com con una copia de `docs/` por versión menor, sacada del tag de su último parche (v1.0.x → `/doc/v1.0.0/`), y `.github/workflows/pages.yml` la publica al subir un tag. Lo que se cambie en `docs/` sale en la web con la siguiente release.
+- Las URL son `/doc/<versión>/<idioma>/<página>/`. `scripts/build-site.mjs` construye skilus.dev con una copia de `docs/` por versión menor, sacada del tag de su último parche (v1.0.x → `/doc/v1.0.0/`), y `.github/workflows/pages.yml` la publica al subir un tag. Lo que se cambie en `docs/` sale en la web con la siguiente release.
 - Los enlaces se construyen con `url(idioma, página)` de `index.html`, nunca con rutas fijas: la etiqueta `<base>` que pone el script apunta a la carpeta de la versión.
 - Para revisarla: `node scripts/build-site.mjs --worktree v1.0.0 --out _site`, `python3 -m http.server -d _site` y se abre `/doc/v1.0.0/<idioma>/<página>/`.
 

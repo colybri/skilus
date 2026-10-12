@@ -6,14 +6,14 @@ _Skilus_ is a command-line manager for AI agent skills (`SKILL.md`), shipped as 
 
 ## Documentation
 
-**Full documentation in 22 languages at [skilus.com](https://skilus.com/doc/), with one version per release.**
+**Full documentation in 22 languages at [skilus.dev](https://skilus.dev/doc/), with one version per release.**
 
 | Start here | Day to day | Security and teams |
 | --- | --- | --- |
-| [Overview](https://skilus.com/doc/en/overview/) | [Adding skills](https://skilus.com/doc/en/add/) | [Inspection & trust](https://skilus.com/doc/en/inspect/) |
-| [Getting Started](https://skilus.com/doc/en/getting-started/) | [Updates](https://skilus.com/doc/en/update/) | [Lockfile & sync](https://skilus.com/doc/en/lock/) |
-| [User Guide](https://skilus.com/doc/en/user-guide/) | [Search & indexes](https://skilus.com/doc/en/search/) | [Profiles](https://skilus.com/doc/en/profiles/) |
-| [FAQ](https://skilus.com/doc/en/faq/) | [The skilus.yaml file](https://skilus.com/doc/en/manifest/) | [Agents & dependencies](https://skilus.com/doc/en/agents/) |
+| [Overview](https://skilus.dev/doc/en/overview/) | [Adding skills](https://skilus.dev/doc/en/add/) | [Inspection & trust](https://skilus.dev/doc/en/inspect/) |
+| [Getting Started](https://skilus.dev/doc/en/getting-started/) | [Updates](https://skilus.dev/doc/en/update/) | [Lockfile & sync](https://skilus.dev/doc/en/lock/) |
+| [User Guide](https://skilus.dev/doc/en/user-guide/) | [Search & indexes](https://skilus.dev/doc/en/search/) | [Profiles](https://skilus.dev/doc/en/profiles/) |
+| [FAQ](https://skilus.dev/doc/en/faq/) | [The skilus.yaml file](https://skilus.dev/doc/en/manifest/) | [Agents & dependencies](https://skilus.dev/doc/en/agents/) |
 
 ## Functional description
 
@@ -199,7 +199,7 @@ These are its main entry points:
 
 Exit codes: 0 success, 1 error or cancelled, 2 invalid usage, 3 not found, 4 already installed or conflict, 5 rejected by the inspection, 6 installed content does not match the lock.
 
-The full user guide, in 22 languages, is published at [skilus.com](https://skilus.com/doc/) from the static site in [`docs/`](docs/), one version per minor release. To preview the working tree, run `node scripts/build-site.mjs --worktree v1.0.0 --out _site`, then `python3 -m http.server -d _site` and open `http://localhost:8000/doc/v1.0.0/en/overview/`.
+The full user guide, in 22 languages, is published at [skilus.dev](https://skilus.dev/doc/) from the static site in [`docs/`](docs/), one version per minor release. To preview the working tree, run `node scripts/build-site.mjs --worktree v1.0.0 --out _site`, then `python3 -m http.server -d _site` and open `http://localhost:8000/doc/v1.0.0/en/overview/`.
 
 ## Repository structure
 
@@ -215,7 +215,7 @@ The full user guide, in 22 languages, is published at [skilus.com](https://skilu
 │   ├── adapter/                # gitsrc, archivesrc, searchsrc, yamlrepo, osfs, catalog, skillsrc, editor
 │   └── cli/                    # Cobra commands, output rendering and i18n/locales
 ├── docs/                       # Documentation website (22 languages)
-├── scripts/build-site.mjs      # Builds skilus.com, one docs version per release tag
+├── scripts/build-site.mjs      # Builds skilus.dev, one docs version per release tag
 ├── test/gate/                  # Release gate against real public repositories
 ├── .github/workflows/          # ci.yml (tests, lint, gate), release.yml and pages.yml
 ├── .golangci.yml               # Linters, including layer rules (depguard)
