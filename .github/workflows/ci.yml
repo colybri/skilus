@@ -49,7 +49,7 @@ jobs:
           verify: false
 
   site:
-    # Builds skilus.com from the working tree, as the pages workflow does
+    # Builds skilus.dev from the working tree, as the pages workflow does
     # from each release tag.
     runs-on: ubuntu-latest
     steps:
