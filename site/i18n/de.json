@@ -1,0 +1,70 @@
+{
+  "title": "skilus · Der Paketmanager für Skills von KI-Agenten",
+  "description": "Installiere Skills für KI-Agenten aus GitHub, jedem Git-Repository, Archiven oder lokalen Ordnern in Claude Code, Codex, Cursor und 70 weitere Agenten. Jede Skill wird fixiert, gehasht und geprüft, bevor sie läuft.",
+  "docs": "Doku",
+  "download": "Download",
+  "new": "Neu",
+  "badge": "skilus {version} ist verfügbar",
+  "h1": "Der Paketmanager für Skills von KI-Agenten",
+  "lead": "Installiere Skills aus GitHub, jedem Git-Repository, einem Archiv oder einem lokalen Ordner in Claude Code, Codex, Cursor, GitHub Copilot und {more} weitere Agenten. Jede Skill wird auf einen Commit fixiert, gehasht und geprüft, bevor dein Agent sie ausführen kann.",
+  "installMethod": "Installationsmethode",
+  "copy": "Kopieren",
+  "copied": "Kopiert",
+  "recording": "Aufnahme von skilus in einem Terminal",
+  "pause": "Pause",
+  "play": "Abspielen",
+  "whatTitle": "Was ist skilus?",
+  "whatText": "skilus ist ein einzelnes Go-Binary, das die SKILL.md-Skills deiner KI-Agenten installiert und genau festhält, was installiert wurde. Es funktioniert wie ein Paketmanager: `skilus.yaml` beschreibt, was du willst, und `skilus.lock`, was du bekommen hast.",
+  "features": [
+    [
+      "Fixiert und gehasht",
+      "Jede Skill ist in `skilus.lock` an einen Commit und einen SHA-256 gebunden"
+    ],
+    [
+      "Erst geprüft",
+      "Ausbrechende Symlinks, `curl | sh`, Zugriff auf Zugangsdaten und versteckter Text werden vor der Installation erkannt"
+    ],
+    [
+      "Reproduzierbar",
+      "`skilus sync` baut dasselbe Setup auf jedem Rechner oder CI-Runner neu auf, wie `npm ci`"
+    ],
+    [
+      "Jede Quelle",
+      "GitHub, jeder Git-Host, ZIP- oder tar.gz-Archive und lokale Ordner, mit deinen eigenen Git-Zugangsdaten"
+    ],
+    [
+      "{n} Agenten",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf und mehr"
+    ],
+    [
+      "Profile",
+      "Wechsle mit einem Befehl zwischen Skill-Sets für jeden Kontext"
+    ],
+    [
+      "22 Sprachen",
+      "Abfragen, Meldungen und Hilfe in deiner Sprache"
+    ]
+  ],
+  "readDocs": "Doku lesen",
+  "dark": "Dunkel",
+  "light": "Hell",
+  "language": "Sprache",
+  "dlPageTitle": "skilus herunterladen",
+  "dlTitle": "skilus herunterladen",
+  "dlLead": "{version} · Ein Binary für macOS, Linux und Windows, sonst nichts zu installieren. Jede Release ist signiert und kommt mit Prüfsummen und einer SBOM.",
+  "terminalTitle": "Im Terminal installieren",
+  "terminalText": "Das Skript wählt das passende Binary für dein System, prüft es gegen `checksums.txt` und legt es in deinen PATH.",
+  "unix": "macOS und Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} oder neuer",
+  "binTitle": "Binaries",
+  "binText": "Entpacke das Archiv und verschiebe `skilus` in einen Ordner in deinem PATH.",
+  "downloadBtn": "Herunterladen",
+  "thisDevice": "dieses Gerät",
+  "allFiles": "Prüfsummen und Signatur:",
+  "verifyTitle": "Download überprüfen",
+  "verifyText": "Releases werden mit Sigstore von dem GitHub-Actions-Workflow signiert, der sie gebaut hat. Wenn `cosign` installiert ist, führe dies in dem Ordner aus, in den du die Dateien heruntergeladen hast:",
+  "agentsTitle": "Funktioniert mit deinen Agenten",
+  "agentsText": "skilus findet die auf deinem Rechner installierten Agenten und kopiert jede Skill in den Ordner, den der jeweilige Agent liest.",
+  "seeAll": "Alle {n} Agenten ansehen"
+}

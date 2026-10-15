@@ -1,0 +1,70 @@
+{
+  "title": "skilus · Paketinhallinta tekoälyagenttien skill:eille",
+  "description": "Asenna tekoälyagenttien skill:ejä GitHubista, mistä tahansa Git-repositoriosta, arkistoista tai paikallisista kansioista Claude Codeen, Codexiin, Cursoriin ja 70 muuhun agenttiin. Jokainen skill lukitaan, hashataan ja tarkastetaan ennen kuin se suoritetaan.",
+  "docs": "Dokumentaatio",
+  "download": "Lataa",
+  "new": "Uutta",
+  "badge": "skilus {version} on julkaistu",
+  "h1": "Paketinhallinta tekoälyagenttien skill:eille",
+  "lead": "Asenna skill:ejä GitHubista, mistä tahansa Git-repositoriosta, arkistosta tai paikallisesta kansiosta Claude Codeen, Codexiin, Cursoriin, GitHub Copilotiin ja {more} muuhun agenttiin. Jokainen skill lukitaan commitiin, hashataan ja tarkastetaan ennen kuin agenttisi voi suorittaa sen.",
+  "installMethod": "Asennustapa",
+  "copy": "Kopioi",
+  "copied": "Kopioitu",
+  "recording": "Tallenne skilusin käytöstä terminaalissa",
+  "pause": "Tauko",
+  "play": "Toista",
+  "whatTitle": "Mikä skilus on?",
+  "whatText": "skilus on yksi Go-binääri, joka asentaa tekoälyagenttiesi käyttämät SKILL.md-skill:t ja pitää tarkkaa kirjaa siitä, mitä asennettiin. Se toimii kuin paketinhallinta: `skilus.yaml` kertoo, mitä haluat, ja `skilus.lock`, mitä sait.",
+  "features": [
+    [
+      "Lukittu ja hashattu",
+      "Jokainen skill on lukittu commitiin ja SHA-256-tiivisteeseen `skilus.lock`-tiedostossa"
+    ],
+    [
+      "Ensin tarkastus",
+      "Ulos osoittavat symlinkit, `curl | sh`, tunnistetietojen käyttö ja piilotettu teksti havaitaan ennen asennusta"
+    ],
+    [
+      "Toistettava",
+      "`skilus sync` rakentaa saman kokoonpanon millä tahansa koneella tai CI-ajurilla, kuten `npm ci`"
+    ],
+    [
+      "Mikä tahansa lähde",
+      "GitHub, mikä tahansa Git-palvelu, ZIP- tai tar.gz-arkistot ja paikalliset kansiot omilla Git-tunnistetiedoillasi"
+    ],
+    [
+      "{n} agenttia",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf ja muita"
+    ],
+    [
+      "Profiilit",
+      "Vaihda skill-kokoelmien välillä kuhunkin tilanteeseen yhdellä komennolla"
+    ],
+    [
+      "22 kieltä",
+      "Kysymykset, viestit ja ohjeet omalla kielelläsi"
+    ]
+  ],
+  "readDocs": "Lue dokumentaatio",
+  "dark": "Tumma",
+  "light": "Vaalea",
+  "language": "Kieli",
+  "dlPageTitle": "Lataa skilus",
+  "dlTitle": "Lataa skilus",
+  "dlLead": "{version} · Yksi binääri macOSille, Linuxille ja Windowsille, eikä mitään muuta asennettavaa. Jokainen julkaisu on allekirjoitettu, ja mukana ovat tarkistussummat ja SBOM.",
+  "terminalTitle": "Asenna terminaalista",
+  "terminalText": "Skripti valitsee järjestelmällesi sopivan binäärin, tarkistaa sen `checksums.txt`-tiedostoa vasten ja lisää sen PATH-polulle.",
+  "unix": "macOS ja Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} tai uudempi",
+  "binTitle": "Binäärit",
+  "binText": "Pura arkisto ja siirrä `skilus` johonkin PATH-polulla olevaan kansioon.",
+  "downloadBtn": "Lataa",
+  "thisDevice": "tämä laite",
+  "allFiles": "Tarkistussummat ja allekirjoitus:",
+  "verifyTitle": "Tarkista lataus",
+  "verifyText": "Julkaisut allekirjoittaa Sigstorella sama GitHub Actions -työnkulku, joka ne rakensi. Kun `cosign` on asennettu, suorita tämä kansiossa, johon latasit tiedostot:",
+  "agentsTitle": "Toimii agenttiesi kanssa",
+  "agentsText": "skilus löytää koneellesi asennetut agentit ja kopioi jokaisen skill:n kansioon, josta kyseinen agentti lukee ne.",
+  "seeAll": "Näytä kaikki {n} agenttia"
+}

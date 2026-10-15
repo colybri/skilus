@@ -142,7 +142,21 @@ Environment variables:
 
 ### Install a release
 
-Download the archive for your system from [Releases](https://github.com/colybri/skilus/releases), extract it and put `skilus` (`skilus.exe` on Windows) on your `PATH`. Each release publishes a `checksums.txt` signed keylessly with cosign and an SBOM per archive. To verify a download:
+On macOS or Linux:
+
+```sh
+curl -fsSL https://skilus.dev/install | sh
+```
+
+On Windows (PowerShell):
+
+```powershell
+irm https://skilus.dev/install.ps1 | iex
+```
+
+Both scripts download the newest release for your system, check it against the release's `checksums.txt` and put `skilus` on your `PATH`. `SKILUS_VERSION` picks another version and `SKILUS_INSTALL_DIR` another folder. With Go 1.25 or later, `go install github.com/colybri/skilus/cmd/skilus@latest` also works.
+
+You can also download the archive for your system from [skilus.dev/download](https://skilus.dev/download/), extract it and put `skilus` (`skilus.exe` on Windows) on your `PATH`. Each release publishes a `checksums.txt` signed keylessly with cosign and an SBOM per archive. To verify a download:
 
 ```sh
 cosign verify-blob checksums.txt \
@@ -215,7 +229,9 @@ The full user guide, in 22 languages, is published at [skilus.dev](https://skilu
 │   ├── adapter/                # gitsrc, archivesrc, searchsrc, yamlrepo, osfs, catalog, skillsrc, editor
 │   └── cli/                    # Cobra commands, output rendering and i18n/locales
 ├── docs/                       # Documentation website (22 languages)
+├── site/                       # Home and download pages, install.sh and install.ps1
 ├── scripts/build-site.mjs      # Builds skilus.dev, one docs version per release tag
+├── scripts/record-demo.py      # Records the terminal demo on the home page
 ├── test/gate/                  # Release gate against real public repositories
 ├── .github/workflows/          # ci.yml (tests, lint, gate), release.yml and pages.yml
 ├── .golangci.yml               # Linters, including layer rules (depguard)

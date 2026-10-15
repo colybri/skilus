@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
+	"strings"
 
 	"github.com/colybri/skilus/internal/adapter/archivesrc"
 	"github.com/colybri/skilus/internal/adapter/catalog"
@@ -28,6 +30,19 @@ var version = "dev"
 
 func main() {
 	os.Exit(run())
+}
+
+// moduleVersion reports the module version Go records in the binary, such as
+// v1.0.0 for `go install github.com/colybri/skilus/cmd/skilus@v1.0.0`, when
+// the build did not set version.
+func moduleVersion() string {
+	if version != "dev" {
+		return version
+	}
+	if info, ok := debug.ReadBuildInfo(); ok && strings.HasPrefix(info.Main.Version, "v") {
+		return strings.TrimPrefix(info.Main.Version, "v")
+	}
+	return version
 }
 
 func run() int {
@@ -85,7 +100,7 @@ func run() int {
 		ProjectRoot: cwd,
 	}
 	deps := cli.Deps{
-		Version:      version,
+		Version:      moduleVersion(),
 		Language:     app.LanguageSetting{Settings: repo},
 		Getenv:       os.Getenv,
 		SystemLocale: osfs.SystemLocale(),

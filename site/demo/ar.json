@@ -1,0 +1,352 @@
+{
+ "lang": "ar",
+ "cols": 76,
+ "scenes": [
+  {
+   "name": "add",
+   "steps": [
+    [
+     "cmd",
+     "skilus add anthropics/skills"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span>",
+      "<span class=\"d\">↑↓ تنقّل · المسافة للتحديد · → الكل · ← لا شيء · اكتب للتصفية · Enter للقبول</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 7 أخرى</span>",
+      "<span class=\"d\">  19 من 19 محددة</span>"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span>",
+      "<span class=\"d\">↑↓ تنقّل · المسافة للتحديد · → الكل · ← لا شيء · اكتب للتصفية · Enter للقبول</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  [ ] <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  [ ] <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  [ ] <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  [ ] <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  [ ] <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  [ ] <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  [ ] <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  [ ] <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  [ ] <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  [ ] <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  [ ] <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 7 أخرى</span>",
+      "<span class=\"d\">  0 من 19 محددة</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span>",
+      "<span class=\"d\">↑↓ تنقّل · المسافة للتحديد · → الكل · ← لا شيء · اكتب للتصفية · Enter للقبول</span>",
+      "<span class=\"d\">التصفية:</span> <span class=\"b\">p</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">claude-api    </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK — model…</span>",
+      "  [ ] <span class=\"b\">mcp-builder   </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Context P…</span>",
+      "  [ ] <span class=\"b\">pdf           </span>  <span class=\"d\">Use this skill whenever the user wants to do anythin…</span>",
+      "  [ ] <span class=\"b\">pptx          </span>  <span class=\"d\">Use this skill any time a .pptx or .potx file is inv…</span>",
+      "  [ ] <span class=\"b\">webapp-testing</span>  <span class=\"d\">Toolkit for interacting with and testing local web a…</span>",
+      "<span class=\"d\">  5 من 19 تطابق · 0 محددة</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span>",
+      "<span class=\"d\">↑↓ تنقّل · المسافة للتحديد · → الكل · ← لا شيء · اكتب للتصفية · Enter للقبول</span>",
+      "<span class=\"d\">التصفية:</span> <span class=\"b\">pd</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 من 19 تطابق · 0 محددة</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span>",
+      "<span class=\"d\">↑↓ تنقّل · المسافة للتحديد · → الكل · ← لا شيء · اكتب للتصفية · Enter للقبول</span>",
+      "<span class=\"d\">التصفية:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 من 19 تطابق · 0 محددة</span>"
+     ],
+     700
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span>",
+      "<span class=\"d\">↑↓ تنقّل · المسافة للتحديد · → الكل · ← لا شيء · اكتب للتصفية · Enter للقبول</span>",
+      "<span class=\"d\">التصفية:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 من 19 تطابق · 1 محددة</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span> pdf",
+      "<span class=\"b\">في أي الوكلاء؟</span>",
+      "<span class=\"d\">↑↓ تنقّل · المسافة للتحديد · → الكل · ← لا شيء · اكتب للتصفية · Enter للقبول</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">Claude Code</span>  <span class=\"d\">.claude/skills</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">Codex      </span>  <span class=\"d\">.agents/skills</span>",
+      "<span class=\"d\">  2 من 74 وكيلًا مثبّت · والبقية عبر --agent &lt;id&gt; (القائمة في skilus agents)</span>"
+     ],
+     1600
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span> pdf",
+      "<span class=\"b\">في أي الوكلاء؟</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 مهارة",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 ملفات · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: ملف تنفيذي؛ اقبله بـ allow: [scripts]",
+      "    <span class=\"d\">[executable]</span>",
+      "",
+      "الوجهات: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 مهارة · 0 موانع · <span class=\"y\">1 تحذير</span>",
+      "هل تريد التثبيت؟ [ن/لا]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 مهارات",
+      "",
+      "<span class=\"b\">ما المهارات التي أثبّتها؟</span> pdf",
+      "<span class=\"b\">في أي الوكلاء؟</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 مهارة",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 ملفات · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: ملف تنفيذي؛ اقبله بـ allow: [scripts]",
+      "    <span class=\"d\">[executable]</span>",
+      "",
+      "الوجهات: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 مهارة · 0 موانع · <span class=\"y\">1 تحذير</span>",
+      "هل تريد التثبيت؟ [ن/لا] ن",
+      "",
+      "ثُبّتت pdf (32cdced3a21a) في 2 وجهات."
+     ],
+     2600
+    ]
+   ]
+  },
+  {
+   "name": "inspect",
+   "steps": [
+    [
+     "cmd",
+     "skilus inspect ./downloads/quick-cleanup"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">downloads/quick-cleanup</span> · 1 مهارة",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 ملفات · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: يذكر بيانات اعتماد: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: ملف تنفيذي؛ اقبله بـ allow: [scripts] <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: ينزّل الشيفرة ويشغّلها: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: يذكر بيانات اعتماد: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "1 مهارة · 0 موانع · <span class=\"y\">4 تحذيرات</span>"
+     ],
+     2600
+    ],
+    [
+     "clear"
+    ],
+    [
+     "cmd",
+     "skilus add ./downloads/quick-cleanup --strict -y"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">./downloads/quick-cleanup</span> · 1 مهارة",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 ملفات · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: يذكر بيانات اعتماد: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: ملف تنفيذي؛ اقبله بـ allow: [scripts] <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: ينزّل الشيفرة ويشغّلها: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: يذكر بيانات اعتماد: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "الوجهات: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 مهارة · 0 موانع · <span class=\"y\">4 تحذيرات</span>",
+      "skilus: quick-cleanup: 4 تحذير مع --strict: رفضه الفحص"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "5"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "verify",
+   "steps": [
+    [
+     "cmd",
+     "echo \"# tweak\" >> .claude/skills/pdf/SKILL.md"
+    ],
+    [
+     "frame",
+     [],
+     600
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "متغيّرة pdf (project، claude-code) في ~/acme-app/.claude/skills/pdf",
+      "  معدّل: SKILL.md",
+      "شغّل skilus sync لاستعادتها (مع --force إن عدّلتها يدويًا)."
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "6"
+     ],
+     1200
+    ],
+    [
+     "cmd",
+     "skilus sync --force"
+    ],
+    [
+     "frame",
+     [
+      "استُبدلت pdf في ~/acme-app/.claude/skills/pdf",
+      "تمت المزامنة: 0 مثبّتة، 1 مستبدلة، 5 بلا تغيير."
+     ],
+     900
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "كل شيء سليم: 3 مهارة في 6 وجهة تطابق ملف القفل."
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "update",
+   "steps": [
+    [
+     "cmd",
+     "skilus update --check"
+    ],
+    [
+     "frame",
+     [
+      "المهارة    النطاق   REF                المثبّت       الأحدث        الحالة",
+      "changelog  project  (الفرع الافتراضي)  9563a12b25b5  1b288cd0c1c1  توجد نسخة جديدة",
+      "pdf        project  (الفرع الافتراضي)  dbd4588f9e10  dbd4588f9e10  محدّثة",
+      "review     project  (الفرع الافتراضي)  9563a12b25b5  1b288cd0c1c1  توجد نسخة جديدة"
+     ],
+     1800
+    ],
+    [
+     "cmd",
+     "skilus update review"
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> لا توجد ملاحظات",
+      "",
+      "1 مهارة · 0 موانع · 0 تحذيرات",
+      "هل تريد التحديث؟ [ن/لا]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> لا توجد ملاحظات",
+      "",
+      "1 مهارة · 0 موانع · 0 تحذيرات",
+      "هل تريد التحديث؟ [ن/لا] ن",
+      "",
+      "حُدّثت review إلى 1b288cd0c1c1 (1c92660a3b6f)."
+     ],
+     3200
+    ]
+   ]
+  }
+ ]
+}

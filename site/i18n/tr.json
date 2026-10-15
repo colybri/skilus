@@ -1,0 +1,70 @@
+{
+  "title": "skilus · Yapay zekâ ajanı skill'leri için paket yöneticisi",
+  "description": "Yapay zekâ ajanı skill'lerini GitHub'dan, herhangi bir Git deposundan, arşivlerden veya yerel klasörlerden Claude Code, Codex, Cursor ve 70'ten fazla ajana kurun. Her skill çalışmadan önce sabitlenir, hash'lenir ve incelenir.",
+  "docs": "Belgeler",
+  "download": "İndir",
+  "new": "Yeni",
+  "badge": "skilus {version} yayında",
+  "h1": "Yapay zekâ ajanı skill'leri için paket yöneticisi",
+  "lead": "Skill'leri GitHub'dan, herhangi bir Git deposundan, bir arşivden veya yerel bir klasörden Claude Code, Codex, Cursor, GitHub Copilot ve {more} ajana daha kurun. Her skill, ajanınız onu çalıştırmadan önce bir commit'e sabitlenir, hash'lenir ve incelenir.",
+  "installMethod": "Kurulum yöntemi",
+  "copy": "Kopyala",
+  "copied": "Kopyalandı",
+  "recording": "skilus'un terminaldeki kaydı",
+  "pause": "Duraklat",
+  "play": "Oynat",
+  "whatTitle": "skilus nedir?",
+  "whatText": "skilus, yapay zekâ ajanlarınızın kullandığı SKILL.md skill'lerini kuran ve tam olarak neyin kurulduğunu kaydeden tek bir Go binary'sidir. Bir paket yöneticisi gibi çalışır: `skilus.yaml` ne istediğinizi, `skilus.lock` ne aldığınızı söyler.",
+  "features": [
+    [
+      "Sabitlenmiş ve hash'lenmiş",
+      "Her skill, `skilus.lock` içinde bir commit'e ve SHA-256'ya kilitlenir"
+    ],
+    [
+      "Önce inceleme",
+      "Dışarı kaçan sembolik bağlantılar, `curl | sh`, kimlik bilgilerine erişim ve gizli metin kurulumdan önce yakalanır"
+    ],
+    [
+      "Tekrarlanabilir",
+      "`skilus sync`, `npm ci` gibi, aynı kurulumu her makinede veya CI runner'ında yeniden oluşturur"
+    ],
+    [
+      "Her kaynak",
+      "GitHub, herhangi bir Git sunucusu, ZIP veya tar.gz arşivleri ve yerel klasörler, kendi Git kimlik bilgilerinizle"
+    ],
+    [
+      "{n} ajan",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf ve dahası"
+    ],
+    [
+      "Profiller",
+      "Her bağlam için skill setleri arasında tek komutla geçiş yapın"
+    ],
+    [
+      "22 dil",
+      "İstemler, mesajlar ve yardım kendi dilinizde"
+    ]
+  ],
+  "readDocs": "Belgeleri okuyun",
+  "dark": "Koyu",
+  "light": "Açık",
+  "language": "Dil",
+  "dlPageTitle": "skilus'u indir",
+  "dlTitle": "skilus'u indir",
+  "dlLead": "{version} · macOS, Linux ve Windows için tek bir binary, kurulacak başka hiçbir şey yok. Her sürüm imzalıdır ve sağlama toplamları ile bir SBOM içerir.",
+  "terminalTitle": "Terminalden kurun",
+  "terminalText": "Betik sisteminize uygun binary'yi seçer, `checksums.txt` ile doğrular ve PATH'inize yerleştirir.",
+  "unix": "macOS ve Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} veya üstü",
+  "binTitle": "Binary'ler",
+  "binText": "Arşivi açın ve `skilus` dosyasını PATH'inizdeki bir klasöre taşıyın.",
+  "downloadBtn": "İndir",
+  "thisDevice": "bu cihaz",
+  "allFiles": "Sağlama toplamları ve imza:",
+  "verifyTitle": "İndirilen dosyayı doğrulayın",
+  "verifyText": "Sürümler, onları derleyen GitHub Actions iş akışı tarafından Sigstore ile imzalanır. `cosign` kuruluysa, dosyaları indirdiğiniz klasörde şunu çalıştırın:",
+  "agentsTitle": "Ajanlarınızla çalışır",
+  "agentsText": "skilus, bilgisayarınızda kurulu ajanları bulur ve her skill'i o ajanın okuduğu klasöre kopyalar.",
+  "seeAll": "{n} ajanın tümünü görün"
+}

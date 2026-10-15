@@ -1,0 +1,70 @@
+{
+  "title": "skilus · Správca balíkov pre skills AI agentov",
+  "description": "Inštalujte skills pre AI agentov z GitHubu, ľubovoľného Git repozitára, archívov alebo lokálnych priečinkov do Claude Code, Codexu, Cursoru a ďalších 70 agentov. Každý skill je pred spustením pripnutý, zahašovaný a skontrolovaný.",
+  "docs": "Dokumentácia",
+  "download": "Stiahnuť",
+  "new": "Novinka",
+  "badge": "skilus {version} je k dispozícii",
+  "h1": "Správca balíkov pre skills AI agentov",
+  "lead": "Inštalujte skills z GitHubu, ľubovoľného Git repozitára, archívu alebo lokálneho priečinka do Claude Code, Codexu, Cursoru, GitHub Copilotu a ďalších {more} agentov. Každý skill je pripnutý ku commitu, zahašovaný a skontrolovaný skôr, než ho váš agent môže spustiť.",
+  "installMethod": "Spôsob inštalácie",
+  "copy": "Kopírovať",
+  "copied": "Skopírované",
+  "recording": "Záznam práce so skilus v termináli",
+  "pause": "Pozastaviť",
+  "play": "Prehrať",
+  "whatTitle": "Čo je skilus?",
+  "whatText": "skilus je jediný binárny súbor v Go, ktorý inštaluje SKILL.md skills používané vašimi AI agentmi a presne zaznamenáva, čo sa nainštalovalo. Funguje ako správca balíkov: `skilus.yaml` hovorí, čo chcete, a `skilus.lock`, čo ste dostali.",
+  "features": [
+    [
+      "Pripnuté a zahašované",
+      "Každý skill je v `skilus.lock` uzamknutý na commit a SHA-256"
+    ],
+    [
+      "Najprv kontrola",
+      "Symlinky mimo priečinka, `curl | sh`, prístup k prihlasovacím údajom aj skrytý text odhalí ešte pred inštaláciou"
+    ],
+    [
+      "Reprodukovateľné",
+      "`skilus sync` zostaví rovnaké prostredie na akomkoľvek počítači alebo CI runneri, podobne ako `npm ci`"
+    ],
+    [
+      "Akýkoľvek zdroj",
+      "GitHub, ľubovoľný Git hosting, archívy ZIP alebo tar.gz a lokálne priečinky, s vašimi vlastnými prihlasovacími údajmi pre Git"
+    ],
+    [
+      "{n} agentov",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf a ďalšie"
+    ],
+    [
+      "Profily",
+      "Prepínajte sady skills pre každý kontext jediným príkazom"
+    ],
+    [
+      "22 jazykov",
+      "Otázky, správy a pomocník vo vašom jazyku"
+    ]
+  ],
+  "readDocs": "Prečítať dokumentáciu",
+  "dark": "Tmavý",
+  "light": "Svetlý",
+  "language": "Jazyk",
+  "dlPageTitle": "Stiahnuť skilus",
+  "dlTitle": "Stiahnuť skilus",
+  "dlLead": "{version} · Jeden binárny súbor pre macOS, Linux a Windows, nič ďalšie netreba inštalovať. Každé vydanie je podpísané a obsahuje kontrolné súčty a SBOM.",
+  "terminalTitle": "Inštalácia z terminálu",
+  "terminalText": "Skript vyberie binárny súbor pre váš systém, overí ho podľa `checksums.txt` a pridá ho do PATH.",
+  "unix": "macOS a Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} alebo novší",
+  "binTitle": "Binárne súbory",
+  "binText": "Rozbaľte archív a presuňte `skilus` do priečinka vo vašom PATH.",
+  "downloadBtn": "Stiahnuť",
+  "thisDevice": "toto zariadenie",
+  "allFiles": "Kontrolné súčty a podpis:",
+  "verifyTitle": "Overenie stiahnutých súborov",
+  "verifyText": "Vydania podpisuje pomocou Sigstore workflow GitHub Actions, ktorý ich zostavil. S nainštalovaným `cosign` spustite v priečinku so stiahnutými súbormi:",
+  "agentsTitle": "Funguje s vašimi agentmi",
+  "agentsText": "skilus nájde agentov nainštalovaných na vašom počítači a každý skill skopíruje do priečinka, ktorý daný agent číta.",
+  "seeAll": "Zobraziť všetkých {n} agentov"
+}
