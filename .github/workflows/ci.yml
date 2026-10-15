@@ -73,10 +73,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build-site.mjs --worktree v0.0.0 --out _site
       - name: install.sh
         if: runner.os != 'Windows'
         run: |
-          python3 test/site/serve.py site 8765 &
+          set -o pipefail
+          python3 test/site/serve.py _site 8765 &
           sleep 2
           curl -fsSL http://127.0.0.1:8765/install | SKILUS_INSTALL_DIR="$RUNNER_TEMP/bin" sh
           "$RUNNER_TEMP/bin/skilus" --version
@@ -86,7 +91,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-          Start-Process python -ArgumentList 'test/site/serve.py', 'site', '8765' -WindowStyle Hidden
+          Start-Process python -ArgumentList 'test/site/serve.py', '_site', '8765' -WindowStyle Hidden
           Start-Sleep 3
           $env:SKILUS_INSTALL_DIR = "$env:RUNNER_TEMP\ps5"
           irm http://127.0.0.1:8765/install.ps1 | iex
@@ -96,7 +101,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Start-Process python -ArgumentList 'test/site/serve.py', 'site', '8766' -WindowStyle Hidden
+          Start-Process python -ArgumentList 'test/site/serve.py', '_site', '8766' -WindowStyle Hidden
           Start-Sleep 3
           $env:SKILUS_INSTALL_DIR = "$env:RUNNER_TEMP\ps7"
           irm http://127.0.0.1:8766/install.ps1 | iex
