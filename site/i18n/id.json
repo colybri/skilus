@@ -1,0 +1,70 @@
+{
+  "title": "skilus · Pengelola paket untuk skill agen AI",
+  "description": "Pasang skill agen AI dari GitHub, repositori Git mana pun, arsip, atau folder lokal ke Claude Code, Codex, Cursor, dan 70 agen lainnya. Setiap skill dipin, di-hash, dan diperiksa sebelum dijalankan.",
+  "docs": "Dokumentasi",
+  "download": "Unduh",
+  "new": "Baru",
+  "badge": "skilus {version} sudah tersedia",
+  "h1": "Pengelola paket untuk skill agen AI",
+  "lead": "Pasang skill dari GitHub, repositori Git mana pun, arsip, atau folder lokal ke Claude Code, Codex, Cursor, GitHub Copilot, dan {more} agen lainnya. Setiap skill dipin ke sebuah commit, di-hash, dan diperiksa sebelum agen Anda bisa menjalankannya.",
+  "installMethod": "Cara pemasangan",
+  "copy": "Salin",
+  "copied": "Tersalin",
+  "recording": "Rekaman skilus di terminal",
+  "pause": "Jeda",
+  "play": "Putar",
+  "whatTitle": "Apa itu skilus?",
+  "whatText": "skilus adalah satu biner Go yang memasang skill SKILL.md yang dipakai agen AI Anda dan mencatat persis apa yang terpasang. Cara kerjanya seperti pengelola paket: `skilus.yaml` berisi apa yang Anda inginkan dan `skilus.lock` berisi apa yang Anda dapatkan.",
+  "features": [
+    [
+      "Dipin dan di-hash",
+      "Setiap skill dikunci ke sebuah commit dan SHA-256 di `skilus.lock`"
+    ],
+    [
+      "Diperiksa dulu",
+      "Symlink yang keluar folder, `curl | sh`, akses kredensial, dan teks tersembunyi terdeteksi sebelum dipasang"
+    ],
+    [
+      "Dapat direproduksi",
+      "`skilus sync` membangun ulang pengaturan yang sama di mesin atau runner CI mana pun, seperti `npm ci`"
+    ],
+    [
+      "Sumber apa saja",
+      "GitHub, host Git mana pun, arsip ZIP atau tar.gz, dan folder lokal, dengan kredensial Git Anda sendiri"
+    ],
+    [
+      "{n} agen",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf, dan lainnya"
+    ],
+    [
+      "Profil",
+      "Ganti set skill untuk setiap konteks dengan satu perintah"
+    ],
+    [
+      "22 bahasa",
+      "Prompt, pesan, dan bantuan dalam bahasa Anda"
+    ]
+  ],
+  "readDocs": "Baca dokumentasi",
+  "dark": "Gelap",
+  "light": "Terang",
+  "language": "Bahasa",
+  "dlPageTitle": "Unduh skilus",
+  "dlTitle": "Unduh skilus",
+  "dlLead": "{version} · Satu biner untuk macOS, Linux, dan Windows, tanpa perlu memasang apa pun lagi. Setiap rilis ditandatangani dan dilengkapi checksum serta SBOM.",
+  "terminalTitle": "Pasang dari terminal",
+  "terminalText": "Skrip memilih biner untuk sistem Anda, memverifikasinya dengan `checksums.txt`, lalu menaruhnya di PATH Anda.",
+  "unix": "macOS dan Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} atau lebih baru",
+  "binTitle": "Biner",
+  "binText": "Ekstrak arsip dan pindahkan `skilus` ke folder di PATH Anda.",
+  "downloadBtn": "Unduh",
+  "thisDevice": "perangkat ini",
+  "allFiles": "Checksum dan tanda tangan:",
+  "verifyTitle": "Verifikasi unduhan",
+  "verifyText": "Rilis ditandatangani dengan Sigstore oleh workflow GitHub Actions yang membangunnya. Dengan `cosign` terpasang, jalankan ini di folder tempat Anda mengunduh file:",
+  "agentsTitle": "Bekerja dengan agen Anda",
+  "agentsText": "skilus menemukan agen yang terpasang di mesin Anda dan menyalin setiap skill ke folder yang dibaca agen tersebut.",
+  "seeAll": "Lihat semua {n} agen"
+}

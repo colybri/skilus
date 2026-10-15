@@ -1,0 +1,70 @@
+{
+  "title": "skilus · AI エージェントスキルのパッケージマネージャー",
+  "description": "GitHub、任意の Git リポジトリ、アーカイブ、ローカルフォルダから AI エージェントのスキルを Claude Code、Codex、Cursor など 70 以上のエージェントにインストール。すべてのスキルは実行前に固定され、ハッシュ化され、検査されます。",
+  "docs": "ドキュメント",
+  "download": "ダウンロード",
+  "new": "新着",
+  "badge": "skilus {version} を公開しました",
+  "h1": "AI エージェントスキルのパッケージマネージャー",
+  "lead": "GitHub、任意の Git リポジトリ、アーカイブ、ローカルフォルダからスキルをインストールし、Claude Code、Codex、Cursor、GitHub Copilot ほか {more} のエージェントに配置します。すべてのスキルはエージェントが実行する前に、コミットに固定され、ハッシュ化され、検査されます。",
+  "installMethod": "インストール方法",
+  "copy": "コピー",
+  "copied": "コピーしました",
+  "recording": "ターミナルで skilus を使う様子の録画",
+  "pause": "一時停止",
+  "play": "再生",
+  "whatTitle": "skilus とは？",
+  "whatText": "skilus は単一の Go バイナリで、AI エージェントが使う SKILL.md スキルをインストールし、何がインストールされたかを正確に記録します。パッケージマネージャーと同じ仕組みで、`skilus.yaml` に欲しいものを書き、`skilus.lock` に実際に入ったものが記録されます。",
+  "features": [
+    [
+      "固定とハッシュ",
+      "すべてのスキルは `skilus.lock` でコミットと SHA-256 に固定されます"
+    ],
+    [
+      "まず検査",
+      "外部を指すシンボリックリンク、`curl | sh`、認証情報へのアクセス、隠しテキストをインストール前に検出します"
+    ],
+    [
+      "再現可能",
+      "`skilus sync` は `npm ci` のように、どのマシンや CI ランナーでも同じ環境を再構築します"
+    ],
+    [
+      "あらゆるソース",
+      "GitHub、任意の Git ホスト、ZIP・tar.gz アーカイブ、ローカルフォルダに、手元の Git 認証情報で対応します"
+    ],
+    [
+      "{n} のエージェント",
+      "Claude Code、Codex、Cursor、GitHub Copilot、Gemini CLI、Windsurf など"
+    ],
+    [
+      "プロファイル",
+      "状況に合わせたスキルセットをコマンド 1 つで切り替え"
+    ],
+    [
+      "22 言語",
+      "プロンプト、メッセージ、ヘルプをあなたの言語で"
+    ]
+  ],
+  "readDocs": "ドキュメントを読む",
+  "dark": "ダーク",
+  "light": "ライト",
+  "language": "言語",
+  "dlPageTitle": "skilus をダウンロード",
+  "dlTitle": "skilus をダウンロード",
+  "dlLead": "{version} · macOS、Linux、Windows 向けの単一バイナリで、ほかに何もインストールする必要はありません。すべてのリリースは署名され、チェックサムと SBOM が付属します。",
+  "terminalTitle": "ターミナルからインストール",
+  "terminalText": "スクリプトがシステムに合ったバイナリを選び、`checksums.txt` で検証して PATH に配置します。",
+  "unix": "macOS と Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} 以降",
+  "binTitle": "バイナリ",
+  "binText": "アーカイブを展開し、`skilus` を PATH 上のフォルダに移動します。",
+  "downloadBtn": "ダウンロード",
+  "thisDevice": "このデバイス",
+  "allFiles": "チェックサムと署名：",
+  "verifyTitle": "ダウンロードを検証する",
+  "verifyText": "リリースは、それをビルドした GitHub Actions ワークフローによって Sigstore で署名されています。`cosign` をインストールしたら、ファイルをダウンロードしたフォルダで次を実行します：",
+  "agentsTitle": "あなたのエージェントで動く",
+  "agentsText": "skilus はマシンにインストールされたエージェントを見つけ、各スキルをそのエージェントが読み込むフォルダにコピーします。",
+  "seeAll": "{n} のエージェントをすべて見る"
+}

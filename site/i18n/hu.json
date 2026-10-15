@@ -1,0 +1,70 @@
+{
+  "title": "skilus · A csomagkezelő MI-ügynökök skill-jeihez",
+  "description": "Telepíts MI-ügynök skill-eket GitHubról, bármely Git-repóból, archívumból vagy helyi mappából a Claude Code, a Codex, a Cursor és további 70 ügynök számára. Minden skill rögzítve, hash-elve és átvizsgálva van, mielőtt lefut.",
+  "docs": "Dokumentáció",
+  "download": "Letöltés",
+  "new": "Új",
+  "badge": "Megjelent a skilus {version}",
+  "h1": "A csomagkezelő MI-ügynökök skill-jeihez",
+  "lead": "Telepíts skill-eket GitHubról, bármely Git-repóból, archívumból vagy helyi mappából a Claude Code, a Codex, a Cursor, a GitHub Copilot és további {more} ügynök számára. Minden skill egy commithoz van rögzítve, hash-elve és átvizsgálva, mielőtt az ügynököd futtathatná.",
+  "installMethod": "Telepítési mód",
+  "copy": "Másolás",
+  "copied": "Kimásolva",
+  "recording": "Felvétel a skilus használatáról terminálban",
+  "pause": "Szünet",
+  "play": "Lejátszás",
+  "whatTitle": "Mi az a skilus?",
+  "whatText": "A skilus egyetlen Go-bináris, amely telepíti az MI-ügynökeid által használt SKILL.md skill-eket, és pontosan nyilvántartja, mi került telepítésre. Úgy működik, mint egy csomagkezelő: a `skilus.yaml` azt mondja meg, mit szeretnél, a `skilus.lock` pedig azt, mit kaptál.",
+  "features": [
+    [
+      "Rögzítve és hash-elve",
+      "Minden skill egy commithoz és egy SHA-256 hash-hez van kötve a `skilus.lock` fájlban"
+    ],
+    [
+      "Előbb átvizsgálva",
+      "A kifelé mutató symlinkeket, a `curl | sh` hívásokat, a hitelesítő adatok elérését és a rejtett szöveget telepítés előtt kiszűri"
+    ],
+    [
+      "Reprodukálható",
+      "A `skilus sync` bármely gépen vagy CI-futtatón ugyanazt a környezetet állítja elő, akárcsak az `npm ci`"
+    ],
+    [
+      "Bármilyen forrás",
+      "GitHub, bármely Git-szolgáltató, ZIP- és tar.gz-archívumok, helyi mappák – a saját Git-hitelesítő adataiddal"
+    ],
+    [
+      "{n} ügynök",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf és még sok más"
+    ],
+    [
+      "Profilok",
+      "Válts skill-készletek között minden környezethez egyetlen paranccsal"
+    ],
+    [
+      "22 nyelv",
+      "Kérdések, üzenetek és súgó a saját nyelveden"
+    ]
+  ],
+  "readDocs": "Olvasd el a dokumentációt",
+  "dark": "Sötét",
+  "light": "Világos",
+  "language": "Nyelv",
+  "dlPageTitle": "A skilus letöltése",
+  "dlTitle": "A skilus letöltése",
+  "dlLead": "{version} · Egyetlen bináris macOS-re, Linuxra és Windowsra, semmi mást nem kell telepíteni. Minden kiadás alá van írva, és ellenőrzőösszegekkel, valamint SBOM-mal érkezik.",
+  "terminalTitle": "Telepítés terminálból",
+  "terminalText": "A szkript kiválasztja a rendszerednek megfelelő binárist, ellenőrzi a `checksums.txt` alapján, és felteszi a PATH-ra.",
+  "unix": "macOS és Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} vagy újabb",
+  "binTitle": "Binárisok",
+  "binText": "Csomagold ki az archívumot, és helyezd a `skilus` fájlt egy PATH-ban lévő mappába.",
+  "downloadBtn": "Letöltés",
+  "thisDevice": "ez az eszköz",
+  "allFiles": "Ellenőrzőösszegek és aláírás:",
+  "verifyTitle": "A letöltés ellenőrzése",
+  "verifyText": "A kiadásokat az őket elkészítő GitHub Actions workflow írja alá Sigstore-ral. Ha telepítve van a `cosign`, futtasd ezt abban a mappában, ahová a fájlokat letöltötted:",
+  "agentsTitle": "Működik az ügynökeiddel",
+  "agentsText": "A skilus megtalálja a gépeden telepített ügynököket, és minden skill-t abba a mappába másol, amelyet az adott ügynök olvas.",
+  "seeAll": "Az összes ügynök ({n})"
+}

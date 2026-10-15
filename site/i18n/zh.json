@@ -1,0 +1,70 @@
+{
+  "title": "skilus · AI 智能体技能的包管理器",
+  "description": "从 GitHub、任意 Git 仓库、压缩包或本地文件夹安装 AI 智能体技能，部署到 Claude Code、Codex、Cursor 等 70 多个智能体。每个技能在运行前都会被固定版本、计算哈希并经过检查。",
+  "docs": "文档",
+  "download": "下载",
+  "new": "新",
+  "badge": "skilus {version} 现已发布",
+  "h1": "AI 智能体技能的包管理器",
+  "lead": "从 GitHub、任意 Git 仓库、压缩包或本地文件夹安装技能，部署到 Claude Code、Codex、Cursor、GitHub Copilot 以及另外 {more} 个智能体。每个技能都固定到一个提交、计算哈希并经过检查，然后你的智能体才能运行它。",
+  "installMethod": "安装方式",
+  "copy": "复制",
+  "copied": "已复制",
+  "recording": "skilus 在终端中运行的录屏",
+  "pause": "暂停",
+  "play": "播放",
+  "whatTitle": "skilus 是什么？",
+  "whatText": "skilus 是一个 Go 二进制文件，用于安装你的 AI 智能体使用的 SKILL.md 技能，并准确记录安装了什么。它的工作方式类似包管理器：`skilus.yaml` 写明你想要什么，`skilus.lock` 记录你实际得到了什么。",
+  "features": [
+    [
+      "固定并校验哈希",
+      "每个技能都在 `skilus.lock` 中锁定到一个提交和一个 SHA-256"
+    ],
+    [
+      "先检查后安装",
+      "越界的符号链接、`curl | sh`、凭据访问和隐藏文本都会在安装前被发现"
+    ],
+    [
+      "可复现",
+      "`skilus sync` 在任何机器或 CI runner 上重建相同的环境，就像 `npm ci`"
+    ],
+    [
+      "任意来源",
+      "GitHub、任意 Git 托管平台、ZIP 或 tar.gz 压缩包以及本地文件夹，使用你自己的 Git 凭据"
+    ],
+    [
+      "{n} 个智能体",
+      "Claude Code、Codex、Cursor、GitHub Copilot、Gemini CLI、Windsurf 等"
+    ],
+    [
+      "配置档",
+      "一条命令即可为不同场景切换技能组合"
+    ],
+    [
+      "22 种语言",
+      "提示、消息和帮助都使用你的语言"
+    ]
+  ],
+  "readDocs": "阅读文档",
+  "dark": "深色",
+  "light": "浅色",
+  "language": "语言",
+  "dlPageTitle": "下载 skilus",
+  "dlTitle": "下载 skilus",
+  "dlLead": "{version} · 一个二进制文件即可运行于 macOS、Linux 和 Windows，无需安装其他任何东西。每个版本都经过签名，并附带校验和与 SBOM。",
+  "terminalTitle": "从终端安装",
+  "terminalText": "脚本会为你的系统选择合适的二进制文件，用 `checksums.txt` 校验，并放到你的 PATH 中。",
+  "unix": "macOS 和 Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} 或更高版本",
+  "binTitle": "二进制文件",
+  "binText": "解压压缩包，并将 `skilus` 移动到 PATH 中的某个文件夹。",
+  "downloadBtn": "下载",
+  "thisDevice": "本设备",
+  "allFiles": "校验和与签名：",
+  "verifyTitle": "验证下载",
+  "verifyText": "每个版本都由构建它的 GitHub Actions 工作流使用 Sigstore 签名。安装 `cosign` 后，在下载文件所在的文件夹中运行：",
+  "agentsTitle": "适用于你的智能体",
+  "agentsText": "skilus 会找到你机器上已安装的智能体，并把每个技能复制到该智能体读取的文件夹中。",
+  "seeAll": "查看全部 {n} 个智能体"
+}

@@ -1,0 +1,136 @@
+/* skilus.dev home and download pages. Same palette as the documentation;
+   one bordered column, monospace for everything a terminal would show. */
+:root {
+  --bg: #161826; --panel: #1b1d2b; --raise: #232532; --line: #2c2f3d; --line2: #3a3d4d;
+  --ink: #e9e9ed; --mute: #b2b6ca; --faint: #858aa0;
+  --acc: #9184d9; --accInk: #d2cefd; --accSoft: #2b2741; --accLine: #5d5294;
+  --term: #0f1018; --termLine: #2a2c3c; --tInk: #d9dae3; --tBold: #ffffff; --tDim: #80849a;
+  --tY: #e5c07b; --tR: #ef7b84; --tG: #8fd19e; --tC: #7fd4e0;
+  --btnInk: #161826;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'Noto Sans JP', 'Noto Sans SC', monospace;
+  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Noto Sans Arabic', 'Noto Sans Devanagari', 'Noto Sans JP', 'Noto Sans SC', sans-serif;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #f6f6fa; --panel: #eeeef5; --raise: #ffffff; --line: #dcdde8; --line2: #c6c8d8;
+  --ink: #1c1d29; --mute: #535869; --faint: #6c7084;
+  --acc: #6b5fc0; --accInk: #4b3fa0; --accSoft: #e7e5fe; --accLine: #b5abfc;
+  --btnInk: #f6f6fa;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--mono); font-size: 15px; line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 32px;
+}
+a { color: inherit; }
+code { font-family: var(--mono); }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+.site { max-width: 1080px; margin: 0 auto; border: 1px solid var(--line); border-top: 0; }
+.sec { border-top: 1px solid var(--line); padding: clamp(28px, 5vw, 56px) clamp(18px, 5vw, 64px); }
+
+/* header */
+.top { display: flex; align-items: center; gap: 12px 16px; padding: 14px clamp(18px, 5vw, 64px); flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 500; font-size: 17px; letter-spacing: -.01em; }
+.logo { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--accLine); background: radial-gradient(circle at 30% 25%, var(--accSoft), transparent 70%); color: var(--acc); display: grid; place-items: center; }
+.links { display: flex; gap: 4px 22px; margin-inline-start: auto; flex-wrap: wrap; align-items: center; font-size: 14px; }
+.links a { text-decoration: none; color: var(--mute); }
+.links a:hover, .links a[aria-current="page"] { color: var(--ink); }
+.links .dl { color: var(--ink); border: 1px solid var(--line2); padding: 2px 10px; border-radius: 6px; }
+
+/* hero */
+.badge { display: inline-flex; gap: 10px; align-items: center; font-size: 13px; color: var(--mute); text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; margin-bottom: 22px; }
+.badge span { color: var(--acc); font-weight: 500; }
+h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.15; font-weight: 500; letter-spacing: -.025em; margin: 0 0 16px; text-wrap: balance; max-width: 22ch; }
+.lead { font-family: var(--sans); font-size: clamp(16px, 2vw, 18px); color: var(--mute); max-width: 62ch; margin: 0 0 28px; }
+
+.install { border: 1px solid var(--line2); border-radius: 8px; max-width: 640px; background: var(--panel); }
+.tabs { display: flex; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tabs button { font: 500 13px var(--mono); color: var(--faint); background: transparent; border: 0; padding: 9px 16px; cursor: pointer; border-inline-end: 1px solid var(--line); white-space: nowrap; }
+.tabs button[aria-selected="true"] { color: var(--ink); background: var(--raise); }
+.tabs button:first-child { border-start-start-radius: 7px; }
+.cmd { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 16px; min-width: 0; direction: ltr; }
+.cmd code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 14px; scrollbar-width: thin; }
+.cmd .pr { color: var(--faint); user-select: none; }
+.copy { flex-shrink: 0; font: 500 12px var(--mono); color: var(--mute); background: var(--panel); border: 1px solid var(--line2); border-radius: 6px; padding: 5px 10px; cursor: pointer; }
+.copy:hover { color: var(--ink); border-color: var(--acc); }
+
+/* terminal recording */
+.player { margin-top: 36px; }
+.term { background: var(--term); border: 1px solid var(--line2); border-radius: 10px; overflow: hidden; box-shadow: 0 30px 80px -40px rgba(0, 0, 0, .7); direction: ltr; }
+.tbar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--termLine); color: var(--tDim); font-size: 12.5px; }
+.dots { display: flex; gap: 7px; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; background: #33364a; display: block; }
+.tbar .ttl { flex: 1; text-align: center; margin-inline-end: 47px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.screen { height: calc(22 * 1.5em + 28px); overflow: auto; padding: 14px 18px; color: var(--tInk); font-size: clamp(10px, 1.42vw, 13.5px); line-height: 1.5; white-space: pre; scrollbar-width: none; text-align: left; }
+.screen::-webkit-scrollbar { display: none; }
+.screen .b { font-weight: 600; color: var(--tBold); }
+.screen .d { color: var(--tDim); }
+.screen .y { color: var(--tY); }
+.screen .r { color: var(--tR); }
+.screen .g { color: var(--tG); }
+.screen .c, .screen .ps { color: var(--tC); }
+.screen .cur { display: inline-block; width: .6em; height: 1.15em; vertical-align: -.2em; background: var(--tInk); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.ctrl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.ctrl button { font: 500 13px var(--mono); color: var(--mute); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 5px 11px; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.ctrl button:hover { color: var(--ink); }
+.ctrl button[aria-current="true"] { color: var(--ink); border-color: var(--accLine); background: var(--accSoft); }
+.ctrl .bar { display: block; height: 2px; width: 28px; background: var(--line2); border-radius: 2px; overflow: hidden; }
+.ctrl .bar b { display: block; height: 100%; width: 0; background: var(--acc); }
+.ctrl .pp { margin-inline-start: auto; }
+
+/* what is skilus */
+h2 { font-size: clamp(20px, 3vw, 26px); font-weight: 500; letter-spacing: -.015em; margin: 0 0 12px; text-wrap: balance; }
+.what p { font-family: var(--sans); color: var(--mute); max-width: 62ch; margin: 0 0 24px; font-size: 16px; }
+.what p code { font-size: .92em; color: var(--ink); }
+.feats { list-style: none; padding: 0; margin: 0 0 28px; display: grid; gap: 10px; }
+.feats li { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: baseline; }
+.feats li::before { content: "[*]"; color: var(--acc); font-size: 14px; direction: ltr; }
+.feats li span { min-width: 0; }
+.feats b { font-weight: 500; }
+.feats em { font-style: normal; color: var(--mute); }
+.btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 500; font-size: 14px; border: 1px solid var(--ink); padding: 8px 16px; border-radius: 6px; }
+.btn:hover { background: var(--ink); color: var(--bg); }
+
+/* download */
+.dlhead p { font-family: var(--sans); color: var(--mute); margin: 0; max-width: 62ch; }
+.dsec h2 { display: flex; gap: 14px; align-items: baseline; font-size: 18px; margin-bottom: 6px; }
+.dsec h2 .n { color: var(--faint); font-weight: 400; }
+.sub { font-family: var(--sans); color: var(--mute); font-size: 14.5px; margin: 0 0 16px; max-width: 64ch; }
+.sub code { font-size: .92em; color: var(--ink); }
+.rows { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.row { display: flex; align-items: center; gap: 10px 14px; padding: 12px 14px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.row:first-child { border-top: 0; }
+.ico { width: 22px; height: 22px; flex-shrink: 0; color: var(--mute); display: grid; place-items: center; font-size: 13px; }
+.lbl { min-width: 0; flex: 0 1 230px; font-size: 14px; }
+.lbl small { display: block; color: var(--faint); font-size: 12px; }
+.row > code { flex: 1 1 280px; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 13.5px; direction: ltr; text-align: start; }
+.row .file { flex: 1 1 260px; min-width: 0; color: var(--faint); font-size: 13px; overflow-wrap: anywhere; direction: ltr; text-align: start; }
+.act { margin-inline-start: auto; display: flex; gap: 8px; font-size: 13.5px; }
+.dlbtn { font: 500 12.5px var(--mono); text-decoration: none; color: var(--btnInk); background: var(--ink); border-radius: 6px; padding: 6px 12px; white-space: nowrap; }
+.here { color: var(--acc); font-size: 12px; border: 1px solid var(--accLine); border-radius: 4px; padding: 1px 6px; margin-inline-start: 8px; white-space: nowrap; }
+.extra { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 13px; color: var(--faint); }
+.extra a { color: var(--mute); }
+.block { position: relative; direction: ltr; }
+.block pre { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; padding-inline-end: 80px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+.block .copy { position: absolute; top: 10px; right: 10px; }
+
+/* footer */
+.foot { border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; padding: 18px clamp(18px, 5vw, 64px); font-size: 13px; color: var(--faint); }
+.foot a { text-decoration: none; color: var(--mute); }
+.foot a:hover { color: var(--ink); }
+.foot .sp { flex: 1; }
+.foot select, .foot button { font: 13px var(--mono); color: var(--mute); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; cursor: pointer; }
+
+@media (max-width: 640px) {
+  .tbar .ttl { margin-inline-end: 0; }
+  .ctrl .pp { margin-inline-start: 0; }
+  .act { margin-inline-start: 36px; }
+}
+@media (prefers-reduced-motion: reduce) { .screen .cur { animation: none; } }

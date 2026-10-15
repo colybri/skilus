@@ -1,0 +1,70 @@
+{
+  "title": "skilus · De pakketbeheerder voor skills van AI-agents",
+  "description": "Installeer skills voor AI-agents vanuit GitHub, elke Git-repository, archieven of lokale mappen in Claude Code, Codex, Cursor en 70 andere agents. Elke skill wordt vastgezet, gehasht en gecontroleerd voordat hij draait.",
+  "docs": "Docs",
+  "download": "Download",
+  "new": "Nieuw",
+  "badge": "skilus {version} is beschikbaar",
+  "h1": "De pakketbeheerder voor skills van AI-agents",
+  "lead": "Installeer skills vanuit GitHub, elke Git-repository, een archief of een lokale map in Claude Code, Codex, Cursor, GitHub Copilot en {more} andere agents. Elke skill wordt vastgezet op een commit, gehasht en gecontroleerd voordat je agent hem kan uitvoeren.",
+  "installMethod": "Installatiemethode",
+  "copy": "Kopiëren",
+  "copied": "Gekopieerd",
+  "recording": "Opname van skilus in een terminal",
+  "pause": "Pauzeren",
+  "play": "Afspelen",
+  "whatTitle": "Wat is skilus?",
+  "whatText": "skilus is één Go-binary die de SKILL.md-skills van je AI-agents installeert en precies bijhoudt wat er is geïnstalleerd. Het werkt als een pakketbeheerder: `skilus.yaml` zegt wat je wilt en `skilus.lock` wat je hebt gekregen.",
+  "features": [
+    [
+      "Vastgezet en gehasht",
+      "Elke skill ligt in `skilus.lock` vast op een commit en een SHA-256"
+    ],
+    [
+      "Eerst gecontroleerd",
+      "Symlinks die uit de map ontsnappen, `curl | sh`, toegang tot inloggegevens en verborgen tekst worden vóór de installatie opgemerkt"
+    ],
+    [
+      "Reproduceerbaar",
+      "`skilus sync` bouwt dezelfde setup opnieuw op op elke machine of CI-runner, net als `npm ci`"
+    ],
+    [
+      "Elke bron",
+      "GitHub, elke Git-host, ZIP- of tar.gz-archieven en lokale mappen, met je eigen Git-inloggegevens"
+    ],
+    [
+      "{n} agents",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf en meer"
+    ],
+    [
+      "Profielen",
+      "Wissel per context van skillset met één commando"
+    ],
+    [
+      "22 talen",
+      "Vragen, meldingen en hulp in je eigen taal"
+    ]
+  ],
+  "readDocs": "Lees de docs",
+  "dark": "Donker",
+  "light": "Licht",
+  "language": "Taal",
+  "dlPageTitle": "skilus downloaden",
+  "dlTitle": "skilus downloaden",
+  "dlLead": "{version} · Eén binary voor macOS, Linux en Windows, verder niets te installeren. Elke release is ondertekend en wordt geleverd met checksums en een SBOM.",
+  "terminalTitle": "Installeren via de terminal",
+  "terminalText": "Het script kiest de binary voor je systeem, controleert die met `checksums.txt` en zet hem in je PATH.",
+  "unix": "macOS en Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} of nieuwer",
+  "binTitle": "Binaries",
+  "binText": "Pak het archief uit en verplaats `skilus` naar een map in je PATH.",
+  "downloadBtn": "Downloaden",
+  "thisDevice": "dit apparaat",
+  "allFiles": "Checksums en handtekening:",
+  "verifyTitle": "Controleer de download",
+  "verifyText": "Releases worden met Sigstore ondertekend door de GitHub Actions-workflow die ze heeft gebouwd. Voer met `cosign` geïnstalleerd dit uit in de map waarin je de bestanden hebt gedownload:",
+  "agentsTitle": "Werkt met je agents",
+  "agentsText": "skilus vindt de agents die op je machine zijn geïnstalleerd en kopieert elke skill naar de map die die agent leest.",
+  "seeAll": "Bekijk alle {n} agents"
+}

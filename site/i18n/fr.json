@@ -1,0 +1,70 @@
+{
+  "title": "skilus · Le gestionnaire de paquets pour les skills d’agents IA",
+  "description": "Installez des skills d’agents IA depuis GitHub, n’importe quel dépôt Git, des archives ou des dossiers locaux dans Claude Code, Codex, Cursor et 70 autres agents. Chaque skill est épinglée, hachée et inspectée avant de s’exécuter.",
+  "docs": "Docs",
+  "download": "Télécharger",
+  "new": "Nouveau",
+  "badge": "skilus {version} est disponible",
+  "h1": "Le gestionnaire de paquets pour les skills d’agents IA",
+  "lead": "Installez des skills depuis GitHub, n’importe quel dépôt Git, une archive ou un dossier local dans Claude Code, Codex, Cursor, GitHub Copilot et {more} autres agents. Chaque skill est épinglée à un commit, hachée et inspectée avant que votre agent puisse l’exécuter.",
+  "installMethod": "Méthode d’installation",
+  "copy": "Copier",
+  "copied": "Copié",
+  "recording": "Enregistrement de skilus dans un terminal",
+  "pause": "Pause",
+  "play": "Lecture",
+  "whatTitle": "Qu’est-ce que skilus ?",
+  "whatText": "skilus est un binaire Go unique qui installe les skills SKILL.md utilisées par vos agents IA et garde une trace exacte de ce qui a été installé. Il fonctionne comme un gestionnaire de paquets : `skilus.yaml` décrit ce que vous voulez et `skilus.lock` ce que vous avez obtenu.",
+  "features": [
+    [
+      "Épinglées et hachées",
+      "Chaque skill est verrouillée sur un commit et un SHA-256 dans `skilus.lock`"
+    ],
+    [
+      "Inspectées d’abord",
+      "Liens symboliques qui sortent du dossier, `curl | sh`, accès aux identifiants et texte caché sont détectés avant l’installation"
+    ],
+    [
+      "Reproductible",
+      "`skilus sync` recrée la même configuration sur n’importe quelle machine ou runner de CI, comme `npm ci`"
+    ],
+    [
+      "Toutes les sources",
+      "GitHub, tout hébergeur Git, archives ZIP ou tar.gz et dossiers locaux, avec vos propres identifiants Git"
+    ],
+    [
+      "{n} agents",
+      "Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI, Windsurf et bien d’autres"
+    ],
+    [
+      "Profils",
+      "Passez d’un ensemble de skills à l’autre selon le contexte, en une commande"
+    ],
+    [
+      "22 langues",
+      "Invites, messages et aide dans votre langue"
+    ]
+  ],
+  "readDocs": "Lire la doc",
+  "dark": "Sombre",
+  "light": "Clair",
+  "language": "Langue",
+  "dlPageTitle": "Télécharger skilus",
+  "dlTitle": "Télécharger skilus",
+  "dlLead": "{version} · Un seul binaire pour macOS, Linux et Windows, rien d’autre à installer. Chaque version est signée et fournie avec ses checksums et un SBOM.",
+  "terminalTitle": "Installer depuis le terminal",
+  "terminalText": "Le script choisit le binaire adapté à votre système, le vérifie avec `checksums.txt` et le place dans votre PATH.",
+  "unix": "macOS et Linux",
+  "windows": "Windows",
+  "goLater": "Go {go} ou supérieur",
+  "binTitle": "Binaires",
+  "binText": "Décompressez l’archive et déplacez `skilus` dans un dossier de votre PATH.",
+  "downloadBtn": "Télécharger",
+  "thisDevice": "cet appareil",
+  "allFiles": "Checksums et signature :",
+  "verifyTitle": "Vérifier le téléchargement",
+  "verifyText": "Les versions sont signées avec Sigstore par le workflow GitHub Actions qui les a construites. Avec `cosign` installé, lancez ceci dans le dossier où vous avez téléchargé les fichiers :",
+  "agentsTitle": "Compatible avec vos agents",
+  "agentsText": "skilus détecte les agents installés sur votre machine et copie chaque skill dans le dossier que lit l’agent.",
+  "seeAll": "Voir les {n} agents"
+}
