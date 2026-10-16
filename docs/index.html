@@ -254,9 +254,22 @@ summary::-webkit-details-marker{display:none}
               </div>
               <div style="margin-top:12px; font-size:14px; color:var(--mute,#b2b6ca); display:flex; flex-wrap:wrap; gap:6px 14px;">
                 <span style="font-family:var(--mono,'IBM Plex Mono',monospace); direction:ltr; unicode-bidi:isolate;">{{ b.tag }}</span>
-                <a href="{{ b.sums }}" style="color:var(--acc,#9184d9); font-family:var(--mono,'IBM Plex Mono',monospace);">checksums.txt</a>
+                <sc-for list="{{ b.files }}" as="f">
+                  <a href="{{ f.href }}" onClick="{{ f.onClick }}" aria-expanded="{{ f.on }}" style="color:var(--acc,#9184d9); font-family:var(--mono,'IBM Plex Mono',monospace); font-weight:{{ f.weight }};">{{ f.name }}</a>
+                </sc-for>
                 <a href="{{ b.all }}" target="_blank" style="color:var(--acc,#9184d9);">{{ b.allLabel }}</a>
               </div>
+              <sc-if value="{{ b.file }}">
+                <div style="margin-top:12px; border-radius:10px; overflow:hidden; background:var(--pre,#10121c); border:1px solid var(--preLine,#10121c);" dir="ltr">
+                  <div style="display:flex; align-items:center; gap:12px; padding:6px 8px 6px 14px; border-bottom:1px solid rgba(255,255,255,.07);">
+                    <span style="flex:1; min-width:0; font-family:var(--mono,'IBM Plex Mono',monospace); font-size:12px; color:var(--preMute,#9397ab);">{{ b.file.name }}</span>
+                    <a href="{{ b.file.href }}" aria-label="{{ b.file.name }}" style="color:var(--preInk,#e9e9ed); font-size:14px; text-decoration:none;">↓</a>
+                    <button onClick="{{ b.file.onCopy }}" style="height:26px; padding:0 10px; border-radius:6px; border:1px solid rgba(255,255,255,.12); background:transparent; color:var(--preInk,#e9e9ed); font:inherit; font-size:12px; cursor:pointer;" style-hover="background:rgba(255,255,255,.08);">{{ b.file.copyLabel }}</button>
+                    <button onClick="{{ b.file.onClose }}" aria-label="×" style="height:26px; width:26px; border-radius:6px; border:1px solid rgba(255,255,255,.12); background:transparent; color:var(--preInk,#e9e9ed); font:inherit; font-size:14px; cursor:pointer;" style-hover="background:rgba(255,255,255,.08);">×</button>
+                  </div>
+                  <pre style="margin:0; padding:14px 16px 16px; max-height:340px; overflow:auto; font-family:var(--mono,'IBM Plex Mono',monospace); font-size:12.5px; line-height:1.6; color:var(--preInk,#e9e9ed); text-align:left; white-space:{{ b.file.ws }}; overflow-wrap:anywhere;">{{ b.file.text }}</pre>
+                </div>
+              </sc-if>
             </div>
           </sc-if>
           <sc-if value="{{ b.isFaq }}">
@@ -329,7 +342,7 @@ summary::-webkit-details-marker{display:none}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;defaultLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;es&quot;,&quot;en&quot;,&quot;fr&quot;,&quot;de&quot;,&quot;pt&quot;,&quot;zh&quot;,&quot;ja&quot;,&quot;id&quot;,&quot;ar&quot;,&quot;ru&quot;,&quot;pl&quot;,&quot;ur&quot;,&quot;hi&quot;,&quot;it&quot;,&quot;tr&quot;,&quot;el&quot;,&quot;hu&quot;,&quot;sk&quot;,&quot;nl&quot;,&quot;no&quot;,&quot;sv&quot;,&quot;fi&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showToc&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;showFeedback&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
 class Component extends DCLogic {
-  state = { docs: null, versions: [], verOpen: false, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {}, osTab: null };
+  state = { docs: null, versions: [], verOpen: false, lang: null, page: 'overview', dark: true, w: window.innerWidth, drawer: false, langOpen: false, copied: null, fb: {}, activeH: null, guideOpen: true, rel: null, platform: {}, osTab: null, relFile: null };
 
   componentDidMount() {
     let saved = {};
@@ -418,7 +431,23 @@ class Component extends DCLogic {
       return { os: names[os], arch: (archs[os] || archs.other)[arch], file, href: assets[file] || base + file, mine, badge: ui.forYou, bd: mine ? 'var(--accLine)' : 'transparent', rank: os === myOs ? (mine ? 0 : 1) : 2 };
     }).sort((a, b) => a.rank - b.rank);
     const tabs = ['windows', 'darwin', 'linux'].map(os => ({ label: names[os], on: String(os === tab), onClick: () => this.setState({ osTab: os }), bg: os === tab ? 'var(--accSoft)' : 'transparent', color: os === tab ? 'var(--accInk)' : 'var(--mute)', weight: os === tab ? 600 : 400 }));
-    return { ver, items, tabs, tag: 'v' + ver, sums: assets['checksums.txt'] || base + 'checksums.txt', all: 'https://github.com/colybri/skilus/releases', allLabel: ui.allReleases };
+    const open = this.state.relFile && this.state.relFile.ver === ver ? this.state.relFile : null;
+    const files = ['checksums.txt', 'checksums.txt.sig', 'checksums.txt.pem'].map(name => ({ name, href: assets[name] || base + name, on: String(!!open && open.name === name), weight: open && open.name === name ? 600 : 400, onClick: (e) => this.showFile(e, ver, name, assets[name] || base + name) }));
+    const file = open && { name: open.name, text: open.text, href: assets[open.name] || base + open.name, ws: open.name === 'checksums.txt' ? 'pre' : 'pre-wrap',
+      copyLabel: this.state.copied === 'relFile' ? ui.copied : ui.copy,
+      onCopy: () => { navigator.clipboard && navigator.clipboard.writeText(open.text); this.setState({ copied: 'relFile' }); clearTimeout(this._ct); this._ct = setTimeout(() => this.setState({ copied: null }), 1600); },
+      onClose: () => this.setState({ relFile: null }) };
+    return { ver, items, tabs, tag: 'v' + ver, files, file, all: 'https://github.com/colybri/skilus/releases', allLabel: ui.allReleases };
+  }
+  // showFile opens a checksum or signature file in the page. GitHub only
+  // offers release files as downloads, so the site keeps a copy of them in
+  // /release/v<version>/; when it has none, the link downloads the file.
+  showFile(e, ver, name, href) {
+    e.preventDefault();
+    if (this.state.relFile && this.state.relFile.ver === ver && this.state.relFile.name === name) { this.setState({ relFile: null }); return; }
+    fetch(`/release/v${ver}/${name}`).then(r => r.ok ? r.text() : Promise.reject(r))
+      .then(text => this.setState({ relFile: { ver, name, text: text.trimEnd() } }))
+      .catch(() => { location.href = href; });
   }
 
   applyTheme() {

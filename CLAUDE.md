@@ -60,7 +60,7 @@ Página estática con 22 idiomas: es, en, fr, de, pt, zh, ja, id, ar, ru, pl, ur
 
 ## Home, descarga e instalación (`site/`)
 
-- La home (`/<idioma>/`) y la descarga (`/<idioma>/download/`) son HTML estático que genera `scripts/build-site.mjs` con `site/pages.mjs` y los textos de `site/i18n/<idioma>.json` (los 22 idiomas, con las mismas claves que `en.json`). No están versionadas: salen del árbol que se publica y apuntan a la última release.
+- La home (`/<idioma>/`) y la descarga (`/<idioma>/download/`) son HTML estático que genera `scripts/build-site.mjs` con `site/pages.mjs` y los textos de `site/i18n/<idioma>.json` (los 22 idiomas, con las mismas claves que `en.json`). No están versionadas: salen del árbol que se publica y apuntan a la última release. Al construir, `build-site.mjs` copia `checksums.txt`, `.sig` y `.pem` de cada release a `/release/v<versión>/` para que la descarga y la documentación los muestren (GitHub solo los ofrece como descarga y sin CORS); sin red, las dos enlazan a GitHub.
 - La terminal de la home reproduce `site/demo/<idioma>.json`, grabado con `scripts/record-demo.py bin/skilus` sobre el binario real (necesita red para descargar `anthropics/skills`). Si cambia la salida de `add`, `inspect`, `verify`, `sync` o `update`, se vuelve a grabar.
 - `site/install.sh` se publica como `/install` y `/install.sh`, y `site/install.ps1` como `/install.ps1`. Comprueban el binario con `checksums.txt` antes de instalarlo. El job `install` de la CI los ejecuta en los tres sistemas a través de `test/site/serve.py`, que los sirve como GitHub Pages (`application/octet-stream`).
 
