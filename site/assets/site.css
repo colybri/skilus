@@ -48,6 +48,7 @@ code { font-family: var(--mono); }
 .badge span { color: var(--acc); font-weight: 500; }
 h1 { font-size: clamp(28px, 5vw, 44px); line-height: 1.15; font-weight: 500; letter-spacing: -.025em; margin: 0 0 16px; text-wrap: balance; max-width: 22ch; }
 .lead { font-family: var(--sans); font-size: clamp(16px, 2vw, 18px); color: var(--mute); max-width: 62ch; margin: 0 0 28px; }
+.lead strong { color: var(--ink); font-weight: 600; }
 
 .install { border: 1px solid var(--line2); border-radius: 8px; max-width: 640px; background: var(--panel); }
 .tabs { display: flex; border-bottom: 1px solid var(--line); overflow-x: auto; }
