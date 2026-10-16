@@ -3,9 +3,10 @@
 // and the facts of the newest release.
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-// md turns `code` into <code> and fills {placeholders}; everything else is text.
+// md turns `code` into <code>, **text** into <strong> and fills {placeholders};
+// everything else is text.
 const md = (s, vars = {}) => esc(s.replace(/\{(\w+)\}/g, (m, k) => (k in vars ? vars[k] : m)))
-  .replace(/`([^`]+)`/g, '<code>$1</code>');
+  .replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
 const GITHUB = 'https://github.com/colybri/skilus';
 const INSTALL = [
