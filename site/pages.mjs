@@ -21,6 +21,9 @@ const BINARIES = [
   ['windows', 'amd64', 'Windows', 'x64', 'zip'],
   ['windows', 'arm64', 'Windows', 'ARM64', 'zip'],
 ];
+// The checksums and their cosign signature. build-site.mjs reads them from the
+// release so the page shows them: GitHub only offers them as downloads.
+export const SIGNED = ['checksums.txt', 'checksums.txt.sig', 'checksums.txt.pem'];
 const AGENTS = [
   ['Claude Code', '.claude/skills', 'claude-code'],
   ['Codex', '.agents/skills', 'codex'],
@@ -103,7 +106,10 @@ export function download(ctx) {
         return `<div class="row" data-os="${os}" data-arch="${arch}"><span class="ico">${ICONS[os]}</span><span class="lbl">${name} (${variant})</span><span class="file">${file}</span><span class="act"><a class="dlbtn" href="${base}/${file}">${esc(s.downloadBtn)}</a></span></div>`;
       }).join('\n      ')}
     </div>
-    <div class="extra"><span>${esc(s.allFiles)}</span><a href="${base}/checksums.txt">checksums.txt</a><a href="${base}/checksums.txt.sig">checksums.txt.sig</a><a href="${base}/checksums.txt.pem">checksums.txt.pem</a></div>
+    <div class="extra"><span>${esc(s.allFiles)}</span>${SIGNED.map((name, i) => ctx.files
+      ? `<button type="button" class="show" data-show="f-${i}" aria-expanded="false" aria-controls="f-${i}">${name}</button>`
+      : `<a href="${base}/${name}">${name}</a>`).join('')}</div>
+    ${ctx.files ? SIGNED.map((name, i) => `<div class="viewer" id="f-${i}" hidden><div class="vbar"><span>${name}</span><a href="${base}/${name}">${esc(s.downloadBtn)}</a><button class="copy" type="button" data-copy="fv-${i}">${esc(s.copy)}</button></div><pre id="fv-${i}"${name === 'checksums.txt' ? '' : ' class="wrap"'}>${esc(ctx.files[name].trimEnd())}</pre></div>`).join('\n    ') : ''}
   </section>
   <section class="sec dsec">
     <h2><span class="n">[3]</span> ${md(s.verifyTitle)}</h2>

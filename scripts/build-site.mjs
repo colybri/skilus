@@ -9,7 +9,8 @@
 // version. The home and download pages, /<lang>/ and /<lang>/download/, and
 // the install scripts, /install and /install.ps1, come from site/ in the
 // checked-out tree and point at the newest release; / and /download/ send the
-// reader to their language.
+// reader to their language. /release/v<version>/ keeps a copy of each
+// release's checksums and signature so both can show them.
 //
 // Usage: node scripts/build-site.mjs [--out _site] [--worktree vX.Y.Z]
 //   --worktree publishes the working tree's docs/ as that version, to preview
@@ -88,6 +89,16 @@ write(path.join(out, 'doc', 'index.html'), redirect(`/doc/${latest}/{lang}/overv
 const site = await import(pathToFileURL(path.join(repo, 'site', 'pages.mjs')).href);
 const newest = [...versions.values()].filter(v => v.tag).sort((a, b) => cmp(b.tag, a.tag))[0];
 const release = (newest ? newest.tag : worktree).slice(1);
+// GitHub serves release files only as downloads and without CORS, so the
+// checksums and their signature are copied to /release/v<version>/ for the
+// download page and the documentation to show them. Without network they are
+// left out and both pages link to GitHub instead.
+const signed = {};
+for (const ver of new Set([release, ...order.filter(v => v.tag).map(v => v.tag.slice(1))])) {
+  signed[ver] = await releaseFiles(ver);
+  if (!signed[ver]) { console.log(`v${ver}: checksums not published on GitHub; linking to them`); continue; }
+  for (const [name, text] of Object.entries(signed[ver])) write(path.join(out, 'release', `v${ver}`, name), text);
+}
 const goVersion = /^go (\d+\.\d+)/m.exec(fs.readFileSync(path.join(repo, 'go.mod'), 'utf8'))[1];
 for (const l of langMeta) {
   const file = path.join(repo, 'site', 'i18n', `${l.code}.json`);
@@ -95,6 +106,7 @@ for (const l of langMeta) {
   const ctx = {
     lang: l.code, dir: l.dir, s: JSON.parse(fs.readFileSync(file, 'utf8')), langs: langMeta, version: release,
     docs: (page) => `/doc/${latest}/${l.code}/${page}/`, agents: shared.AGENT_ROWS.length, go: goVersion, cosign: shared.COSIGN,
+    files: signed[release],
   };
   write(path.join(out, l.code, 'index.html'), site.home(ctx));
   write(path.join(out, l.code, 'download', 'index.html'), site.download(ctx));
@@ -111,6 +123,20 @@ fs.cpSync(path.join(latestDir, 'icons'), path.join(out, 'icons'), { recursive: t
 
 write(path.join(out, '404.html'), notFound(order.map(v => v.label), langs));
 fs.copyFileSync(path.join(repo, 'docs', 'CNAME'), path.join(out, 'CNAME'));
+
+async function releaseFiles(ver) {
+  const files = {};
+  try {
+    for (const name of site.SIGNED) {
+      const res = await fetch(`https://github.com/colybri/skilus/releases/download/v${ver}/${name}`, { signal: AbortSignal.timeout(20000) });
+      if (!res.ok) return null;
+      files[name] = await res.text();
+    }
+  } catch {
+    return null;
+  }
+  return files;
+}
 
 function extractDocs(tag, dir) {
   if (!tag) { fs.cpSync(path.join(repo, 'docs'), dir, { recursive: true }); return; }

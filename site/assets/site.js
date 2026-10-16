@@ -49,6 +49,19 @@
     });
   });
 
+  // Checksum and signature viewers: one open at a time.
+  var shows = [].slice.call(document.querySelectorAll('[data-show]'));
+  shows.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var open = b.getAttribute('aria-expanded') !== 'true';
+      shows.forEach(function (x) {
+        var on = open && x === b;
+        x.setAttribute('aria-expanded', on);
+        document.getElementById(x.dataset.show).hidden = !on;
+      });
+    });
+  });
+
   // The visitor's system on the download page
   var ua = navigator.userAgent, os = /Windows/.test(ua) ? 'windows' : /Mac/.test(ua) ? 'darwin' : /Linux|X11/.test(ua) && !/Android/.test(ua) ? 'linux' : '';
   if (os) {

@@ -117,6 +117,14 @@ h2 { font-size: clamp(20px, 3vw, 26px); font-weight: 500; letter-spacing: -.015e
 .here { color: var(--acc); font-size: 12px; border: 1px solid var(--accLine); border-radius: 4px; padding: 1px 6px; margin-inline-start: 8px; white-space: nowrap; }
 .extra { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 13px; color: var(--faint); }
 .extra a { color: var(--mute); }
+.extra .show { font: inherit; color: var(--mute); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+.extra .show:hover, .extra .show[aria-expanded="true"] { color: var(--ink); }
+.viewer { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); direction: ltr; }
+.vbar { display: flex; align-items: center; gap: 14px; padding: 8px 10px 8px 16px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.vbar span { flex: 1; min-width: 0; color: var(--ink); }
+.vbar a { color: var(--mute); }
+.viewer pre { margin: 0; padding: 14px 16px; max-height: 340px; overflow: auto; font-size: 12.5px; line-height: 1.6; text-align: left; }
+.viewer pre.wrap { white-space: pre-wrap; overflow-wrap: anywhere; }
 .block { position: relative; direction: ltr; }
 .block pre { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; padding-inline-end: 80px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
 .block .copy { position: absolute; top: 10px; right: 10px; }
