@@ -55,6 +55,19 @@ func TestParseRejects(t *testing.T) {
 		"https://x.com/s.zip?token=abc",  // a token would end up in the lock
 		"https://me@x.com/s.zip",         // credentials
 		"http://x.com/s.zip",             // plain HTTP
+		// Dot segments and encoded separators would fetch another
+		// repository than the ID, matched against trust:, says.
+		"github.com/anthropics/skills/../../evil/repo",
+		"https://github.com/anthropics/skills/../../evil/repo",
+		"https://github.com/anthropics/skills/%2e%2e/%2E%2E/evil/repo",
+		"https://github.com/anthropics%2fskills",
+		"ssh://git@github.com/anthropics/skills/../../evil/repo",
+		"git@github.com:anthropics/skills/../../evil/repo",
+		"git@github.com:anthropics/./skills",
+		"anthropics/..",
+		"github.com/anthropics//skills",
+		"https://x.com/a/../s.zip",
+		"https://x.com/a/%2e%2e/s.zip",
 	} {
 		if _, err := source.Parse(raw); !errors.Is(err, domain.ErrInvalid) {
 			t.Errorf("Parse(%q) err = %v, want ErrInvalid", raw, err)

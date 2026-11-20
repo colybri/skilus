@@ -109,10 +109,16 @@ func Inspect(p skill.Package, limits Limits, allow Allow) Report {
 		add(CodeTooLarge, Block, "", domain.Msg("%d bytes, límite %d", p.Size(), limits.MaxTotalBytes))
 	}
 
+	links := map[string]string{}
+	for _, f := range files {
+		if f.Kind == skill.KindSymlink {
+			links[f.Path] = f.LinkTarget
+		}
+	}
 	for _, f := range files {
 		switch f.Kind {
 		case skill.KindSymlink:
-			if escapes(f.Path, f.LinkTarget) {
+			if escapes(links, f.Path) {
 				add(CodeSymlinkEscape, Block, f.Path, domain.Msg("apunta a %s, fuera de la skill", f.LinkTarget))
 			}
 		case skill.KindExecutable:
@@ -135,12 +141,56 @@ func Inspect(p skill.Package, limits Limits, allow Allow) Report {
 	return r
 }
 
-func escapes(file, target string) bool {
-	if target == "" || path.IsAbs(target) || strings.Contains(target, `\`) || strings.Contains(target, ":") {
-		return true
+// maxLinkHops bounds how many symlinks escapes follows, so a loop counts as
+// an escape instead of running forever.
+const maxLinkHops = 40
+
+// escapes reports whether the symlink at file, resolved inside the skill,
+// leaves it. Targets are followed through the package's other symlinks
+// (links maps their paths to their targets), as the file system would, so
+// "a -> b/.." with "b -> .." is caught although each link looks harmless.
+func escapes(links map[string]string, file string) bool {
+	hops := 0
+	var resolve func(dir []string, target string) ([]string, bool)
+	// resolve walks target from dir, a directory inside the skill split in
+	// segments, and returns where it ends, or false once it leaves the
+	// skill.
+	resolve = func(dir []string, target string) ([]string, bool) {
+		if target == "" || path.IsAbs(target) || strings.Contains(target, `\`) || strings.Contains(target, ":") {
+			return nil, false
+		}
+		cur := append([]string(nil), dir...)
+		for _, seg := range strings.Split(target, "/") {
+			switch seg {
+			case "", ".":
+				continue
+			case "..":
+				if len(cur) == 0 {
+					return nil, false
+				}
+				cur = cur[:len(cur)-1]
+				continue
+			}
+			next, ok := links[strings.Join(append(cur, seg), "/")]
+			if !ok {
+				cur = append(cur, seg)
+				continue
+			}
+			if hops++; hops > maxLinkHops {
+				return nil, false
+			}
+			if cur, ok = resolve(cur, next); !ok {
+				return nil, false
+			}
+		}
+		return cur, true
 	}
-	resolved := path.Join(path.Dir(file), target)
-	return resolved == ".." || strings.HasPrefix(resolved, "../")
+	var dir []string
+	if d := path.Dir(file); d != "." {
+		dir = strings.Split(d, "/")
+	}
+	_, ok := resolve(dir, links[file])
+	return !ok
 }
 
 // inspectCode looks in every text file, scripts included, for code that

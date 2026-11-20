@@ -2,6 +2,7 @@ package skill
 
 import (
 	"bytes"
+	"path"
 	"sort"
 
 	"github.com/colybri/skilus/internal/domain"
@@ -23,6 +24,20 @@ func sortedFiles(files []File) ([]File, error) {
 		case KindRegular, KindExecutable, KindSymlink:
 		default:
 			return nil, domain.Errorf("el fichero %s tiene un tipo desconocido %q: %w", f.Path, f.Kind, domain.ErrInvalid)
+		}
+	}
+	// Only directories hold other entries. A file or symlink that is also
+	// the parent of another entry would make whoever writes the tree follow
+	// that symlink, possibly out of the destination.
+	nonDirs := make(map[string]bool, len(sorted))
+	for _, f := range sorted {
+		nonDirs[f.Path] = true
+	}
+	for _, f := range sorted {
+		for dir := path.Dir(f.Path); dir != "."; dir = path.Dir(dir) {
+			if nonDirs[dir] {
+				return nil, domain.Errorf("%s está dentro de %s, que no es un directorio: %w", f.Path, dir, domain.ErrInvalid)
+			}
 		}
 	}
 	return sorted, nil

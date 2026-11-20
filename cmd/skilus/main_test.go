@@ -1,6 +1,8 @@
 package main
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -17,6 +19,7 @@ func TestMain(m *testing.M) {
 	testscript.Main(m, map[string]func(){
 		"skilus":   func() { os.Exit(run()) },
 		"fakeedit": fakeEdit,
+		"mktargz":  mkTarGz,
 	})
 }
 
@@ -66,6 +69,50 @@ func fakeEdit() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
+	}
+}
+
+// mkTarGz writes a tar.gz with the entries given, in order, so scripts can
+// build archives no file system would hold, on every system:
+// mktargz OUT ENTRY..., where ENTRY is PATH=CONTENT for a file or
+// PATH->TARGET for a symlink.
+func mkTarGz() {
+	args := os.Args[1:]
+	if len(args) < 2 {
+		fmt.Fprintln(os.Stderr, "usage: mktargz OUT ENTRY...")
+		os.Exit(2)
+	}
+	out, err := os.Create(args[0])
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	gz := gzip.NewWriter(out)
+	tw := tar.NewWriter(gz)
+	for _, e := range args[1:] {
+		var h tar.Header
+		var data string
+		if name, target, ok := strings.Cut(e, "->"); ok {
+			h = tar.Header{Typeflag: tar.TypeSymlink, Name: name, Linkname: target, Mode: 0o777}
+		} else {
+			name, content, _ := strings.Cut(e, "=")
+			data = strings.ReplaceAll(content, `\n`, "\n")
+			h = tar.Header{Typeflag: tar.TypeReg, Name: name, Size: int64(len(data)), Mode: 0o644}
+		}
+		err := tw.WriteHeader(&h)
+		if err == nil {
+			_, err = tw.Write([]byte(data))
+		}
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	}
+	for _, c := range []interface{ Close() error }{tw, gz, out} {
+		if err := c.Close(); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 	}
 }
 

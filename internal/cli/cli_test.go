@@ -31,3 +31,9 @@ func TestCleanEscapesControlCharacters(t *testing.T) {
 		t.Fatalf("clean() = %q", got)
 	}
 }
+
+func TestCleanMultilineKeepsLinesAndTabs(t *testing.T) {
+	if got := cleanMultiline("a\x1b[2J\n\tb\x07"); got != "a'\\x1b'[2J\n\tb'\\a'" {
+		t.Fatalf("cleanMultiline() = %q", got)
+	}
+}

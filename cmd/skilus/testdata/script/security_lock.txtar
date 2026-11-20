@@ -1,0 +1,67 @@
+# Content a cloned project or a crafted source controls cannot write
+# outside the store or the project, nor drive the terminal.
+env HOME=$WORK/home
+env USERPROFILE=$WORK/home
+env CLAUDE_CONFIG_DIR=
+env CODEX_HOME=
+env XDG_CONFIG_HOME=
+mkdir home project
+
+# A chain of symlinks: a/b/c/d/s points to the skill root, and up, through
+# it, three levels above the root. Writing up/marker in the store would land
+# in $HOME/marker. The package is refused before anything is written.
+mktargz $WORK/evil.tar.gz top/evil/SKILL.md=---\nname:' 'evil\ndescription:' 'Evil.\n---\nx top/evil/a/b/c/d/s->../../../.. top/evil/up->a/b/c/d/s/../../.. top/evil/up/marker=pwned
+cd project
+! exec skilus add $WORKURL/evil.tar.gz --agent claude-code --yes
+! exists $HOME/marker
+stderr 'up/marker está dentro de up, que no es un directorio'
+! exists .claude/skills/evil
+
+# sync with a lock that pins the same archive refuses it too.
+cp $WORK/evil.lock skilus.lock
+exec fakeedit $WORK/evil.lock skilus.lock
+! exec skilus sync
+stderr 'up/marker está dentro de up, que no es un directorio'
+! exists $HOME/marker
+! exists .claude/skills/evil
+
+# A project lock cannot install into the user's global agent directories.
+cp $WORK/global.lock skilus.lock
+! exec skilus sync
+stderr 'el destino claude-code tiene el ámbito global, pero está en el lock del ámbito project'
+! exists $HOME/.claude/skills/evil
+
+# Errors show control characters escaped, not raw.
+cp $WORK/escape.lock skilus.lock
+! exec skilus sync
+stderr 'skill x''\\x1b'']0;PWNED''\\a'''
+! stderr '\x1b'
+! stderr '\x07'
+
+-- evil.lock --
+version: 1
+skills:
+  evil:
+    source: $WORKURL/evil.tar.gz
+    path: evil
+    tree_sha256: abababababababababababababababababababababababababababababababab
+    targets:
+      - agent: claude-code
+        scope: project
+        mode: copy
+-- global.lock --
+version: 1
+skills:
+  evil:
+    source: ./src
+    path: evil
+    tree_sha256: abababababababababababababababababababababababababababababababab
+    targets:
+      - agent: claude-code
+        scope: global
+        mode: copy
+-- escape.lock --
+version: 1
+skills:
+  "x\e]0;PWNED\a":
+    tree_sha256: "00"

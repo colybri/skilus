@@ -317,6 +317,21 @@ func renderSkipped(w io.Writer, skipped []app.InvalidSkill, t *i18n.Catalog) {
 	}
 }
 
+// cleanMultiline is clean for text that may span lines, such as an error
+// list: line breaks and tabs stay, every other control character is
+// escaped.
+func cleanMultiline(s string) string {
+	lines := strings.Split(s, "\n")
+	for i, l := range lines {
+		parts := strings.Split(l, "\t")
+		for j, p := range parts {
+			parts[j] = clean(p)
+		}
+		lines[i] = strings.Join(parts, "\t")
+	}
+	return strings.Join(lines, "\n")
+}
+
 // clean makes untrusted text safe to print: control characters, which could
 // drive the terminal, are shown as their Go escape.
 func clean(s string) string {

@@ -6,7 +6,9 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/colybri/skilus/internal/app"
 	"github.com/colybri/skilus/internal/domain"
@@ -42,7 +44,7 @@ func (s Store) Put(_ context.Context, p skill.Package) (string, error) {
 	defer os.RemoveAll(tmp) //nolint:errcheck // best effort; gone after a successful rename
 
 	for _, f := range p.Files() {
-		if err := writeFile(filepath.Join(tmp, filepath.FromSlash(f.Path)), f); err != nil {
+		if err := writeFile(tmp, f); err != nil {
 			return "", err
 		}
 	}
@@ -55,18 +57,47 @@ func (s Store) Put(_ context.Context, p skill.Package) (string, error) {
 	return dir, nil
 }
 
-func writeFile(dest string, f skill.File) error {
-	if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+// writeFile writes f under root without following any symlink: every
+// directory on the way is created or checked one component at a time, and
+// the file itself must not exist yet. A package whose symlink is the parent
+// of another entry is refused by skill.NewPackage already; this keeps the
+// store safe even if such a package ever got here.
+func writeFile(root string, f skill.File) error {
+	parts := strings.Split(f.Path, "/")
+	dir := root
+	for _, part := range parts[:len(parts)-1] {
+		dir = filepath.Join(dir, part)
+		info, err := os.Lstat(dir)
+		switch {
+		case errors.Is(err, fs.ErrNotExist):
+			if err := os.Mkdir(dir, 0o755); err != nil {
+				return err
+			}
+		case err != nil:
+			return err
+		case !info.IsDir():
+			return domain.Errorf("%s está dentro de %s, que no es un directorio: %w", f.Path, path.Dir(f.Path), domain.ErrInvalid)
+		}
+	}
+	dest := filepath.Join(dir, parts[len(parts)-1])
+	if f.Kind == skill.KindSymlink {
+		return os.Symlink(filepath.FromSlash(f.LinkTarget), dest)
+	}
+	perm := fs.FileMode(0o644)
+	if f.Kind == skill.KindExecutable {
+		perm = 0o755
+	}
+	// O_EXCL fails on an existing name, symlinks included, so the write
+	// never lands where a link points.
+	out, err := os.OpenFile(dest, os.O_WRONLY|os.O_CREATE|os.O_EXCL, perm)
+	if err != nil {
 		return err
 	}
-	switch f.Kind {
-	case skill.KindSymlink:
-		return os.Symlink(filepath.FromSlash(f.LinkTarget), dest)
-	case skill.KindExecutable:
-		return os.WriteFile(dest, f.Data, 0o755)
-	default:
-		return os.WriteFile(dest, f.Data, 0o644)
+	if _, err := out.Write(f.Data); err != nil {
+		out.Close() //nolint:errcheck // the write error matters more
+		return err
 	}
+	return out.Close()
 }
 
 // Deployer places stored skills into agent directories, as a symlink to

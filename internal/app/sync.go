@@ -9,6 +9,7 @@ import (
 	"github.com/colybri/skilus/internal/domain"
 	"github.com/colybri/skilus/internal/domain/agent"
 	"github.com/colybri/skilus/internal/domain/lock"
+	"github.com/colybri/skilus/internal/domain/policy"
 	"github.com/colybri/skilus/internal/domain/source"
 )
 
@@ -49,12 +50,16 @@ type SyncResult struct {
 
 // SyncHandler runs Sync.
 type SyncHandler struct {
-	Catalog     AgentCatalog
-	Fetchers    map[source.Kind]Fetcher
-	Store       Store
-	Deployer    Deployer
-	Trees       TreeReader
-	Locks       LockRepository
+	Catalog  AgentCatalog
+	Fetchers map[source.Kind]Fetcher
+	Store    Store
+	Deployer Deployer
+	Trees    TreeReader
+	Locks    LockRepository
+	// Limits are the inspection limits. A cloned lock is not trusted more
+	// than a source typed by hand: downloaded content with blocking findings,
+	// such as a symlink out of the skill, is never stored.
+	Limits      policy.Limits
 	ProjectRoot string
 }
 
@@ -175,6 +180,15 @@ func (h SyncHandler) content(ctx context.Context, e lock.Entry, sources map[stri
 		}
 		if got := s.Package.TreeHash(); got != e.TreeHash {
 			return "", false, domain.Errorf("%s tiene el contenido %s, pero el lock espera %s: %w", e.Source, got.Short(), e.TreeHash.Short(), domain.ErrConflict)
+		}
+		if r := policy.Inspect(s.Package, h.Limits, policy.Allow{}); r.Blocking() {
+			var found []string
+			for _, f := range r.Findings {
+				if f.Severity == policy.Block {
+					found = append(found, strings.TrimSpace(string(f.Code)+" "+f.Path))
+				}
+			}
+			return "", false, domain.Errorf("hallazgos que bloquean (%s); revísala con skilus inspect: %w", strings.Join(found, ", "), ErrRejected)
 		}
 		dir, err := h.Store.Put(ctx, s.Package)
 		if err != nil {
