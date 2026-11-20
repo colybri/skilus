@@ -77,6 +77,9 @@ func TestNewPackageRejects(t *testing.T) {
 		"backslash":        {manifest(), {Path: `a\b`, Kind: skill.KindRegular}},
 		"duplicate":        {manifest(), manifest()},
 		"unknown kind":     {manifest(), {Path: "dev", Kind: "device"}},
+		"under a symlink":  {manifest(), {Path: "x", Kind: skill.KindSymlink, LinkTarget: "."}, {Path: "x/f", Kind: skill.KindRegular}},
+		"deep under link":  {manifest(), {Path: "a/s", Kind: skill.KindSymlink, LinkTarget: ".."}, {Path: "a/s/b/f", Kind: skill.KindRegular}},
+		"under a file":     {manifest(), {Path: "x", Kind: skill.KindRegular}, {Path: "x/f", Kind: skill.KindRegular}},
 	}
 	for label, files := range tests {
 		t.Run(label, func(t *testing.T) {

@@ -78,6 +78,9 @@ func Parse(raw string) (Source, error) {
 	}
 	base := prefix + path
 	src := Source{Kind: KindGit, Raw: base, Ref: ref}
+	if err := checkSegments(base, repoPath(base)); err != nil {
+		return Source{}, err
+	}
 
 	switch {
 	case strings.Contains(base, "://"):
@@ -127,7 +130,48 @@ func parseArchive(raw string) (Source, bool, error) {
 	case u.RawQuery != "" || u.Fragment != "":
 		return Source{}, true, domain.Errorf("las URL de archivos comprimidos no pueden llevar query ni fragmento, porque quedarían registrados en el lock: %w", domain.ErrInvalid)
 	}
+	if err := checkSegments(raw, u.Path); err != nil {
+		return Source{}, true, err
+	}
 	return Source{Kind: KindArchive, Raw: raw, URL: raw, ID: raw}, true, nil
+}
+
+// repoPath returns the path part of a remote, after the scheme and host
+// or the "host:" of the scp syntax. It is best effort: checkSegments also
+// looks at the whole text for encoded separators.
+func repoPath(base string) string {
+	if _, rest, ok := strings.Cut(base, "://"); ok {
+		if _, p, ok := strings.Cut(rest, "/"); ok {
+			return p
+		}
+		return ""
+	}
+	if scpRe.MatchString(base) {
+		_, p, _ := strings.Cut(base, ":")
+		return p
+	}
+	return base
+}
+
+// encodedSepRe matches percent-encoded dots, slashes and backslashes.
+var encodedSepRe = regexp.MustCompile(`(?i)%(2e|2f|5c)`)
+
+// checkSegments refuses a remote path with ".", ".." or empty segments,
+// or with encoded dots or separators. Git and HTTP clients resolve them,
+// so "github.com/owner/repo/../../other/repo" would fetch other/repo while
+// its ID, which trust prefixes are matched against, still says owner. A
+// trailing slash is allowed.
+func checkSegments(raw, p string) error {
+	bad := encodedSepRe.MatchString(raw)
+	for _, seg := range strings.Split(strings.Trim(p, "/"), "/") {
+		if seg == "" || seg == "." || seg == ".." {
+			bad = true
+		}
+	}
+	if bad {
+		return domain.Errorf("la ruta del origen %q tiene segmentos vacíos, «.» o «..», o puntos o barras codificados: %w", raw, domain.ErrInvalid)
+	}
+	return nil
 }
 
 func isArchive(p string) bool {

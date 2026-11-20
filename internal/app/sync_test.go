@@ -260,3 +260,30 @@ func TestVerifyTrustsLockExecutablesWithoutExecBits(t *testing.T) {
 		t.Fatalf("verify without executable bits: %v", err)
 	}
 }
+
+// TestSyncInspectsDownloadedContent: a cloned lock can pin any content, so
+// sync inspects what it downloads before storing it, like add does.
+func TestSyncInspectsDownloadedContent(t *testing.T) {
+	f := newSyncFixture(t)
+	ctx := context.Background()
+	evil := pkg(t, "demo", skill.File{Path: "ref", Kind: skill.KindSymlink, LinkTarget: "../../../home/user/.bashrc"})
+	e := f.entry
+	e.TreeHash = evil.TreeHash()
+	lf, err := lock.Restore([]lock.Entry{e})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.locks.lf = lf
+	f.sync.Fetchers[source.KindGit] = countingFetcher{fakeFetcher{app.Fetched{Skills: []app.FetchedSkill{{Path: "skills/demo", Package: evil}}}}, f.fetches}
+
+	_, err = f.sync.Handle(ctx, app.Sync{Scopes: project})
+	if !errors.Is(err, app.ErrRejected) {
+		t.Fatalf("err = %v, want ErrRejected", err)
+	}
+	if _, ok := f.disk.dirs[storeDir(evil.TreeHash())]; ok {
+		t.Fatal("rejected content must not reach the store")
+	}
+	if _, ok := f.disk.dirs[f.dest]; ok {
+		t.Fatal("rejected content must not be deployed")
+	}
+}

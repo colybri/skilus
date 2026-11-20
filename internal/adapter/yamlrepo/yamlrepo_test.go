@@ -57,6 +57,25 @@ func TestLockRoundTrip(t *testing.T) {
 	}
 }
 
+// TestLockRejectsTargetsOfAnotherScope: a project lock, which may come with
+// a cloned repository, cannot point skilus at the global agent directories.
+func TestLockRejectsTargetsOfAnotherScope(t *testing.T) {
+	ctx := context.Background()
+	dir := t.TempDir()
+	repo := yamlrepo.Repo{ProjectRoot: dir, GlobalDir: dir}
+	doc := "version: 1\nskills:\n  demo:\n    source: ./skills\n    path: skills/demo\n    tree_sha256: " + strings.Repeat("ab", 32) +
+		"\n    targets:\n      - agent: claude-code\n        scope: global\n        mode: copy\n"
+	if err := os.WriteFile(filepath.Join(dir, yamlrepo.LockFile), []byte(doc), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := repo.Load(ctx, agent.ScopeProject); !errors.Is(err, domain.ErrInvalid) {
+		t.Fatalf("project lock with a global target: err = %v, want ErrInvalid", err)
+	}
+	if _, err := repo.Load(ctx, agent.ScopeGlobal); err != nil {
+		t.Fatalf("the same file as the global lock: %v", err)
+	}
+}
+
 func TestLockRejectsUnknownVersion(t *testing.T) {
 	repo := yamlrepo.Repo{ProjectRoot: t.TempDir()}
 	if err := os.WriteFile(filepath.Join(repo.ProjectRoot, yamlrepo.LockFile), []byte("version: 9\n"), 0o644); err != nil {

@@ -97,6 +97,7 @@ func run() int {
 		Deployer:    osfs.Deployer{},
 		Trees:       osfs.TreeReader{},
 		Locks:       repo,
+		Limits:      policy.DefaultLimits,
 		ProjectRoot: cwd,
 	}
 	deps := cli.Deps{

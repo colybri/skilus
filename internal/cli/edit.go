@@ -80,7 +80,7 @@ func renderEditProblems(w io.Writer, problems error, t *i18n.Catalog) {
 		list = domain.Errors{problems}
 	}
 	for _, p := range list {
-		fmt.Fprintln(w, "  -", localize(p, t))
+		fmt.Fprintln(w, "  -", cleanMultiline(localize(p, t)))
 	}
 }
 

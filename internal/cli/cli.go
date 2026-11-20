@@ -68,7 +68,9 @@ func Run(deps Deps, args []string, stdin io.Reader, stdout, stderr io.Writer) in
 	}
 	var r reported
 	if !errors.As(err, &r) {
-		fmt.Fprintln(stderr, "skilus:", localize(err, t))
+		// Errors quote lock keys, source names, archive entries and git's
+		// output, which a cloned project or a remote controls.
+		fmt.Fprintln(stderr, "skilus:", cleanMultiline(localize(err, t)))
 	}
 	return exitCode(err)
 }

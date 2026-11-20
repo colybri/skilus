@@ -57,6 +57,35 @@ func TestSymlinks(t *testing.T) {
 	}
 }
 
+// TestSymlinkChains checks that targets are resolved through the package's
+// other symlinks, as the file system does, and not one link at a time.
+func TestSymlinkChains(t *testing.T) {
+	link := func(p, target string) skill.File {
+		return skill.File{Path: p, Kind: skill.KindSymlink, LinkTarget: target}
+	}
+	tests := map[string]struct {
+		files []skill.File
+		block bool
+	}{
+		"chain inside": {[]skill.File{link("a/b/s", ".."), link("up", "a/b/s/x")}, false},
+		"chain out": {[]skill.File{
+			link("a/b/c/d/s", "../../../.."), // a/b/c/d/s -> the skill root
+			link("up", "a/b/c/d/s/../../.."), // looks like a/b, is ../../..
+		}, true},
+		"through a link to the parent": {[]skill.File{link("p", ".."), link("q", "p/x")}, true},
+		"loop":                         {[]skill.File{link("l1", "l2"), link("l2", "l1")}, true},
+		"to the root":                  {[]skill.File{link("r", ".")}, false},
+	}
+	for label, tt := range tests {
+		t.Run(label, func(t *testing.T) {
+			r := policy.Inspect(pkg(t, "Demo", tt.files...), policy.DefaultLimits, policy.Allow{})
+			if got := codes(r)[policy.CodeSymlinkEscape] == policy.Block; got != tt.block {
+				t.Errorf("blocked = %v, want %v (%+v)", got, tt.block, r.Findings)
+			}
+		})
+	}
+}
+
 func TestExecutablesNeedAllow(t *testing.T) {
 	exec := skill.File{Path: "scripts/lint.sh", Kind: skill.KindExecutable, Data: []byte("#!/bin/sh")}
 	r := policy.Inspect(pkg(t, "Demo", exec), policy.DefaultLimits, policy.Allow{})

@@ -88,7 +88,7 @@ func (r Repo) Load(_ context.Context, scope agent.Scope) (*lock.Lockfile, error)
 	}
 	entries := make([]lock.Entry, 0, len(doc.Skills))
 	for name, raw := range doc.Skills {
-		e, err := raw.toDomain(name)
+		e, err := raw.toDomain(name, scope)
 		if err != nil {
 			return nil, domain.Errorf("%s: skill %s: %w", p, name, err)
 		}
@@ -97,7 +97,10 @@ func (r Repo) Load(_ context.Context, scope agent.Scope) (*lock.Lockfile, error)
 	return lock.Restore(entries)
 }
 
-func (raw lockEntry) toDomain(name string) (lock.Entry, error) {
+// toDomain converts the entry named name of the lock of scope. Its targets
+// must have that scope: the lock of a cloned project must not install or
+// remove skills in the user's global agent directories.
+func (raw lockEntry) toDomain(name string, lockScope agent.Scope) (lock.Entry, error) {
 	n, err := skill.NewName(name)
 	if err != nil {
 		return lock.Entry{}, err
@@ -122,6 +125,9 @@ func (raw lockEntry) toDomain(name string) (lock.Entry, error) {
 		scope, err := agent.ParseScope(t.Scope)
 		if err != nil {
 			return lock.Entry{}, err
+		}
+		if scope != lockScope {
+			return lock.Entry{}, domain.Errorf("el destino %s tiene el ámbito %s, pero está en el lock del ámbito %s: %w", id, scope, lockScope, domain.ErrInvalid)
 		}
 		mode, err := agent.ParseMode(t.Mode)
 		if err != nil {
